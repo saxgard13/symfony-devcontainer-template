@@ -17,11 +17,10 @@ This repository provides a ready-to-use development environment for Symfony usin
 
 ## File Structure
 
-- .devcontainer/: DevContainer configuration files (Dockerfile, docker-compose, settings, setup script)
+- .devcontainer/: DevContainer configuration files (Dockerfile, docker-compose, settings, setup script, .env, .en.local (create yourself))
 - app/: Your Symfony project directory (you must create it)
-- .env, .env.local: Environment variables (create yourself)
-In the .env you can modify the version of php and nodejs.
-
+.env modify php, nodejs and mysql version.
+.env.local modify name and email github
 
 
 ## Requirements
