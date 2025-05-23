@@ -1,0 +1,39 @@
+services:
+  backend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+      args:   
+        PHP_VERSION: "${PHP_VERSION}"
+        NODE_VERSION: "${NODE_VERSION}"
+    image: "${BACKEND_IMAGE}"
+    ports:
+      - "8000:8000"
+    volumes:
+      - ..:/workspace:cached
+    depends_on:
+      - db
+    networks:
+      - app-network
+    command: sleep infinity
+
+  db:
+    image: "${MYSQL_IMAGE}"
+    restart: always
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: symfony
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+
+volumes:
+  db-data:

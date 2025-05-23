@@ -1,0 +1,56 @@
+ARG PHP_VERSION=8.3
+FROM php:${PHP_VERSION}-cli
+
+# Dependencies
+RUN apt-get update \
+    && apt-get install -y \
+        git \
+        libicu-dev \
+        libpq-dev \
+        libzip-dev \
+        unzip \
+        wget \
+        zip \
+        curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# PHP Extensions
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions \
+    bcmath \
+    gd \
+    intl \
+    pdo_mysql \
+    zip \
+    opcache
+
+# Install Node.js LTS
+ARG NODE_VERSION=22
+RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+    && apt-get install -y nodejs
+
+# Copier le php.ini personnalisé dans le container
+COPY .devcontainer/config/php.ini /usr/local/etc/php/php.ini
+COPY .devcontainer/config/php.ini-development /usr/local/etc/php/php.ini-development
+
+# Installer Composer globalement
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+# Installer Symfony CLI
+RUN curl -sS https://get.symfony.com/cli/installer | bash && \
+    mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
+# Mise à jour et installation de nano
+RUN apt-get update && apt-get install -y nano && rm -rf /var/lib/apt/lists/*
+
+# Créer un utilisateur non-root et changer les droits sur /workspace
+RUN groupadd -g 1000 vscode && \
+    useradd -u 1000 -g vscode -m vscode
+
+# Passer à l’utilisateur non-root pour exécuter les commandes suivantes
+USER vscode
+
+WORKDIR /workspace
+
+# CMD ["sleep", "infinity"]
