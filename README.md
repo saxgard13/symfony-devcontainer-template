@@ -15,12 +15,14 @@ This repository provides a ready-to-use development environment for Symfony usin
 - .env.local support for local configuration (add github config)
 - Works out of the box with GitHub Codespaces or locally via Docker and VS Code
 
-## File Structure
+## Files Structure
 
 - .devcontainer/: DevContainer configuration files (Dockerfile, docker-compose, settings, setup script, .env, .en.local (create yourself))
 - app/: Your Symfony project directory (you must create it)
-.env modify php, nodejs and mysql version.
-.env.local modify name and email github
+- `.devcontainer/.env` file configures the PHP and Node.js versions, the backend container image name, the ports used, and the project name to avoid conflicts with database names.
+- `.devcontainer/.env.local` file modify name and email github
+- `setup.sh` script initializes the development environment by optionally cleaning VS Code server extensions cache, displaying versions of PHP, Symfony, Composer, Node, and npm. It also loads environment variables from `.env.local` and configures Git user name and email if provided.
+- The `ini.sh` script checks if the external Docker network named `devcontainer-network` exists, and creates it if it does not. This shared network allows multiple containers (e.g., a Symfony API and a React frontend) to communicate with each other within the development environment.
 
 
 ## Requirements
@@ -28,6 +30,8 @@ This repository provides a ready-to-use development environment for Symfony usin
 - [Docker](https://www.docker.com/)
 - [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - [Git](https://git-scm.com/) (with name and email configured)
+- [Symfony CLI](https://symfony.com/download) (Required to run the Symfony local server with HTTPS support, manage TLS certificates, and streamline development.)
+
 
 
 ## Database Configuration
@@ -37,7 +41,8 @@ The MySQL service is accessible at:
 - Port: 3306
 - Username: symfony
 - Password: symfony
-- Database: symfony
+- Database: <project_name>_db
+This ensures consistency and avoids conflicts between projects. The `<project_name>` value is defined in the `.env` file (via the `PROJECT_NAME` variable).
 
 
 ## 🔧 How to use
@@ -136,14 +141,37 @@ git push -u origin main
 ✅ From this point, you can use `git add .`, `git commit`, and `git push` from inside the `app/` folder as usual.
 
 
+## Symfony Local Web Server
+
+This project uses the [Symfony CLI](https://symfony.com/download) to run the local web server for development.
+
+To access the application in your browser with HTTPS support:
+
+**Install Symfony CLI on your host machine**  
+This is required to enable TLS support and trusted HTTPS connections.  
+➜ Run `sudo symfony server:ca:install` **on the host**, not in the container.
+
+**Start the server inside the container**  
+From the DevContainer terminal, run:  
+```bash
+symfony server:start --listen-ip=0.0.0.0
+```
+
+without https :
+
+```bash
+symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0
+```
+
+- --allow-http disables the HTTPS enforcement (useful if TLS is not configured).
+- --no-tls starts the server without HTTPS (you can omit this if TLS is installed).
+- --listen-ip=0.0.0.0 makes the server accessible from the host (not just inside the container).
+
 
 
 ## 🚀 Possible Improvements
 
 Suggestions for enhancing this template further:
-
-
-    Support for multiple PHP versions with optional Dockerfile ARGs
 
     Optional Redis, PostgreSQL, or RabbitMQ containers
 

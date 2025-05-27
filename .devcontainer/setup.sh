@@ -1,5 +1,7 @@
 #!/bin/bash
 
+[ "$DEBUG" == "1" ] && set -x
+
 # Nettoyer le cache des extensions serveur pour éviter conflits (optionnel)
 rm -rf /home/vscode/.vscode-server/extensions/*
 
@@ -23,4 +25,3 @@ if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
 else
   echo "⚠️  GIT_USER_NAME ou GIT_USER_EMAIL non définis, configuration Git ignorée."
 fi
-

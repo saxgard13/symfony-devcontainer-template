@@ -48,7 +48,13 @@
         "php-cs-fixer.autoFixByBracket": false,
         "php-cs-fixer.autoFixBySemicolon": false,
         "php-cs-fixer.formatHtml": false,
-        "php-cs-fixer.documentFormattingProvider": true
+        "php-cs-fixer.documentFormattingProvider": true,
+        "terminal.integrated.profiles.linux": {
+          "bash": {
+            "path": "/bin/bash"
+          }
+        },
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   },
@@ -59,5 +65,6 @@
     "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
     "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}"
   },
-  "postCreateCommand": "bash /workspace/.devcontainer/setup.sh"
+  "initializeCommand": "DEBUG=1 bash .devcontainer/init.sh",
+  "postCreateCommand": "DEBUG=1 bash /workspace/.devcontainer/setup.sh"
 }
