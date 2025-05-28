@@ -260,6 +260,4 @@ Suggestions for enhancing this template further:
 Credits
 
 Created by saxgard13
-
-Let me know if you want a French version, badges, images, or a GitHub Actions section added too.
  
