@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ "$DEBUG" == "1" ] && set -x
-
 # Nettoyer le cache des extensions serveur pour éviter conflits (optionnel)
 rm -rf /home/vscode/.vscode-server/extensions/*
 

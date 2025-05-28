@@ -12,7 +12,6 @@ This repository provides a ready-to-use development environment for Symfony usin
 - PHP-CS-Fixer preconfigured with PSR-12 rules ()  
 👉  You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
 - Xdebug, Intelephense, Docblocker, and other useful VS Code extensions  
-- .env.local support for local configuration (add github config)
 - Works out of the box with GitHub Codespaces or locally via Docker and VS Code
 
 ## Files Structure
@@ -36,13 +35,83 @@ This repository provides a ready-to-use development environment for Symfony usin
 
 ## Database Configuration
 
-The MySQL service is accessible at:
 - Host: db
-- Port: 3306
+- Mysql Port: 3306
+- Postgre Port: 5432
 - Username: symfony
 - Password: symfony
 - Database: <project_name>_db
 This ensures consistency and avoids conflicts between projects. The `<project_name>` value is defined in the `.env` file (via the `PROJECT_NAME` variable).
+
+## How to Switch the Database Engine
+
+To change the database engine used by the project (e.g., from MySQL to PostgreSQL or MariaDB), you need to update a few configurations:
+
+**Modify dockerComposeFile in devcontainer.json:**
+
+Replace the default database compose file to the one matching your chosen database engine. For example, to use PostgreSQL instead of MySQL or MariaDB:
+
+
+```
+"dockerComposeFile": [
+  "docker-compose.yml",
+  "docker-compose.postgre.yml"
+],
+```
+
+**Update the DATABASE_URL environment variable in your Docker Compose file:**
+
+Change the connection URL to reflect the selected database engine, user credentials, port, and server version. Examples:
+
+MySQL or MariaDB:
+
+```
+DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
+```   
+
+PostgreSQL:
+
+```
+DATABASE_URL: pgsql://symfony:symfony@db:5432/${PROJECT_NAME}_db
+```
+
+Note: For PostgreSQL, the serverVersion parameter is not required and can be omitted.
+
+**Set the appropriate variables in your .env file:**
+
+Make sure you set the corresponding variables for your database engine, image, and version. For example:
+
+```
+DB_IMAGE=postgres:16
+SERVER_VERSION=   # Leave empty for PostgreSQL
+```
+
+Or for MySQL:
+
+```
+DB_IMAGE=mysql:8.3
+SERVER_VERSION=8.3
+```
+
+Or for MariaDB:
+
+```
+DB_IMAGE=mariadb:10.11
+SERVER_VERSION=mariadb-10.11
+```
+
+By following these steps, you can easily switch between MySQL, MariaDB, and PostgreSQL in your development environment.
+
+
+## Credentials Security in This Devcontainer
+
+The database credentials provided in this template are generic values intended for local development only.
+
+They should never be used in production or exposed in any publicly accessible environment.
+
+To customize these values, it is recommended to use environment variables or a local (untracked) .env file, which you can configure according to your needs.
+
+This devcontainer is designed to run in an isolated environment and does not expose databases externally, minimizing security risks.
 
 
 ## 🔧 How to use

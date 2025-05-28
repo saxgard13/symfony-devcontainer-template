@@ -1,7 +1,5 @@
 #!/bin/bash
 
-[ "$DEBUG" == "1" ] && set -x
-
 NETWORK_NAME=devcontainer-network
 echo "Vérification du réseau Docker : $NETWORK_NAME"
 if ! docker network ls --format '{{.Name}}' | grep -q "^${NETWORK_NAME}$"; then

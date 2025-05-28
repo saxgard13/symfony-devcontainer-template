@@ -1,0 +1,13 @@
+services:
+  db:
+    image: "${DB_IMAGE}"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: roots
+      MYSQL_DATABASE: "${PROJECT_NAME}_db"
+      MYSQL_USER: symfony
+      MYSQL_PASSWORD: symfony
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network

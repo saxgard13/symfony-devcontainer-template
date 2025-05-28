@@ -13,40 +13,20 @@ services:
       - ..:/workspace:cached
     environment:     
       MAILER_DSN: smtp://user:pass@mailpit:1025      
-      DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=8.0
+      DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
     depends_on:
       - db     
       - mailpit
     networks:
       - app-network
     command: sleep infinity
-
-  db:
-    image: "${MYSQL_IMAGE}"
-    restart: always
-    ports:
-      - "${DB_PORT}:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: "${PROJECT_NAME}_db"
-      MYSQL_USER: symfony
-      MYSQL_PASSWORD: symfony
-    volumes:
-      - db-data:/var/lib/mysql
-    networks:
-      - app-network
   
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    container_name: phpmyadmin
+  adminer:
+    image: adminer:latest
+    container_name: adminer
     restart: always
-    environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
-      PMA_USER: symfony
-      PMA_PASSWORD: symfony
     ports:
-      - "${PHPMYADMIN_PORT}:80"
+      - "${ADMINER_PORT:-8080}:8080"
     depends_on:
       - db
     networks:

@@ -1,7 +1,8 @@
 {
   "name": "App Symfony",
   "dockerComposeFile": [
-    "docker-compose.yml"
+    "docker-compose.yml",
+    "docker-compose.mysql.yml"
   ],
   "service": "backend",
   "workspaceFolder": "/workspace/app",
@@ -65,6 +66,6 @@
     "GIT_USER_NAME": "${localEnv:GIT_USER_NAME}",
     "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}"
   },
-  "initializeCommand": "DEBUG=1 bash .devcontainer/init.sh",
-  "postCreateCommand": "DEBUG=1 bash /workspace/.devcontainer/setup.sh"
+  "initializeCommand": "bash .devcontainer/init.sh",
+  "postCreateCommand": "bash /workspace/.devcontainer/setup.sh"
 }
