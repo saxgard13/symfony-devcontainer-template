@@ -4,7 +4,7 @@
     "docker-compose.yml",
     "docker-compose.mysql.yml"
   ],
-  "service": "backend",
+  "service": "dev",
   "workspaceFolder": "/workspace/app",
   "customizations": {
     "vscode": {
