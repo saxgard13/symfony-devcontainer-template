@@ -1,7 +1,7 @@
 {
   "name": "App Symfony",
   "dockerComposeFile": [
-    "docker-compose.yml",
+    "docker-compose.dev.yml",
     "docker-compose.mysql.yml"
   ],
   "service": "dev",
