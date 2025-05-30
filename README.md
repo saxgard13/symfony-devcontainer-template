@@ -7,7 +7,7 @@ This repository provides a ready-to-use development environment for Symfony usin
 - PHP with essential extensions
 - Composer
 - Symfony CLI
-- MySQL (with preconfigured environment)
+- MySQL (with preconfigured environment), you can change for postgre
 - Node.js (for assets, Encore, etc.)
 - PHP-CS-Fixer preconfigured with PSR-12 rules ()  
 👉  You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
@@ -135,29 +135,36 @@ This approach keeps both the DevContainer setup and the Symfony application in t
 ```
 git clone git@github.com:your-username/your-new-project.git
 ```
-- Open the project in VS Code with the Dev Container support.
-- Not yet : Reopen in container when prompted
-- Create app folder
-- Create .env.local with your github config (name and email)
-- Open the DevContainer via the blue button at the bottom left of your VS Code (the container will open in the app folder) 
-- If prompted with:
-
+- Open project folder with vs code
+- No Reopen in container when prompted
+- When prompted about Git: 
     “A Git repository was found in the parent folders. Would you like to open it?”
-    👉 Choose “Yes” to use the main repository, not a nested one.    
-- Install Symfony in this app/ folder from the VS Code terminal
+    👉 Choose “Yes” to use the main repository, not a nested one.  
+- Create .devcontainer/.env.local with your github config (name and email)
+- Change .devcontainer/.env configuration (PHP version etc.)
+- Change .devcontainer/config/php.ini (if you want)
+- Now open the DevContainer via the blue button at the bottom left of your VS Code 
+- Create app folder       
+- Install Symfony in the app/ folder from the VS Code terminal
 
 ```
-symfony new . --version="7.2.*"
+symfony new app --version="7.2.*"
 ```
 or with web stack
 ```
-symfony new . --version="7.2.*" --webapp
+symfony new app --version="7.2.*" --webapp
 ```
 
-- Symfony will initialize a .git repo — delete it. Inside the container (you should already be located in the `app/` folder), run:
+- Symfony will initialize a .git repo — delete it. 
+
+```
+cd app
+```
+
 ```
 rm -rf .git
 ```
+
 - Your first commit 
 ```
 git add .
@@ -182,24 +189,27 @@ Recommended if you want to reuse this template across projects and version only 
 git clone git@github.com:your-username/symfony-devcontainer-template.git
 ```
 
-- Copy .devcontainer/, .gitignore, .env, README.md into your Symfony project folder.
-- Create app/ and .env.local with your github config (name and email)
-- Open the DevContainer via the blue button at the bottom left of your VS Code (VS Code will open in app/) 
+- Open project folder with vs code
+- No Reopen in container when prompted
+- Create ./devcontainer/.env.local with your github config (name and email)
+- Change .devcontainer/.env configuration (PHP version etc.)
+- Change .devcontainer/config/php.ini (if you want)
+- Delete .git folder
+- Open the DevContainer via the blue button at the bottom left of your VS Code
 - If prompted with:
-
     “A Git repository was found in the parent folders. Would you like to open it?”
-    ❌ Choose “No” (but this shouldn’t happen if .git isn’t present).  
-- Install Symfony in this app/ from the VS Code terminal
+    Choose “no” (but this shouldn’t happen if .git isn’t present).  
+- Install Symfony in app/ from the VS Code terminal
 ```
-symfony new . --version="7.2.*"
+symfony new app --version="7.2.*"
 ```
 or with web stack
 ```
-symfony new . --version="7.2.*" --webapp
+symfony new app --version="7.2.*" --webapp
 ```
 Note: You usually don't need to run `git init` — Symfony automatically creates a `.git` folder during installation. Just ensure you're not ending up with nested Git repositories.
 
-- Initialize your own Git repo:
+- In app/ folder Initialize your own Git repo:
 
 ```
 git remote add origin git@github.com:your-username/your-repo.git
@@ -217,11 +227,14 @@ This project uses the [Symfony CLI](https://symfony.com/download) to run the loc
 To access the application in your browser with HTTPS support:
 
 **Install Symfony CLI on your host machine**  
+
 This is required to enable TLS support and trusted HTTPS connections.  
 ➜ Run `sudo symfony server:ca:install` **on the host**, not in the container.
 
 **Start the server inside the container**  
+
 From the DevContainer terminal, run:  
+
 ```bash
 symfony server:start --listen-ip=0.0.0.0
 ```
