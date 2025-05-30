@@ -6,9 +6,9 @@ services:
       args:   
         PHP_VERSION: "${PHP_VERSION}"
         NODE_VERSION: "${NODE_VERSION}"
-    image: "${BACKEND_IMAGE}"
+    image: "${DEV_IMAGE}"
     ports:
-      - "${BACKEND_PORT}:8000"
+      - "8000:8000"
     volumes:
       - ..:/workspace:cached
     environment:     

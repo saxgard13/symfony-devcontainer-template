@@ -2,7 +2,7 @@ services:
   prod: 
     build:
         context: ..
-        dockerfile: .devcontainer/Dockerfile.prod
+        dockerfile: .devcontainer/Dockerfile.apache.prod
         args:
           PHP_VERSION: "${PHP_VERSION}"
     ports:

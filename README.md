@@ -237,6 +237,27 @@ symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0
 - --listen-ip=0.0.0.0 makes the server accessible from the host (not just inside the container).
 
 
+## Test Prod (multi-stage)
+
+    Important: Run these commands from the .devcontainer directory to ensure Docker Compose finds the correct configuration files.
+
+Builds the production-ready Docker images using the production and MySQL Compose configurations.
+```
+docker compose -f docker-compose.prod.yml -f docker-compose.mysql.yml build
+```
+
+Starts the production containers in detached mode using the production and MySQL Compose configurations.
+```
+docker compose -f docker-compose.prod.yml -f docker-compose.mysql.yml up -d
+```
+
+Stops and removes all containers, networks, and resources created by the specified Docker Compose files (docker-compose.prod.yml and docker-compose.mysql.yml)
+```
+docker compose -f docker-compose.prod.yml -f docker-compose.mysql.yml down
+```
+
+docker-compose.prod.yml will use Dockerfile.apache.prod by default. But it is still possible to create your own Dockerfile for ngnix, caddy, frankenphp, etc.
+
 
 ## 🚀 Possible Improvements
 
