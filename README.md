@@ -7,7 +7,7 @@ This repository provides a ready-to-use development environment for Symfony usin
 - PHP with essential extensions
 - Composer
 - Symfony CLI
-- MySQL (with preconfigured environment), you can change for postgre
+- MySQL (with preconfigured environment), you can change for PostgreSQL
 - Node.js (for assets, Encore, etc.)
 - PHP-CS-Fixer preconfigured with PSR-12 rules ()  
 👉  You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
@@ -286,9 +286,39 @@ Suggestions for enhancing this template further:
 
     Allow custom project scaffolding (e.g., symfony new options passed as arguments)
 
-    Add support for PostgreSQL as an alternative to MySQL
-
     Include a Makefile for common commands (build, test, lint, etc.)
+
+**Additional improvement ideas:**
+
+- **Multi-environment / profile support:**  
+  Enable easy switching between dev, test, staging, and production environments using Docker Compose overrides and profiles.
+
+- **Debugging and monitoring tools:**  
+  Integrate MailHog or MailCatcher for email testing, PHP Debug Bar or Blackfire for profiling, and Adminer/phpMyAdmin for database management.
+
+- **Frontend tooling enhancements:**  
+  Add support for Yarn or pnpm, preinstall VS Code extensions for frontend (ESLint, Prettier, React snippets), and configure hot reload/watchers (Webpack Encore, Vite).
+
+- **Cache and log management:**  
+  Mount Symfony cache and log folders as volumes for easy access, add scripts for clearing cache and logs, and optionally integrate log management solutions like ELK stack.
+
+- **Testing automation:**  
+  Include PHPUnit and Behat testing stacks with dedicated Docker commands or Makefile targets, and add browser testing tools (Selenium, headless Chrome) inside the devcontainer.
+
+- **Advanced environment variable management:**  
+  Support multiple .env files (e.g., `.env.test`, `.env.local`), integrate secret management (Vault or local untracked secrets file), and automate secrets rotation.
+
+- **Improved documentation and onboarding:**  
+  Provide interactive VS Code Markdown previews with step-by-step guides, project-specific VS Code snippets, and example `.env.local` and secrets files.
+
+- **Multi-user support:**  
+  Manage file and folder permissions across different OSes, with scripts to reset permissions or sync files between host and container.
+
+- **Performance optimization:**  
+  Optimize Dockerfile caching for faster builds, use multi-stage builds to reduce image size, and consider lighter base images like Alpine where possible.
+
+- **Security integration:**  
+  Add Docker image scanning tools (e.g., Trivy) during builds, integrate static analysis tools like PHPStan or Psalm in CI pipelines, and enforce strict container user permissions.
 
 
 Credits
