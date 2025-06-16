@@ -58,7 +58,7 @@ RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd
 COPY .devcontainer/config/php.ini /usr/local/etc/php/php.ini
 
 # Copier tout le projet dans /var/www/html
-COPY --from=builder /www/app /var/www/html
+COPY --from=builder /www/backend /var/www/html
 
 # Droits pour Apache
 RUN chown -R www-data:www-data /var/www/html

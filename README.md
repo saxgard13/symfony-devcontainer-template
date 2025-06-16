@@ -8,21 +8,25 @@ This repository provides a ready-to-use development environment for Symfony usin
 - Composer
 - Symfony CLI
 - MySQL (with preconfigured environment), you can change for postgre
-- Node.js (for assets, Encore, etc.)
+- Node.js (for assets, Encore, etc. or separate frontend)
 - PHP-CS-Fixer preconfigured with PSR-12 rules ()  
-👉  You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
-- Xdebug, Intelephense, Docblocker, and other useful VS Code extensions  
+  👉 You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
+- Eslint
+  👉 You will need to install Eslint via npm and add a configuration file to the root of the frontend/ or backend/.
+- Xdebug, Intelephense, Prettier, Docblocker, and other useful VS Code extensions
 - Works out of the box with GitHub Codespaces or locally via Docker and VS Code
 
 ## Files Structure
 
 - .devcontainer/: DevContainer configuration files (Dockerfile, docker-compose, settings, setup script, .env, .en.local (create yourself))
-- app/: Your Symfony project directory (you must create it)
+- backend/: Your Symfony project directory (you must create it)
+- frontend/: your frontend project directory (you must create it). Not necessary if you create a full project symfony without api.
 - `.devcontainer/.env` file configures the PHP and Node.js versions, the backend container image name, the ports used, and the project name to avoid conflicts with database names.
 - `.devcontainer/.env.local` file modify name and email github
-- `setup.sh` script initializes the development environment by optionally cleaning VS Code server extensions cache, displaying versions of PHP, Symfony, Composer, Node, and npm. It also loads environment variables from `.env.local` and configures Git user name and email if provided.
-- The `ini.sh` script checks if the external Docker network named `devcontainer-network` exists, and creates it if it does not. This shared network allows multiple containers (e.g., a Symfony API and a React frontend) to communicate with each other within the development environment.
-
+- `.devcontainer/setup.sh` script initializes the development environment by optionally cleaning VS Code server extensions cache, displaying versions of PHP, Symfony, Composer, Node, and npm. It also loads environment variables from `.env.local` and configures Git user name and email if provided.
+- The `.devcontainer/ini.sh` script checks if the external Docker network named `devcontainer-network` exists, and creates it if it does not. This shared network allows multiple containers (e.g., a Symfony API and a React frontend) to communicate with each other within the development environment.
+- backend.code-workspace: workspace multi-root
+- frontend.code-workspace: workspace multi-root
 
 ## Requirements
 
@@ -31,8 +35,6 @@ This repository provides a ready-to-use development environment for Symfony usin
 - [Git](https://git-scm.com/) (with name and email configured)
 - [Symfony CLI](https://symfony.com/download) (Required to run the Symfony local server with HTTPS support, manage TLS certificates, and streamline development.)
 
-
-
 ## Database Configuration
 
 - Host: db
@@ -40,8 +42,8 @@ This repository provides a ready-to-use development environment for Symfony usin
 - Postgre Port: 5432
 - Username: symfony
 - Password: symfony
-- Database: <project_name>_db
-This ensures consistency and avoids conflicts between projects. The `<project_name>` value is defined in the `.env` file (via the `PROJECT_NAME` variable).
+- Database: <project_name>\_db
+  This ensures consistency and avoids conflicts between projects. The `<project_name>` value is defined in the `.env` file (via the `PROJECT_NAME` variable).
 
 ## How to Switch the Database Engine
 
@@ -50,7 +52,6 @@ To change the database engine used by the project (e.g., from MySQL to PostgreSQ
 **Modify dockerComposeFile in devcontainer.json:**
 
 Replace the default database compose file to the one matching your chosen database engine. For example, to use PostgreSQL instead of MySQL or MariaDB:
-
 
 ```
 "dockerComposeFile": [
@@ -67,7 +68,7 @@ MySQL or MariaDB:
 
 ```
 DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
-```   
+```
 
 PostgreSQL:
 
@@ -102,7 +103,6 @@ SERVER_VERSION=mariadb-10.11
 
 By following these steps, you can easily switch between MySQL, MariaDB, and PostgreSQL in your development environment.
 
-
 ## Credentials Security in This Devcontainer
 
 The database credentials provided in this template are generic values intended for local development only.
@@ -113,14 +113,11 @@ To customize these values, it is recommended to use environment variables or a l
 
 This devcontainer is designed to run in an isolated environment and does not expose databases externally, minimizing security risks.
 
-
-## 🔧 How to use
+## 🔧 How to use (example with symfony)
 
 This DevContainer template can be used in two different ways, depending on your project organization preferences.
 
-
 ### Option 1 : Single Repository: DevContainer + Symfony App in One Git Repo
-
 
 This approach keeps both the DevContainer setup and the Symfony application in the same Git repository. It is useful when:
 
@@ -135,37 +132,41 @@ This approach keeps both the DevContainer setup and the Symfony application in t
 ```
 git clone git@github.com:your-username/your-new-project.git
 ```
+
 - Open project folder with vs code
 - No Reopen in container when prompted
-- When prompted about Git: 
-    “A Git repository was found in the parent folders. Would you like to open it?”
-    👉 Choose “Yes” to use the main repository, not a nested one.  
+- When prompted about Git:
+  “A Git repository was found in the parent folders. Would you like to open it?”
+  👉 Choose “Yes” to use the main repository, not a nested one.
 - Create .devcontainer/.env.local with your github config (name and email)
 - Change .devcontainer/.env configuration (PHP version etc.)
 - Change .devcontainer/config/php.ini (if you want)
-- Now open the DevContainer via the blue button at the bottom left of your VS Code 
-- Create app folder       
-- Install Symfony in the app/ folder from the VS Code terminal
+- Now open the DevContainer via the blue button at the bottom left of your VS Code
+- Create backend and/or frontend folder
+- Install Symfony in the backend/ folder from the VS Code terminal
 
 ```
-symfony new app --version="7.2.*"
+symfony new backend --version="7.2.*"
 ```
+
 or with web stack
-```
-symfony new app --version="7.2.*" --webapp
-```
-
-- Symfony will initialize a .git repo — delete it. 
 
 ```
-cd app
+symfony new backend --version="7.2.*" --webapp
+```
+
+- Symfony will initialize a .git repo — delete it.
+
+```
+cd backend
 ```
 
 ```
 rm -rf .git
 ```
 
-- Your first commit 
+- Your first commit
+
 ```
 git add .
 git commit -m "your message"
@@ -176,8 +177,7 @@ This prevents Git conflicts and ensures that the root repository controls the wh
 
 ✅ Git will still respect Symfony’s .gitignore file
 
-
-### Option 2  : Separate Repositories: Symfony App Only
+### Option 2 : Separate Repositories: Symfony App Only
 
 Recommended if you want to reuse this template across projects and version only your Symfony code.
 
@@ -197,28 +197,42 @@ git clone git@github.com:your-username/symfony-devcontainer-template.git
 - Delete .git folder
 - Open the DevContainer via the blue button at the bottom left of your VS Code
 - If prompted with:
-    “A Git repository was found in the parent folders. Would you like to open it?”
-    Choose “no” (but this shouldn’t happen if .git isn’t present).  
-- Install Symfony in app/ from the VS Code terminal
+  “A Git repository was found in the parent folders. Would you like to open it?”
+  Choose “no” (but this shouldn’t happen if .git isn’t present).
+- Install Symfony in backend/ from the VS Code terminal
+
 ```
-symfony new app --version="7.2.*"
+symfony new backend --version="7.2.*"
 ```
+
 or with web stack
+
 ```
-symfony new app --version="7.2.*" --webapp
+symfony new backend --version="7.2.*" --webapp
 ```
+
 Note: You usually don't need to run `git init` — Symfony automatically creates a `.git` folder during installation. Just ensure you're not ending up with nested Git repositories.
 
-- In app/ folder Initialize your own Git repo:
+- In backend/ folder Initialize your own Git repo:
 
 ```
+cd backend
 git remote add origin git@github.com:your-username/your-repo.git
 git add .
 git commit -m "Initial commit"
 git push -u origin main
 ```
+
 ✅ From this point, you can use `git add .`, `git commit`, and `git push` from inside the `app/` folder as usual.
 
+## Multi-root workspaces
+
+To improve the development experience in VS Code, this project uses two multi-root workspace files: backend.code-workspace and frontend.code-workspace. Each one is tailored for a specific part of the application—API (Symfony) and frontend (React), respectively.
+
+By opening one of these workspace files (File > Open Workspace), VS Code will treat the corresponding folder (/workspace/backend or /workspace/frontend) as the project root. This ensures that tools like Prettier, ESLint, and PHP-CS-Fixer use the correct local configuration and dependencies from that folder. It's especially useful in environments like DevContainers, where consistent formatting, linting, and tooling are important across teams and CI pipelines.
+
+Once inside the workspace, you can open the DevContainer as usual. If prompted with
+“A Git repository was found in the parent folders. Would you like to open it?”, simply choose Yes to allow VS Code to associate the workspace with the main Git repository located at /workspace.
 
 ## Symfony Local Web Server
 
@@ -226,14 +240,14 @@ This project uses the [Symfony CLI](https://symfony.com/download) to run the loc
 
 To access the application in your browser with HTTPS support:
 
-**Install Symfony CLI on your host machine**  
+**Install Symfony CLI on your host machine**
 
 This is required to enable TLS support and trusted HTTPS connections.  
 ➜ Run `sudo symfony server:ca:install` **on the host**, not in the container.
 
-**Start the server inside the container**  
+**Start the server inside the container**
 
-From the DevContainer terminal, run:  
+From the DevContainer terminal, run:
 
 ```bash
 symfony server:start --listen-ip=0.0.0.0
@@ -249,8 +263,6 @@ symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0
 - --no-tls starts the server without HTTPS (you can omit this if TLS is installed).
 - --listen-ip=0.0.0.0 makes the server accessible from the host (not just inside the container).
 
-
-
 ## 🚀 Possible Improvements
 
 Suggestions for enhancing this template further:
@@ -258,7 +270,7 @@ Suggestions for enhancing this template further:
     Optional Redis, PostgreSQL, or RabbitMQ containers
 
     GitHub Actions CI/CD pipeline example (lint, test, build)
-    
+
     Makefile for common development commands (make build, make lint, etc.)
 
     Provide devcontainer.json features for faster onboarding
@@ -269,10 +281,8 @@ Suggestions for enhancing this template further:
 
     Include a Makefile for common commands (build, test, lint, etc.)
 
-
 Credits
 
 Created by saxgard13
 
 Let me know if you want a French version, badges, images, or a GitHub Actions section added too.
- 
