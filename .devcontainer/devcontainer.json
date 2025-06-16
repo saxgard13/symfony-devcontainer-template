@@ -1,9 +1,6 @@
 {
   "name": "App Symfony",
-  "dockerComposeFile": [
-    "docker-compose.dev.yml",
-    "docker-compose.mysql.yml"
-  ],
+  "dockerComposeFile": ["docker-compose.dev.yml", "docker-compose.mysql.yml"],
   "service": "dev",
   "workspaceFolder": "/workspace",
   "customizations": {
@@ -22,7 +19,9 @@
         "joffreykern.markdown-toc",
         "mikestead.dotenv",
         "ritwickdey.LiveServer",
-        "junstyle.php-cs-fixer"
+        "junstyle.php-cs-fixer",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
       ],
       "settings": {
         "database-client.autoSync": true,
@@ -45,7 +44,7 @@
         "php-cs-fixer.allowRisky": false,
         "php-cs-fixer.pathMode": "override",
         "php-cs-fixer.ignorePHPVersion": false,
-        "php-cs-fixer.exclude": [],
+        "php-cs-fixer.exclude": ["vendor", "node_modules", "var", "storage"],
         "php-cs-fixer.autoFixByBracket": false,
         "php-cs-fixer.autoFixBySemicolon": false,
         "php-cs-fixer.formatHtml": false,
@@ -55,7 +54,23 @@
             "path": "/bin/bash"
           }
         },
-        "terminal.integrated.defaultProfile.linux": "bash"
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "editor.defaultFormatter": "esbenp.prettier-vscode",
+        "[php]": {
+          "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+        },
+        "[javascript]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[typescriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[javascriptreact]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        },
+        "[html]": {
+          "editor.defaultFormatter": "esbenp.prettier-vscode"
+        }
       }
     }
   },

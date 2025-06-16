@@ -52,5 +52,3 @@ RUN groupadd -g 1000 vscode && \
 USER vscode
 
 WORKDIR /workspace
-
-# CMD ["sleep", "infinity"]
