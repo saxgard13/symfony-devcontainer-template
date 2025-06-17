@@ -211,9 +211,24 @@ Each workspace isolates tooling like PHP-CS-Fixer, ESLint, Prettier, etc. inside
 # Terminal (Example in the backend workspace window)
 symfony server:start --no-tls --port=8000 --allow-http --listen=0.0.0.0
 
-# Terminal (Example in the frontend workspace window)
+# Terminal (Example with Vite in the frontend workspace window)
 npm run dev -- --host
 ```
+
+When running frontend development servers inside a Docker container, the default behavior of many tools is to bind to `localhost`, which makes them inaccessible from outside the container. To fix this, we need to explicitly bind to `0.0.0.0`, so the server listens on all network interfaces.
+
+Below are the appropriate dev commands for popular frontend frameworks:
+
+| Framework      | Docker-compatible dev command                                |
+|----------------|--------------------------------------------------------------|
+| **Vite**       | `npm run dev -- --host`                                      |
+| **Create React App (CRA)** | `HOST=0.0.0.0 npm start`                         |
+| **Next.js**    | `npm run dev -- -H 0.0.0.0`                                   |
+| **Nuxt**       | `npm run dev -- -H 0.0.0.0`                                   |
+| **Astro**      | `npm run dev -- --host`                                      |
+
+> ⚠️ These commands ensure the dev server is accessible from outside the container (e.g., at `localhost:3000` on your host machine).
+
 
 You can now develop your backend and frontend in parallel.
 
