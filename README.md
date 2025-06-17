@@ -218,7 +218,6 @@ npm run dev -- --host
 You can now develop your backend and frontend in parallel.
 
 
-
 ### Option 2 : Separate Repositories: Symfony App Only
 
 Use this if you want to reuse the DevContainer setup across multiple projects and version only your backend or frontend code.
@@ -267,7 +266,7 @@ symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0 --port=8000
 
 ## 🔁 Backend (symfony) ↔ Frontend (example : vite) Communication (CORS, URLs, Docker)
 
-NOT TESTED YET
+NOT TESTED YET (IN PROGRESS)
 
 When using a full-stack architecture with Symfony as the backend (API) and React as the frontend (SPA), you need to configure CORS, environment variables, and URLs to ensure both can communicate properly—especially inside Docker containers.
 
