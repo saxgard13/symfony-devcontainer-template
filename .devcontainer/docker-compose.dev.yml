@@ -3,24 +3,25 @@ services:
     build:
       context: ..
       dockerfile: .devcontainer/Dockerfile.dev
-      args:   
+      args:
         PHP_VERSION: "${PHP_VERSION}"
         NODE_VERSION: "${NODE_VERSION}"
     image: "${BACKEND_IMAGE}"
     ports:
       - "${BACKEND_PORT}:8000"
+      - "${FRONTEND_LOCALHOST_PORT}:${FRONTEND_INTERNAL_PORT}"
     volumes:
       - ..:/workspace:cached
-    environment:     
-      MAILER_DSN: smtp://user:pass@mailpit:1025      
+    environment:
+      MAILER_DSN: smtp://user:pass@mailpit:1025
       DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
     depends_on:
-      - db     
+      - db
       - mailpit
     networks:
       - app-network
     command: sleep infinity
-  
+
   adminer:
     image: adminer:latest
     restart: always

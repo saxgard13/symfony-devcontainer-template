@@ -7,7 +7,7 @@ This repository provides a ready-to-use development environment for Symfony usin
 - PHP with essential extensions
 - Composer
 - Symfony CLI
-- MySQL (with preconfigured environment), you can change for postgre
+- MySQL (with preconfigured environment), you can switch to PostgreSQL if needed
 - Node.js (for assets, Encore, etc. or separate frontend)
 - PHP-CS-Fixer preconfigured with PSR-12 rules ()  
   👉 You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
@@ -20,11 +20,11 @@ This repository provides a ready-to-use development environment for Symfony usin
 
 - .devcontainer/: DevContainer configuration files (Dockerfile, docker-compose, settings, setup script, .env, .en.local (create yourself))
 - backend/: Your Symfony project directory (you must create it)
-- frontend/: your frontend project directory (you must create it). Not necessary if you create a full project symfony without api.
+- frontend/: your frontend project directory (you must create it). Not necessary if you use a full project symfony without api.
 - `.devcontainer/.env` file configures the PHP and Node.js versions, the backend container image name, the ports used, and the project name to avoid conflicts with database names.
 - `.devcontainer/.env.local` file modify name and email github
 - `.devcontainer/setup.sh` script initializes the development environment by optionally cleaning VS Code server extensions cache, displaying versions of PHP, Symfony, Composer, Node, and npm. It also loads environment variables from `.env.local` and configures Git user name and email if provided.
-- The `.devcontainer/ini.sh` script checks if the external Docker network named `devcontainer-network` exists, and creates it if it does not. This shared network allows multiple containers (e.g., a Symfony API and a React frontend) to communicate with each other within the development environment.
+- The `.devcontainer/ini.sh` script checks if the external Docker network named `devcontainer-network` exists, and creates it if it does not. This shared network allows multiple containers (e.g. Symfony API and React frontend) to communicate seamlessly within the development environment.
 - backend.code-workspace: workspace multi-root
 - frontend.code-workspace: workspace multi-root
 
@@ -39,7 +39,7 @@ This repository provides a ready-to-use development environment for Symfony usin
 
 - Host: db
 - Mysql Port: 3306
-- Postgre Port: 5432
+- PostgreSQL Port: 5432
 - Username: symfony
 - Password: symfony
 - Database: <project_name>\_db
@@ -53,7 +53,7 @@ To change the database engine used by the project (e.g., from MySQL to PostgreSQ
 
 Replace the default database compose file to the one matching your chosen database engine. For example, to use PostgreSQL instead of MySQL or MariaDB:
 
-```
+```bash
 "dockerComposeFile": [
   "docker-compose.yml",
   "docker-compose.postgre.yml"
@@ -66,13 +66,13 @@ Change the connection URL to reflect the selected database engine, user credenti
 
 MySQL or MariaDB:
 
-```
+```bash
 DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
 ```
 
 PostgreSQL:
 
-```
+```bash
 DATABASE_URL: pgsql://symfony:symfony@db:5432/${PROJECT_NAME}_db
 ```
 
@@ -82,21 +82,21 @@ Note: For PostgreSQL, the serverVersion parameter is not required and can be omi
 
 Make sure you set the corresponding variables for your database engine, image, and version. For example:
 
-```
+```bash
 DB_IMAGE=postgres:16
 SERVER_VERSION=   # Leave empty for PostgreSQL
 ```
 
 Or for MySQL:
 
-```
+```bash
 DB_IMAGE=mysql:8.3
 SERVER_VERSION=8.3
 ```
 
 Or for MariaDB:
 
-```
+```bash
 DB_IMAGE=mariadb:10.11
 SERVER_VERSION=mariadb-10.11
 ```
@@ -113,107 +113,119 @@ To customize these values, it is recommended to use environment variables or a l
 
 This devcontainer is designed to run in an isolated environment and does not expose databases externally, minimizing security risks.
 
-## 🔧 How to use (example with symfony)
+## 🔧 How to use (example with Symfony & multi-root workspaces)
 
-This DevContainer template can be used in two different ways, depending on your project organization preferences.
+This DevContainer template supports two flexible project structures: single repository and separate repositories, both compatible with multi-root workspaces in VS Code. This makes it easy to manage a full-stack app (e.g. Symfony + React) while keeping backend and frontend cleanly separated.
 
-### Option 1 : Single Repository: DevContainer + Symfony App in One Git Repo
+### Option 1: Single Repository — DevContainer + Symfony + React in One Git Repo
 
-This approach keeps both the DevContainer setup and the Symfony application in the same Git repository. It is useful when:
+This option keeps the DevContainer config, backend, and frontend in the same Git repository.
 
-    You want to version your full development environment alongside your Symfony app.
-    You may want to customize PHP, Node.js, or other container settings per project.
+Ideal when:
+
+    You want to version both your environment and code together.
+    You want to avoid managing multiple repos.
 
 **Steps:**
 
 - Click "Use this template" on GitHub to create a new repository based on this template.
 - Clone your new repository locally:
 
-```
+```bash
 git clone git@github.com:your-username/your-new-project.git
 ```
 
 - Open project folder with vs code
-- No Reopen in container when prompted
-- When prompted about Git:
-  “A Git repository was found in the parent folders. Would you like to open it?”
-  👉 Choose “Yes” to use the main repository, not a nested one.
+- Do not reopen in container when prompted
+- When prompted:
+    ❌ Don’t reopen in container immediately.
+    ✅ If you see:
+    “A Git repository was found in the parent folders. Would you like to open it?”
+    👉 Choose “Yes” to use the root Git repository (recommended).
 - Create .devcontainer/.env.local with your github config (name and email)
 - Change .devcontainer/.env configuration (PHP version etc.)
-- Change .devcontainer/config/php.ini (if you want)
-- Now open the DevContainer via the blue button at the bottom left of your VS Code
+- Change .devcontainer/config/php.ini (if you want)- 
 - Create backend and/or frontend folder
+
+```bash
+mkdir backend frontend
+```
+
 - Install Symfony in the backend/ folder from the VS Code terminal
 
-```
+```bash
 symfony new backend --version="7.2.*"
 ```
 
 or with web stack
 
-```
+```bash
 symfony new backend --version="7.2.*" --webapp
 ```
+- Install your frontend app (React, Next.js...) in frontend/:
 
-- Symfony will initialize a .git repo — delete it.
+```bash
+npx create-react-app frontend
+# or with Vite
+npm create vite@latest frontend
+# or with Next.js
+npx create-next-app frontend
+```
 
-```
-cd backend
-```
+- Both Symfony and frontend tools will likely initialize .git folders. To avoid nested git repositories, remove .git folders in backend and frontend after install :
 
-```
-rm -rf .git
+```bash
+rm -rf backend/.git frontend/.git
 ```
 
 - Your first commit
 
-```
+```bash
 git add .
-git commit -m "your message"
+git commit -m "Initial project setup"
 git push
 ```
 
-This prevents Git conflicts and ensures that the root repository controls the whole project.
+✅ This structure keeps one single Git history for your full-stack app, while allowing VS Code to treat backend and frontend as independent projects with their own tools and settings
 
-✅ Git will still respect Symfony’s .gitignore file
 
-### Option 2 : Separate Repositories: Symfony App Only
+#### Multi-root workspaces
 
-Recommended if you want to reuse this template across projects and version only your Symfony code.
+To enhance developer experience, this template includes two multi-root workspace files:
+
+- backend.code-workspace → For your Symfony API.
+- frontend.code-workspace → For your React/Next.js app.
+
+Each workspace isolates tooling like PHP-CS-Fixer, ESLint, Prettier, etc. inside the corresponding subfolder (/workspace/backend or /workspace/frontend).
 
 **Steps:**
 
-- Clone this template or download manually:
-
-```
-git clone git@github.com:your-username/symfony-devcontainer-template.git
-```
-
-- Open project folder with vs code
-- No Reopen in container when prompted
-- Create ./devcontainer/.env.local with your github config (name and email)
-- Change .devcontainer/.env configuration (PHP version etc.)
-- Change .devcontainer/config/php.ini (if you want)
-- Delete .git folder
-- Open the DevContainer via the blue button at the bottom left of your VS Code
-- If prompted with:
+- Open each `.code-workspace` file in its own window.
+- Open the DevContainer in both windows when prompted or open the DevContainer via the bottom-left blue button (>< symbol).
+- - When prompted:
   “A Git repository was found in the parent folders. Would you like to open it?”
-  Choose “no” (but this shouldn’t happen if .git isn’t present).
-- Install Symfony in backend/ from the VS Code terminal
+  👉 Choose Yes, so the workspace remains tied to your main Git repository at /workspace.
+- Use the following commands in the corresponding terminals:
 
-```
-symfony new backend --version="7.2.*"
-```
+```bash
+# Terminal (Example in the backend workspace window)
+symfony server:start --no-tls --port=8000 --allow-http --listen=0.0.0.0
 
-or with web stack
-
-```
-symfony new backend --version="7.2.*" --webapp
+# Terminal (Example in the frontend workspace window)
+npm run dev -- --host
 ```
 
-Note: You usually don't need to run `git init` — Symfony automatically creates a `.git` folder during installation. Just ensure you're not ending up with nested Git repositories.
+You can now develop your backend and frontend in parallel.
 
-- In backend/ folder Initialize your own Git repo:
+
+
+### Option 2 : Separate Repositories: Symfony App Only
+
+Use this if you want to reuse the DevContainer setup across multiple projects and version only your backend or frontend code.
+
+(Same steps as above, but no Git nesting — each subproject lives in its own repo. You can delete .git from the template, then git init inside backend/ or frontend/ as needed.)
+
+- In backend/ and frontend/ folders Initialize your own Git repo:
 
 ```
 cd backend
@@ -222,17 +234,6 @@ git add .
 git commit -m "Initial commit"
 git push -u origin main
 ```
-
-✅ From this point, you can use `git add .`, `git commit`, and `git push` from inside the `app/` folder as usual.
-
-## Multi-root workspaces
-
-To improve the development experience in VS Code, this project uses two multi-root workspace files: backend.code-workspace and frontend.code-workspace. Each one is tailored for a specific part of the application—API (Symfony) and frontend (React), respectively.
-
-By opening one of these workspace files (File > Open Workspace), VS Code will treat the corresponding folder (/workspace/backend or /workspace/frontend) as the project root. This ensures that tools like Prettier, ESLint, and PHP-CS-Fixer use the correct local configuration and dependencies from that folder. It's especially useful in environments like DevContainers, where consistent formatting, linting, and tooling are important across teams and CI pipelines.
-
-Once inside the workspace, you can open the DevContainer as usual. If prompted with
-“A Git repository was found in the parent folders. Would you like to open it?”, simply choose Yes to allow VS Code to associate the workspace with the main Git repository located at /workspace.
 
 ## Symfony Local Web Server
 
@@ -250,18 +251,113 @@ This is required to enable TLS support and trusted HTTPS connections.
 From the DevContainer terminal, run:
 
 ```bash
-symfony server:start --listen-ip=0.0.0.0
+symfony server:start --listen-ip=0.0.0.0 --port=8000 
 ```
 
 without https :
 
 ```bash
-symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0
+symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0 --port=8000 
 ```
 
 - --allow-http disables the HTTPS enforcement (useful if TLS is not configured).
 - --no-tls starts the server without HTTPS (you can omit this if TLS is installed).
 - --listen-ip=0.0.0.0 makes the server accessible from the host (not just inside the container).
+
+
+## 🔁 Backend (symfony) ↔ Frontend (example : vite) Communication (CORS, URLs, Docker)
+
+NOT TESTED YET
+
+When using a full-stack architecture with Symfony as the backend (API) and React as the frontend (SPA), you need to configure CORS, environment variables, and URLs to ensure both can communicate properly—especially inside Docker containers.
+
+    🧪 Note: This setup assumes you're using Vite for the frontend, which runs on port 5173 by default. If you're using Next.js, Create React App, or another framework, be sure to replace 5173 with the appropriate internal port (e.g. 3000 for Next.js). And change .env configuration from your devcontainer :  FRONTEND_INTERNAL_PORT, you can keep 5173 for FRONTEND_LOCALHOST_PORT
+
+### 🔐 1. Configure CORS in Symfony
+
+Install and configure nelmio/cors-bundle if not already present:
+
+```bash
+composer require nelmio/cors-bundle
+```
+
+Then edit your config/packages/nelmio_cors.yaml like so:
+
+```bash
+nelmio_cors:
+    defaults:
+        allow_origin: ['http://frontend:5173']
+        allow_headers: ['Content-Type', 'Authorization']
+        allow_methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+        max_age: 3600
+        supports_credentials: true
+    paths:
+        '^/': ~
+```
+
+This tells Symfony to accept cross-origin requests from the frontend container, which runs on http://frontend:5173 inside the Docker network.
+
+### 🌍 2. Docker Internal Hostnames
+
+When services are in the same Docker network (e.g. app-network), they can reach each other via service names:
+
+    frontend can call http://localhost:8000 (if accessing from browser)
+    frontend can call http://dev:8000 from inside the container (e.g. Node.js SSR)
+    backend can allow CORS from http://frontend:5173
+
+Summary of internal names:
+| Contexte                   | URL à utiliser        | Notes                               |
+|---------------------------|-----------------------|-------------------------------------|
+| Backend container         | http://dev:8000       | Nom du service Docker backend       |
+| Frontend container        | http://frontend:5173  | Port par défaut de Vite             |
+| Navigateur (host machine) | http://localhost:8000 | Pour accéder au backend             |
+| Navigateur (host machine) | http://localhost:5173 | Pour accéder au frontend    
+
+
+⚠️ Important: Changing Frontend Frameworks (Vite → Next.js, etc.)
+If you switch from Vite (default port 5173) to another frontend framework like Next.js (default port 3000), make sure to update the following:
+    FRONTEND_INTERNAL_PORT in .devcontainer/.env
+    CORS_ALLOW_ORIGIN in your Symfony environment (.env, .env.local)
+    Any Docker-related config that references frontend internal ports
+    Your Symfony nelmio_cors.yaml (or make sure it reads from the env variable)
+Failure to update these may result in broken communication between frontend and backend due to CORS errors or wrong container routing.
+
+
+### ⚙️ 3. Environment Configuration
+
+In your React frontend, create a .env file:
+
+```bash
+VITE_API_URL=http://localhost:8000/api
+```
+
+Inside your frontend code (e.g. axios config or fetch), use:
+
+```bash
+const response = await fetch(`${import.meta.env.VITE_API_URL}/products`);
+```
+
+- If both frontend and backend run in the same container: localhost will work.
+- If they run in separate containers: use internal Docker hostnames like http://dev:8000 or http://backend:8000.
+
+
+### 🌐 4. CORS_ALLOW_ORIGIN via Symfony Environment
+
+To dynamically configure CORS without hardcoding it in nelmio_cors.yaml, set this in .env or .env.local:
+
+```bash
+# Use the same port as FRONTEND_INTERNAL_PORT defined in the devcontainer .env file
+CORS_ALLOW_ORIGIN=http://frontend:5173 
+```
+
+Then in nelmio_cors.yaml, reference the environment variable:
+
+```bash
+allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
+```
+
+✅ This way, the CORS config can be adapted depending on dev/staging/prod environments.
+
 
 ## 🚀 Possible Improvements
 
@@ -277,9 +373,6 @@ Suggestions for enhancing this template further:
 
     Allow custom project scaffolding (e.g., symfony new options passed as arguments)
 
-    Add support for PostgreSQL as an alternative to MySQL
-
-    Include a Makefile for common commands (build, test, lint, etc.)
 
 Credits
 
