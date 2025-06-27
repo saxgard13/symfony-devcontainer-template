@@ -113,6 +113,90 @@ To customize these values, it is recommended to use environment variables or a l
 
 This devcontainer is designed to run in an isolated environment and does not expose databases externally, minimizing security risks.
 
+## [bug] Xdebug Configuration
+
+To enable step-debugging with Xdebug inside the container, you must tell Xdebug how to
+reach your host machine. This requires setting the correct host IP address.
+
+### [search] 1. Find your Host IP Address
+
+Depending on your host operating system, the value of `xdebug.client_host` may vary.
+
+#### [ok] Recommended default (for most macOS & Windows users):
+
+Use the special Docker internal host:
+
+```ini
+xdebug.client_host=host.docker.internal
+```
+
+This works on:
+
+- macOS (Docker Desktop)
+- Windows (Docker Desktop)
+
+#### [linux] For Linux hosts (or Linux VMs):
+
+Linux does **not** support `host.docker.internal` by default. You must find your host IP
+manually.
+
+From your Linux host or Linux VM, run:
+
+```bash
+ip a | grep inet
+```
+
+Look for a line like:
+
+```
+inet 10.0.2.15/24 brd ...
+```
+
+Use the IP you find (e.g. `10.0.2.15`).
+
+### [gear] 2. Set the IP in configuration files
+
+#### `.devcontainer/config/php.ini` (or `xdebug.ini`)
+
+```ini
+; Update this value!
+xdebug.client_host=host.docker.internal ; or your Linux IP
+xdebug.client_port=9003
+```
+
+#### `.vscode/launch.json`
+
+```json
+{
+  "name": "Listen for Xdebug",
+  "type": "php",
+  "request": "launch",
+  "port": 9003,
+  "env": {
+    "XDEBUG_MODE": "debug,develop",
+    "XDEBUG_CONFIG": "client_host=host.docker.internal client_port=9003"
+  }
+}
+```
+
+If you're on Linux, replace `host.docker.internal` with the IP found in step 1 (e.g.
+`10.0.2.15`).
+
+### [rebuild] 3. Rebuild the DevContainer
+
+To apply changes, rebuild the container:
+
+- Open the Command Palette (Ctrl+Shift+P)
+- Select: `Dev Containers: Rebuild Container`
+
+### [ok] Done!
+
+Once this is configured:
+
+- You can set breakpoints in your PHP files
+- Run your app inside the container
+- VS Code will catch the debug session as expected
+
 ## 🔧 How to use (example with Symfony & multi-root workspaces)
 
 This DevContainer template supports two flexible project structures: single repository and separate repositories, both compatible with multi-root workspaces in VS Code. This makes it easy to manage a full-stack app (e.g. Symfony + React) while keeping backend and frontend cleanly separated.
@@ -138,13 +222,13 @@ git clone git@github.com:your-username/your-new-project.git
 - Open project folder with vs code
 - Do not reopen in container when prompted
 - When prompted:
-    ❌ Don’t reopen in container immediately.
-    ✅ If you see:
-    “A Git repository was found in the parent folders. Would you like to open it?”
-    👉 Choose “Yes” to use the root Git repository (recommended).
+  ❌ Don’t reopen in container immediately.
+  ✅ If you see:
+  “A Git repository was found in the parent folders. Would you like to open it?”
+  👉 Choose “Yes” to use the root Git repository (recommended).
 - Create .devcontainer/.env.local with your github config (name and email)
 - Change .devcontainer/.env configuration (PHP version etc.)
-- Change .devcontainer/config/php.ini (if you want)- 
+- Change .devcontainer/config/php.ini (if you want)-
 - Create backend and/or frontend folder
 
 ```bash
@@ -162,6 +246,7 @@ or with web stack
 ```bash
 symfony new backend --version="7.2.*" --webapp
 ```
+
 - Install your frontend app (React, Next.js...) in frontend/:
 
 ```bash
@@ -188,7 +273,6 @@ git push
 
 ✅ This structure keeps one single Git history for your full-stack app, while allowing VS Code to treat backend and frontend as independent projects with their own tools and settings
 
-
 #### Multi-root workspaces
 
 To enhance developer experience, this template includes two multi-root workspace files:
@@ -203,13 +287,13 @@ Each workspace isolates tooling like PHP-CS-Fixer, ESLint, Prettier, etc. inside
 - Open each `.code-workspace` file in its own window.
 - Open the DevContainer in both windows when prompted or open the DevContainer via the bottom-left blue button (>< symbol).
 - - When prompted:
-  “A Git repository was found in the parent folders. Would you like to open it?”
-  👉 Choose Yes, so the workspace remains tied to your main Git repository at /workspace.
+    “A Git repository was found in the parent folders. Would you like to open it?”
+    👉 Choose Yes, so the workspace remains tied to your main Git repository at /workspace.
 - Use the following commands in the corresponding terminals:
 
 ```bash
 # Terminal (Example in the backend workspace window)
-symfony server:start --no-tls --port=8000 --allow-http --listen=0.0.0.0
+symfony server:start --no-tls --port=8000 --allow-http --listen-ip=0.0.0.0
 
 # Terminal (Example with Vite in the frontend workspace window)
 npm run dev -- --host
@@ -219,19 +303,17 @@ When running frontend development servers inside a Docker container, the default
 
 Below are the appropriate dev commands for popular frontend frameworks:
 
-| Framework      | Docker-compatible dev command                                |
-|----------------|--------------------------------------------------------------|
-| **Vite**       | `npm run dev -- --host`                                      |
-| **Create React App (CRA)** | `HOST=0.0.0.0 npm start`                         |
-| **Next.js**    | `npm run dev -- -H 0.0.0.0`                                   |
-| **Nuxt**       | `npm run dev -- -H 0.0.0.0`                                   |
-| **Astro**      | `npm run dev -- --host`                                      |
+| Framework                  | Docker-compatible dev command |
+| -------------------------- | ----------------------------- |
+| **Vite**                   | `npm run dev -- --host`       |
+| **Create React App (CRA)** | `HOST=0.0.0.0 npm start`      |
+| **Next.js**                | `npm run dev -- -H 0.0.0.0`   |
+| **Nuxt**                   | `npm run dev -- -H 0.0.0.0`   |
+| **Astro**                  | `npm run dev -- --host`       |
 
 > ⚠️ These commands ensure the dev server is accessible from outside the container (e.g., at `localhost:3000` on your host machine).
 
-
 You can now develop your backend and frontend in parallel.
-
 
 ### Option 2 : Separate Repositories: Symfony App Only
 
@@ -265,19 +347,18 @@ This is required to enable TLS support and trusted HTTPS connections.
 From the DevContainer terminal, run:
 
 ```bash
-symfony server:start --listen-ip=0.0.0.0 --port=8000 
+symfony server:start --listen-ip=0.0.0.0 --port=8000
 ```
 
 without https :
 
 ```bash
-symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0 --port=8000 
+symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0 --port=8000
 ```
 
 - --allow-http disables the HTTPS enforcement (useful if TLS is not configured).
 - --no-tls starts the server without HTTPS (you can omit this if TLS is installed).
 - --listen-ip=0.0.0.0 makes the server accessible from the host (not just inside the container).
-
 
 ## 🔁 Backend (symfony) ↔ Frontend (example : vite) Communication (CORS, URLs, Docker)
 
@@ -320,22 +401,20 @@ When services are in the same Docker network (e.g. app-network), they can reach 
     backend can allow CORS from http://frontend:5173
 
 Summary of internal names:
-| Contexte                   | URL à utiliser        | Notes                               |
+| Contexte | URL à utiliser | Notes |
 |---------------------------|-----------------------|-------------------------------------|
-| Backend container         | http://dev:8000       | Nom du service Docker backend       |
-| Frontend container        | http://frontend:5173  | Port par défaut de Vite             |
-| Navigateur (host machine) | http://localhost:8000 | Pour accéder au backend             |
-| Navigateur (host machine) | http://localhost:5173 | Pour accéder au frontend    
-
+| Backend container | http://dev:8000 | Nom du service Docker backend |
+| Frontend container | http://frontend:5173 | Port par défaut de Vite |
+| Navigateur (host machine) | http://localhost:8000 | Pour accéder au backend |
+| Navigateur (host machine) | http://localhost:5173 | Pour accéder au frontend
 
 ⚠️ Important: Changing Frontend Frameworks (Vite → Next.js, etc.)
 If you switch from Vite (default port 5173) to another frontend framework like Next.js (default port 3000), make sure to update the following:
-    FRONTEND_INTERNAL_PORT in .devcontainer/.env
-    CORS_ALLOW_ORIGIN in your Symfony environment (.env, .env.local)
-    Any Docker-related config that references frontend internal ports
-    Your Symfony nelmio_cors.yaml (or make sure it reads from the env variable)
+FRONTEND_INTERNAL_PORT in .devcontainer/.env
+CORS_ALLOW_ORIGIN in your Symfony environment (.env, .env.local)
+Any Docker-related config that references frontend internal ports
+Your Symfony nelmio_cors.yaml (or make sure it reads from the env variable)
 Failure to update these may result in broken communication between frontend and backend due to CORS errors or wrong container routing.
-
 
 ### ⚙️ 3. Environment Configuration
 
@@ -354,14 +433,13 @@ const response = await fetch(`${import.meta.env.VITE_API_URL}/products`);
 - If both frontend and backend run in the same container: localhost will work.
 - If they run in separate containers: use internal Docker hostnames like http://dev:8000 or http://backend:8000.
 
-
 ### 🌐 4. CORS_ALLOW_ORIGIN via Symfony Environment
 
 To dynamically configure CORS without hardcoding it in nelmio_cors.yaml, set this in .env or .env.local:
 
 ```bash
 # Use the same port as FRONTEND_INTERNAL_PORT defined in the devcontainer .env file
-CORS_ALLOW_ORIGIN=http://frontend:5173 
+CORS_ALLOW_ORIGIN=http://frontend:5173
 ```
 
 Then in nelmio_cors.yaml, reference the environment variable:
@@ -371,7 +449,6 @@ allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
 ```
 
 ✅ This way, the CORS config can be adapted depending on dev/staging/prod environments.
-
 
 ## 🚀 Possible Improvements
 
@@ -386,7 +463,7 @@ Suggestions for enhancing this template further:
     Provide devcontainer.json features for faster onboarding
 
     Allow custom project scaffolding (e.g., symfony new options passed as arguments)
-    
+
 Credits
 
 Created by saxgard13
