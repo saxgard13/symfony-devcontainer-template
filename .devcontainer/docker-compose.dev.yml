@@ -10,6 +10,7 @@ services:
     ports:
       - "${BACKEND_PORT}:8000"
       - "${FRONTEND_LOCALHOST_PORT}:${FRONTEND_INTERNAL_PORT}"
+      - "9003:9003"
     volumes:
       - ..:/workspace:cached
     environment:
