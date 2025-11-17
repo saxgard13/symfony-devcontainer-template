@@ -6,9 +6,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "xdebug.php-debug",
-        "github.copilot",
-        "github.copilot-chat",
+        "xdebug.php-debug",    
         "bmewburn.vscode-intelephense-client",
         "cweijan.vscode-mysql-client2",
         "neilbrayfield.php-docblocker",
