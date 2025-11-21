@@ -81,5 +81,8 @@
   },
   "initializeCommand": "bash .devcontainer/init.sh",
   "postCreateCommand": "bash /workspace/.devcontainer/setup.sh",
+  "mounts": [
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+  ],
   "forwardPorts": [8000]
 }

@@ -450,6 +450,21 @@ allow_origin: ['%env(CORS_ALLOW_ORIGIN)%']
 
 ✅ This way, the CORS config can be adapted depending on dev/staging/prod environments.
 
+## 🔑 Utiliser vos clés SSH dans le DevContainer
+
+Le template monte automatiquement votre dossier ~/.ssh depuis votre machine hôte dans le container, ce qui permet de cloner ou pousser vos dépôts privés sans configuration supplémentaire.
+
+Vérification rapide
+
+
+```bash
+ls -l ~/.ssh        # voir vos clés dans le container
+ssh -T git@github.com  # tester l'accès à GitHub
+```
+
+✅ Les clés restent privées, elles ne sont jamais ajoutées au projet ni au repository.  
+✅ Chaque utilisateur peut conserver ses propres noms de clés (id_rsa, id_ed25519, github, etc.).
+
 ## 🚀 Possible Improvements
 
 Suggestions for enhancing this template further:
