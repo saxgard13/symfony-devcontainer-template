@@ -1,55 +1,52 @@
 ARG PHP_VERSION=8.3
+ARG NODE_VERSION=22
+
 FROM php:${PHP_VERSION}-cli
 
-# Dependencies
+# Re-declare ARG after FROM (they don't persist across stages)
+ARG NODE_VERSION
+
+# Install system dependencies, Node.js, Symfony CLI in a single layer
 RUN apt-get update \
-    && apt-get install -y \
+    && apt-get install -y --no-install-recommends \
+        curl \
         git \
         libicu-dev \
         libpq-dev \
         libzip-dev \
+        nano \
         unzip \
         wget \
         zip \
-        curl \
+    # Install Node.js
+    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+    && apt-get install -y --no-install-recommends nodejs \
+    # Install Symfony CLI
+    && curl -sS https://get.symfony.com/cli/installer | bash \
+    && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony \
+    # Cleanup
     && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# PHP Extensions
+# Install PHP extensions (separate layer for better caching)
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 RUN install-php-extensions \
     bcmath \
     gd \
     intl \
-    pdo_mysql \
-    zip \
     opcache \
-    xdebug
+    pdo_mysql \
+    xdebug \
+    zip
 
-# Install Node.js LTS
-ARG NODE_VERSION=22
-RUN curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
-    && apt-get install -y nodejs
-
-# Copier le php.ini personnalisé dans le container
+# Copy config files and binaries (COPY uses minimal layers)
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY .devcontainer/config/php.ini /usr/local/etc/php/php.ini
 COPY .devcontainer/config/php.ini-development /usr/local/etc/php/php.ini-development
 
-# Installer Composer globalement
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+# Create non-root user
+RUN groupadd -g 1000 vscode \
+    && useradd -u 1000 -g vscode -m vscode
 
-# Installer Symfony CLI
-RUN curl -sS https://get.symfony.com/cli/installer | bash && \
-    mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
-
-# Mise à jour et installation de nano
-RUN apt-get update && apt-get install -y nano && rm -rf /var/lib/apt/lists/*
-
-# Créer un utilisateur non-root et changer les droits sur /workspace
-RUN groupadd -g 1000 vscode && \
-    useradd -u 1000 -g vscode -m vscode
-
-# Passer à l’utilisateur non-root pour exécuter les commandes suivantes
 USER vscode
-
 WORKDIR /workspace
