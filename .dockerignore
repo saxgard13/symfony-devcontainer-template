@@ -1,0 +1,37 @@
+# Git
+.git
+.gitignore
+
+# IDE et configuration locale
+.vscode
+.idea
+*.code-workspace
+
+# DevContainer (pas besoin en prod, sauf config pour le build)
+.devcontainer
+!.devcontainer/config/
+
+# Dépendances (réinstallées dans le container)
+node_modules
+vendor
+
+# Cache et logs Symfony
+var/cache
+var/log
+var/sessions
+
+# Fichiers sensibles
+.env.local
+.env.*.local
+
+# Documentation et fichiers non essentiels
+*.md
+LICENSE
+CHANGELOG
+
+# Fichiers temporaires
+*.tmp
+*.swp
+*~
+.DS_Store
+Thumbs.db

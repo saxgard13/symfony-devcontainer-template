@@ -1,0 +1,34 @@
+[PHP]
+; Général
+short_open_tag = Off
+memory_limit = 512M
+max_execution_time = 300
+max_input_time = 300
+upload_max_filesize = 64M
+post_max_size = 128M
+date.timezone = Europe/Paris
+
+; Erreurs et logs (production)
+display_errors = Off
+display_startup_errors = Off
+error_reporting = E_ALL & ~E_DEPRECATED & ~E_STRICT
+log_errors = On
+error_log = /var/log/php_errors.log
+
+; OPcache – optimisé pour la production
+opcache.enable = 1
+opcache.enable_cli = 0
+opcache.memory_consumption = 256
+opcache.interned_strings_buffer = 16
+opcache.max_accelerated_files = 20000
+opcache.validate_timestamps = 0
+opcache.revalidate_freq = 0
+opcache.save_comments = 1
+opcache.preload_user = www-data
+
+; Realpath cache optimisé pour la production
+realpath_cache_size = 4096k
+realpath_cache_ttl = 600
+
+; Sécurité production
+expose_php = Off

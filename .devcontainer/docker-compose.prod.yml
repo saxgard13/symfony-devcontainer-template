@@ -13,11 +13,14 @@ services:
       DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
       MAILER_DSN: smtp://user:pass@mailpit:1025
     depends_on:
-      - db 
+      - db
       - mailpit
     networks:
-      - app-network  
+      - app-network
     restart: unless-stopped
+    volumes:
+      - uploads:/var/www/html/public/uploads
+      - logs:/var/log/apache2
   
   adminer:
     image: adminer:latest
@@ -49,3 +52,5 @@ networks:
 
 volumes:
   db-data:
+  uploads:
+  logs:

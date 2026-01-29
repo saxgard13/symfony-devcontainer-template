@@ -2,66 +2,48 @@
 ARG PHP_VERSION=8.3
 FROM php:${PHP_VERSION}-cli AS builder
 
-# Installer les dépendances nécessaires au build
-RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    curl \
-    libicu-dev \
-    libzip-dev \
-    zip \
-    libonig-dev \
-    libpng-dev \
-    libxml2-dev \
-    libcurl4-openssl-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Installer les extensions PHP requises
+# Installer dépendances système, extensions PHP et Composer en un seul layer
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd
-
-# Installer Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
-# Copier les fichiers du projet si présents
-WORKDIR /www
-COPY . .
-
-# Installer les dépendances Symfony si composer.json existe
-RUN if [ -f composer.json ]; then \
-      composer install --no-dev --optimize-autoloader --no-interaction --no-progress; \
-    fi
-
-# Stage 2: Builder
-FROM php:${PHP_VERSION}-apache
-
-# Activer les modules Apache nécessaires
-RUN a2enmod rewrite headers
-
-# Remplacer la config Apache par la tienne
-COPY .devcontainer/config/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
-
-# Installer extensions PHP pour exécution
-RUN apt-get update && apt-get install -y \
-    libicu-dev \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libcurl4-openssl-dev \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+    && install-php-extensions bcmath intl pdo_mysql zip opcache gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Copier et installer les dépendances Symfony
+WORKDIR /www
+COPY . .
+RUN if [ -f composer.json ]; then \
+        composer install --no-dev --optimize-autoloader --no-interaction --no-progress; \
+    fi
+
+# Stage 2: Runtime Apache
+FROM php:${PHP_VERSION}-apache
+
+# Installer dépendances système, extensions PHP et configurer Apache en un seul layer
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
-RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd
 
-# Copier php.ini si besoin
-COPY .devcontainer/config/php.ini /usr/local/etc/php/php.ini
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        libicu-dev \
+        libzip-dev \
+        libpng-dev \
+        libonig-dev \
+        libxml2-dev \
+        libcurl4-openssl-dev \
+    && install-php-extensions bcmath intl pdo_mysql zip opcache gd \
+    && a2enmod rewrite headers \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copier tout le projet dans /var/www/html
+# Copier les configurations
+COPY .devcontainer/config/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
+COPY .devcontainer/config/php.ini.prod /usr/local/etc/php/php.ini
+
+# Copier le projet et configurer les permissions
 COPY --from=builder /www/backend /var/www/html
-
-# Droits pour Apache
-RUN chown -R www-data:www-data /var/www/html
+RUN mkdir -p /var/www/html/public/uploads \
+    && chown -R www-data:www-data /var/www/html
 
 WORKDIR /var/www/html
 

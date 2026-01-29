@@ -25,6 +25,7 @@ RUN apt-get update \
     # Install Symfony CLI
     && curl -sS https://get.symfony.com/cli/installer | bash \
     && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony \
+    && rm -rf /root/.symfony5 \
     # Cleanup
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
