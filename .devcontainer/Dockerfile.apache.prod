@@ -1,15 +1,12 @@
-# Stage 1: Builder
+# Stage 1: Builder (dependencies only)
 ARG PHP_VERSION=8.3
 FROM php:${PHP_VERSION}-cli AS builder
 
-# Installer dépendances système, extensions PHP et Composer en un seul layer
-COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
         git \
         unzip \
-    && install-php-extensions bcmath intl pdo_mysql zip opcache gd \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copier et installer les dépendances Symfony
@@ -27,28 +24,19 @@ COPY . .
 # Stage 2: Runtime Apache
 FROM php:${PHP_VERSION}-apache
 
-# Installer dépendances système, extensions PHP et configurer Apache en un seul layer
+# Installer extensions PHP et configurer Apache
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-        libicu-dev \
-        libzip-dev \
-        libpng-dev \
-        libonig-dev \
-        libxml2-dev \
-        libcurl4-openssl-dev \
-    && install-php-extensions bcmath intl pdo_mysql zip opcache gd \
-    && a2enmod rewrite headers \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd \
+    && a2enmod rewrite headers
 
 # Copier les configurations
 COPY .devcontainer/config/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY .devcontainer/config/php.ini.prod /usr/local/etc/php/php.ini
 
-# Copier le projet et configurer les permissions
-COPY --from=builder /www/backend /var/www/html
-RUN mkdir -p /var/www/html/public/uploads \
-    && chown -R www-data:www-data /var/www/html
+# Copier le projet avec les bonnes permissions
+COPY --from=builder --chown=www-data:www-data /www/backend /var/www/html
+RUN mkdir -p /var/www/html/public/uploads && chown www-data:www-data /var/www/html/public/uploads
 
 WORKDIR /var/www/html
 

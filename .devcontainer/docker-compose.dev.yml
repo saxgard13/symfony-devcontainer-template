@@ -17,8 +17,10 @@ services:
       MAILER_DSN: smtp://user:pass@mailpit:1025
       DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
     depends_on:
-      - db
-      - mailpit
+      db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
     networks:
       - app-network
     command: sleep infinity
@@ -29,7 +31,8 @@ services:
     ports:
       - "${ADMINER_PORT:-8080}:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
 

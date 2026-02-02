@@ -12,6 +12,12 @@ services:
     networks:
       - app-network
     # Pas de ports exposés = sécurisé (accès via tunnel SSH uniquement)
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   prod:
     build:
@@ -27,7 +33,8 @@ services:
       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
       MAILER_DSN: ${MAILER_DSN:-smtp://localhost:25}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - app-network
     restart: unless-stopped
