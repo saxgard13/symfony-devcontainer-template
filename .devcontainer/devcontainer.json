@@ -82,7 +82,8 @@
   "initializeCommand": "bash .devcontainer/init.sh",
   "postCreateCommand": "bash /workspace/.devcontainer/setup.sh",
   "mounts": [
-    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.symfony5,target=/home/vscode/.symfony5,type=bind,consistency=cached"
   ],
   "forwardPorts": [8000]
 }

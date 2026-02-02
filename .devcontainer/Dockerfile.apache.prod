@@ -14,10 +14,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Copier et installer les dépendances Symfony
 WORKDIR /www
+
+# 1. Copier d'abord les fichiers de dépendances (meilleur cache Docker)
+COPY backend/composer.json backend/composer.lock* ./backend/
+
+# 2. Installer les dépendances (cette couche est mise en cache si composer.* ne change pas)
+RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+
+# 3. Copier le reste du code
 COPY . .
-RUN if [ -f composer.json ]; then \
-        composer install --no-dev --optimize-autoloader --no-interaction --no-progress; \
-    fi
 
 # Stage 2: Runtime Apache
 FROM php:${PHP_VERSION}-apache

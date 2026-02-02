@@ -2,6 +2,8 @@
 
 This repository provides a ready-to-use development environment for Symfony using DevContainers, ideal for consistent local setups and onboarding.
 
+> **Note:** This template is intended for **local development and testing only**. While it includes production-like configurations (Dockerfile.apache.prod, security headers, etc.), these are provided to help you test your application in an environment similar to production. **Do not use this setup directly in a real production environment** without proper security audits, hardened configurations, and infrastructure best practices (load balancing, monitoring, backups, etc.).
+
 ## Features
 
 - PHP with essential extensions
@@ -103,15 +105,83 @@ SERVER_VERSION=mariadb-10.11
 
 By following these steps, you can easily switch between MySQL, MariaDB, and PostgreSQL in your development environment.
 
-## Credentials Security in This Devcontainer
+## Security
 
-The database credentials provided in this template are generic values intended for local development only.
+### Credentials Security
 
-They should never be used in production or exposed in any publicly accessible environment.
+The database credentials provided in this template are generic values intended for local development only. They should never be used in production or exposed in any publicly accessible environment.
 
-To customize these values, it is recommended to use environment variables or a local (untracked) .env file, which you can configure according to your needs.
+Database credentials use environment variable substitution with default values:
 
-This devcontainer is designed to run in an isolated environment and does not expose databases externally, minimizing security risks.
+```yaml
+MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-roots}
+MYSQL_USER: ${MYSQL_USER:-symfony}
+MYSQL_PASSWORD: ${MYSQL_PASSWORD:-symfony}
+```
+
+This means:
+- If the environment variable is defined → use its value
+- Otherwise → use the default value (e.g., `roots`, `symfony`)
+
+To customize these values, define them in `.devcontainer/.env` or `.devcontainer/.env.local` (untracked).
+
+### Apache Security Headers
+
+The Apache configuration (`.devcontainer/config/apache/vhost.conf`) includes security headers to protect against common web vulnerabilities:
+
+| Header | Protection |
+|--------|------------|
+| `X-Frame-Options: DENY` | Clickjacking |
+| `X-Content-Type-Options: nosniff` | MIME type sniffing |
+| `X-XSS-Protection: 1; mode=block` | XSS (legacy browsers) |
+| `Referrer-Policy: strict-origin-when-cross-origin` | URL information leakage |
+| `Content-Security-Policy` | XSS, code injection |
+
+### Apache HTTPS Configuration (Production)
+
+The current `vhost.conf` is configured for HTTP (port 80). For production with HTTPS, you would need to add a separate VirtualHost for port 443:
+
+```apache
+<VirtualHost *:443>
+    ServerName your-domain.com
+    DocumentRoot /var/www/html/public
+
+    # SSL Configuration
+    SSLEngine on
+    SSLCertificateFile /etc/ssl/certs/your-cert.crt
+    SSLCertificateKeyFile /etc/ssl/private/your-key.key
+
+    <Directory /var/www/html/public>
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    # Security Headers (same as HTTP + HSTS)
+    Header always set X-Frame-Options "DENY"
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+
+    # HSTS - Only for HTTPS!
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+```
+
+**Note:** For local development, we recommend using `symfony serve` which handles HTTPS automatically (see [Symfony Local Web Server](#symfony-local-web-server)). The Apache HTTPS configuration above is intended for production deployments with real SSL certificates (e.g., Let's Encrypt).
+
+### Docker Ignore
+
+A `.dockerignore` file is configured to prevent sensitive or unnecessary files from being included in production Docker images:
+
+- `.git`, `.gitignore` - Version control
+- `.env.local`, `.env.*.local` - Local secrets
+- `node_modules/`, `vendor/` - Dependencies (reinstalled in container)
+- `var/cache/`, `var/log/` - Temporary files
+- IDE configurations (`.vscode/`, `.idea/`)
 
 ## [bug] Xdebug Configuration
 
@@ -335,30 +405,50 @@ git push -u origin main
 
 This project uses the [Symfony CLI](https://symfony.com/download) to run the local web server for development.
 
-To access the application in your browser with HTTPS support:
+### HTTPS Support with Shared Certificates
 
-**Install Symfony CLI on your host machine**
+The DevContainer is configured to share Symfony certificates between your host machine and the container via a mounted volume (`~/.symfony5`). This allows HTTPS to work seamlessly.
 
-This is required to enable TLS support and trusted HTTPS connections.  
-➜ Run `sudo symfony server:ca:install` **on the host**, not in the container.
+**First time setup:**
 
-**Start the server inside the container**
+1. Inside the DevContainer, install the Symfony CA:
 
-From the DevContainer terminal, run:
+```bash
+symfony server:ca:install
+```
+
+2. On your **host machine**, install the generated CA certificate so your browser trusts it:
+
+**Linux:**
+```bash
+sudo cp ~/.symfony5/certs/rootCA.pem /usr/local/share/ca-certificates/symfony-ca.crt
+sudo update-ca-certificates
+```
+
+**macOS:**
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/.symfony5/certs/rootCA.pem
+```
+
+**Windows:**
+- Navigate to `%USERPROFILE%\.symfony5\certs\`
+- Double-click on `rootCA.pem` → Install → "Trusted Root Certification Authorities"
+
+**Start the server with HTTPS:**
 
 ```bash
 symfony server:start --listen-ip=0.0.0.0 --port=8000
 ```
 
-without https :
+**Start without HTTPS (simpler for basic development):**
 
 ```bash
 symfony server:start --allow-http --no-tls --listen-ip=0.0.0.0 --port=8000
 ```
 
-- --allow-http disables the HTTPS enforcement (useful if TLS is not configured).
-- --no-tls starts the server without HTTPS (you can omit this if TLS is installed).
-- --listen-ip=0.0.0.0 makes the server accessible from the host (not just inside the container).
+- `--allow-http` disables the HTTPS enforcement (useful if TLS is not configured).
+- `--no-tls` starts the server without HTTPS.
+- `--listen-ip=0.0.0.0` makes the server accessible from the host (not just inside the container).
 
 ## 🔁 Backend (symfony) ↔ Frontend (example : vite) Communication (CORS, URLs, Docker)
 
@@ -464,6 +554,42 @@ ssh -T git@github.com  # tester l'accès à GitHub
 
 ✅ Les clés restent privées, elles ne sont jamais ajoutées au projet ni au repository.  
 ✅ Chaque utilisateur peut conserver ses propres noms de clés (id_rsa, id_ed25519, github, etc.).
+
+## Production Build
+
+A production-like Dockerfile is available at `.devcontainer/Dockerfile.apache.prod`. It uses a multi-stage build for optimized images.
+
+> **Important:** This "production" configuration is designed for **local testing in a production-like environment**, not for actual deployment. Use it to validate your application behaves correctly with production settings (optimized autoloader, no dev dependencies, etc.) before deploying to your real infrastructure.
+
+### Features
+
+- **Multi-stage build**: Separates build dependencies from runtime, resulting in smaller images
+- **Optimized layer caching**: Dependencies are installed before copying source code, so they're cached unless `composer.json` changes
+- **Security headers**: Apache is preconfigured with security headers
+- **Non-root user**: Apache runs as `www-data`
+
+### Build the production image
+
+```bash
+docker build -f .devcontainer/Dockerfile.apache.prod -t my-app:prod .
+```
+
+### Docker layer caching optimization
+
+The Dockerfile copies dependency files first, then installs dependencies, and finally copies the source code:
+
+```dockerfile
+# 1. Copy dependency files (cached if unchanged)
+COPY backend/composer.json backend/composer.lock* ./backend/
+
+# 2. Install dependencies (cached if composer.* unchanged)
+RUN cd backend && composer install --no-dev --optimize-autoloader
+
+# 3. Copy source code (rebuilt on every code change)
+COPY . .
+```
+
+This ensures that dependencies are only reinstalled when `composer.json` or `composer.lock` change, not on every code modification.
 
 ## 🚀 Possible Improvements
 
