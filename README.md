@@ -47,6 +47,72 @@ This repository provides a ready-to-use development environment for Symfony usin
 - Database: <project_name>\_db
   This ensures consistency and avoids conflicts between projects. The `<project_name>` value is defined in the `.env` file (via the `PROJECT_NAME` variable).
 
+### Production Database Access (SSH Tunnel)
+
+In production, the database should **never be exposed publicly**. Use an SSH tunnel to access it securely from your local machine.
+
+**1. Create the tunnel (from your local machine):**
+```bash
+# Run this on YOUR LOCAL PC, not on the server
+ssh -L 3307:db:3306 user@your-server.com
+#      │    │   │
+#      │    │   └── MySQL port in Docker container
+#      │    └────── Docker service name
+#      └─────────── Local port on your PC (your choice)
+```
+
+**2. Connect via CLI (from your local machine, in another terminal):**
+```bash
+mysql -h 127.0.0.1 -P 3307 -u symfony_prod -p
+```
+
+**3. Connect via GUI tools** (DBeaver, TablePlus, MySQL Workbench):
+
+| Setting  | Value           |
+|----------|-----------------|
+| Host     | `127.0.0.1`     |
+| Port     | `3307`          |
+| User     | `symfony_prod`  |
+| Password | your password   |
+
+The tunnel encrypts all traffic and requires SSH authentication. Close the SSH session to terminate access.
+
+### SSH Key Setup (Required for Tunnel)
+
+SSH keys provide secure, password-less authentication. The private key stays on your PC, the public key goes to the server.
+
+**1. Generate keys (on your local PC):**
+```bash
+ssh-keygen -t ed25519 -C "your-email@example.com"
+# Press Enter for default path, then set a passphrase (recommended)
+```
+
+**2. Copy public key to server:**
+```bash
+ssh-copy-id user@your-server.com
+# Or manually:
+cat ~/.ssh/id_ed25519.pub | ssh user@your-server.com "mkdir -p ~/.ssh && cat >> ~/.ssh/authorized_keys"
+```
+
+**3. Test the connection:**
+```bash
+ssh user@your-server.com
+# Should connect without password (only passphrase if set)
+```
+
+**4. (Essential) Disable password authentication on server:**
+```bash
+# Edit /etc/ssh/sshd_config on the server
+PasswordAuthentication no
+PermitRootLogin no
+# Then restart: sudo systemctl restart sshd
+```
+
+| File | Location | Share? |
+|------|----------|--------|
+| `~/.ssh/id_ed25519` (private) | Local PC only | **NEVER** |
+| `~/.ssh/id_ed25519.pub` (public) | Local PC + Server | Yes |
+
 ## How to Switch the Database Engine
 
 To change the database engine used by the project (e.g., from MySQL to PostgreSQL or MariaDB), you need to update a few configurations:

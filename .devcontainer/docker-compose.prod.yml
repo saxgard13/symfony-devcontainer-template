@@ -1,5 +1,19 @@
 services:
-  prod: 
+  db:
+    image: "${DB_IMAGE:-mysql:8.0}"
+    restart: always
+    environment:
+      MYSQL_DATABASE: "${PROJECT_NAME}_db"
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - app-network
+    # Pas de ports exposés = sécurisé (accès via tunnel SSH uniquement)
+
+  prod:
     build:
         context: ..
         dockerfile: .devcontainer/Dockerfile.apache.prod
@@ -10,11 +24,10 @@ services:
     environment:
       APP_ENV: prod
       APP_DEBUG: 0
-      DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
-      MAILER_DSN: smtp://user:pass@mailpit:1025
+      DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
+      MAILER_DSN: ${MAILER_DSN:-smtp://localhost:25}
     depends_on:
       - db
-      - mailpit
     networks:
       - app-network
     restart: unless-stopped
@@ -22,29 +35,6 @@ services:
       - uploads:/var/www/html/public/uploads
       - logs:/var/log/apache2
   
-  adminer:
-    image: adminer:latest
-    container_name: adminier_prod_test
-    restart: always
-    ports:
-      - "${ADMINER_PORT_PROD_TEST:-8080}:8080"
-    depends_on:
-      - db
-    networks:
-      - app-network
-
-  mailpit:
-    image: axllent/mailpit
-    container_name: mailpit_prod_test
-    ports:
-      - "${MAILPIT_HTTP_PORT_PROD_TEST:-8025}:8025"
-      - "${MAILPIT_SMTP_PORT_PROD_TEST:-1025}:1025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-    networks:
-      - app-network
-
 networks:
   app-network:
     external: true
