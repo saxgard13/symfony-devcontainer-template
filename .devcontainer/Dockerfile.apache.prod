@@ -9,32 +9,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         unzip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copier et installer les dépendances Symfony
+# Copy and install Symfony dependencies
 WORKDIR /www
 
-# 1. Copier d'abord les fichiers de dépendances (meilleur cache Docker)
+# 1. Copy dependency files first (better Docker cache)
 COPY backend/composer.json backend/composer.lock* ./backend/
 
-# 2. Installer les dépendances (cette couche est mise en cache si composer.* ne change pas)
+# 2. Install dependencies (this layer is cached if composer.* doesn't change)
 RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# 3. Copier le reste du code
+# 3. Copy the rest of the code
 COPY . .
 
 # Stage 2: Runtime Apache
 FROM php:${PHP_VERSION}-apache
 
-# Installer extensions PHP et configurer Apache
+# Install PHP extensions and configure Apache
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
 RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd \
     && a2enmod rewrite headers
 
-# Copier les configurations
+# Copy configurations
 COPY .devcontainer/config/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY .devcontainer/config/php.ini.prod /usr/local/etc/php/php.ini
 
-# Copier le projet avec les bonnes permissions
+# Copy project with correct permissions
 COPY --from=builder --chown=www-data:www-data /www/backend /var/www/html
 RUN mkdir -p /var/www/html/public/uploads && chown www-data:www-data /var/www/html/public/uploads
 

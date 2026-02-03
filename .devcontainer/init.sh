@@ -1,17 +1,17 @@
 #!/bin/bash
 
-# Créer le dossier .symfony5 sur l'hôte s'il n'existe pas (pour les certificats HTTPS)
+# Create the .symfony5 folder on the host if it doesn't exist (for HTTPS certificates)
 SYMFONY_DIR="$HOME/.symfony5"
 if [ ! -d "$SYMFONY_DIR" ]; then
-  echo "→ Création du dossier $SYMFONY_DIR pour les certificats Symfony..."
+  echo "→ Creating $SYMFONY_DIR folder for Symfony certificates..."
   mkdir -p "$SYMFONY_DIR"
 fi
 
 NETWORK_NAME=devcontainer-network
-echo "Vérification du réseau Docker : $NETWORK_NAME"
+echo "Checking Docker network: $NETWORK_NAME"
 if ! docker network ls --format '{{.Name}}' | grep -q "^${NETWORK_NAME}$"; then
-  echo "→ Réseau inexistant, création en cours..."
+  echo "→ Network does not exist, creating..."
   docker network create "$NETWORK_NAME"
 else
-  echo "→ Réseau déjà existant, rien à faire."
+  echo "→ Network already exists, nothing to do."
 fi

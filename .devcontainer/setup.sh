@@ -1,36 +1,36 @@
 #!/bin/bash
 
-# Nettoyer le cache uniquement si demandé
+# Clean cache only if requested
 if [ "$CLEAN_VSCODE_EXTENSIONS" = "true" ]; then
-  echo "Nettoyage du cache des extensions VS Code..."
+  echo "Cleaning VS Code extensions cache..."
   rm -rf /home/vscode/.vscode-server/extensions/*
 fi
 
-# Collecter les versions silencieusement au debut
+# Collect versions silently at the beginning
 PHP_VER=$(php -r 'echo PHP_VERSION;')
 SYMFONY_VER=$(symfony -V 2>/dev/null | grep -oP 'v\d+\.\d+\.\d+' | head -1)
 COMPOSER_VER=$(composer -V 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1)
 NODE_VER=$(node -v)
 NPM_VER=$(npm -v)
 
-# Charger .env.local
+# Load .env.local
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 set -a
 if [ -f "$SCRIPT_DIR/.env.local" ]; then
   source "$SCRIPT_DIR/.env.local"
 else
   echo ""
-  echo "ATTENTION: Le fichier .env.local n'existe pas!"
-  echo "Creez-le depuis .env.local.example avec vos informations Git."
+  echo "WARNING: The .env.local file does not exist!"
+  echo "Create it from .env.local.example with your Git information."
   echo ""
-  echo "Exemple:"
-  echo "  GIT_USER_NAME=\"Votre Nom\""
-  echo "  GIT_USER_EMAIL=\"votre@email.com\""
+  echo "Example:"
+  echo "  GIT_USER_NAME=\"Your Name\""
+  echo "  GIT_USER_EMAIL=\"your@email.com\""
   echo ""
 fi
 set +a
 
-# Configuration Git si les variables sont definies
+# Git configuration if variables are defined
 GIT_INFO=""
 if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
   git config --global user.name "$GIT_USER_NAME"
@@ -38,15 +38,15 @@ if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
   GIT_INFO="$GIT_USER_NAME <$GIT_USER_EMAIL>"
 fi
 
-# Attendre un peu que les logs VS Code se calment
+# Wait a bit for VS Code logs to settle down
 sleep 15
 
-# Afficher tout en une seule sortie bufferisee a la fin
+# Display everything in a single buffered output at the end
 {
   echo ""
   echo ""
   echo "╔════════════════════════════════════════════════════════════╗"
-  echo "║              ENVIRONNEMENT DE DEV PRET                     ║"
+  echo "║              DEV ENVIRONMENT READY                          ║"
   echo "╠════════════════════════════════════════════════════════════╣"
   printf "║  PHP      : %-47s ║\n" "$PHP_VER"
   printf "║  Symfony  : %-47s ║\n" "$SYMFONY_VER"

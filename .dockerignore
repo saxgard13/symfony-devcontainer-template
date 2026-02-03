@@ -2,37 +2,39 @@
 .git
 .gitignore
 
-# IDE et configuration locale
+# IDE and local configuration
 .vscode
 .idea
 *.code-workspace
 
-# DevContainer (exclure fichiers inutiles en prod, mais garder config/)
+# DevContainer (exclude unnecessary files in prod, but keep config/)
 .devcontainer/*.json
 .devcontainer/*.sh
 .devcontainer/*.yml
 .devcontainer/*.example
 .devcontainer/.env*
 
-# Dépendances (réinstallées dans le container)
+# Dependencies (reinstalled in the container)
 node_modules
 vendor
 
-# Cache et logs Symfony
+# Symfony cache and logs
 var/cache
 var/log
 var/sessions
 
-# Fichiers sensibles
+# Sensitive files
 .env.local
 .env.*.local
+.env.prod
+.env.*.prod
 
-# Documentation et fichiers non essentiels
+# Documentation and non-essential files
 *.md
 LICENSE
 CHANGELOG
 
-# Fichiers temporaires
+# Temporary files
 *.tmp
 *.swp
 *~
