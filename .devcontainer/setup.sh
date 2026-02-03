@@ -6,13 +6,12 @@ if [ "$CLEAN_VSCODE_EXTENSIONS" = "true" ]; then
   rm -rf /home/vscode/.vscode-server/extensions/*
 fi
 
-# Afficher les versions
-echo "Versions installees:"
-php -v
-symfony -v
-composer -V
-echo "node: $(node -v)"
-echo "npm:  $(npm -v)"
+# Collecter les versions silencieusement au debut
+PHP_VER=$(php -r 'echo PHP_VERSION;')
+SYMFONY_VER=$(symfony -V 2>/dev/null | grep -oP 'v\d+\.\d+\.\d+' | head -1)
+COMPOSER_VER=$(composer -V 2>/dev/null | grep -oP '\d+\.\d+\.\d+' | head -1)
+NODE_VER=$(node -v)
+NPM_VER=$(npm -v)
 
 # Charger .env.local
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -32,10 +31,32 @@ fi
 set +a
 
 # Configuration Git si les variables sont definies
+GIT_INFO=""
 if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
   git config --global user.name "$GIT_USER_NAME"
   git config --global user.email "$GIT_USER_EMAIL"
-  echo "Git configure: $GIT_USER_NAME <$GIT_USER_EMAIL>"
-else
-  echo "GIT_USER_NAME ou GIT_USER_EMAIL non definis, configuration Git ignoree."
+  GIT_INFO="$GIT_USER_NAME <$GIT_USER_EMAIL>"
 fi
+
+# Attendre un peu que les logs VS Code se calment
+sleep 15
+
+# Afficher tout en une seule sortie bufferisee a la fin
+{
+  echo ""
+  echo ""
+  echo "╔════════════════════════════════════════════════════════════╗"
+  echo "║              ENVIRONNEMENT DE DEV PRET                     ║"
+  echo "╠════════════════════════════════════════════════════════════╣"
+  printf "║  PHP      : %-47s ║\n" "$PHP_VER"
+  printf "║  Symfony  : %-47s ║\n" "$SYMFONY_VER"
+  printf "║  Composer : %-47s ║\n" "$COMPOSER_VER"
+  printf "║  Node     : %-47s ║\n" "$NODE_VER"
+  printf "║  NPM      : %-47s ║\n" "$NPM_VER"
+  if [ -n "$GIT_INFO" ]; then
+    echo "╠════════════════════════════════════════════════════════════╣"
+    printf "║  Git      : %-47s ║\n" "$GIT_INFO"
+  fi
+  echo "╚════════════════════════════════════════════════════════════╝"
+  echo ""
+}

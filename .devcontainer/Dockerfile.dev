@@ -41,7 +41,6 @@ RUN install-php-extensions \
 # Copy config files and binaries (COPY uses minimal layers)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY .devcontainer/config/php.ini /usr/local/etc/php/php.ini
-COPY .devcontainer/config/php.ini-development /usr/local/etc/php/php.ini-development
 
 # Create non-root user
 RUN groupadd -g 1000 vscode \

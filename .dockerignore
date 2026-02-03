@@ -7,9 +7,12 @@
 .idea
 *.code-workspace
 
-# DevContainer (pas besoin en prod, sauf config pour le build)
-.devcontainer
-!.devcontainer/config/
+# DevContainer (exclure fichiers inutiles en prod, mais garder config/)
+.devcontainer/*.json
+.devcontainer/*.sh
+.devcontainer/*.yml
+.devcontainer/*.example
+.devcontainer/.env*
 
 # Dépendances (réinstallées dans le container)
 node_modules
