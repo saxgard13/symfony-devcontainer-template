@@ -1,0 +1,18 @@
+services:
+  frontend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.spa.prod
+      args:
+        NODE_VERSION: "${NODE_VERSION}"
+    image: "${PROJECT_NAME}-frontend:prod"
+    ports:
+      - "${FRONTEND_LOCALHOST_PORT:-5173}:80"
+    networks:
+      - app-network
+    restart: unless-stopped
+
+networks:
+  app-network:
+    external: true
+    name: devcontainer-network

@@ -1,6 +1,7 @@
-# Stage 1: Builder (dependencies only)
+# Stage 1: Composer dependencies
 ARG PHP_VERSION=8.3
-FROM php:${PHP_VERSION}-cli AS builder
+ARG NODE_VERSION=22
+FROM php:${PHP_VERSION}-cli AS composer-builder
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
@@ -9,19 +10,37 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         unzip \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Copy and install Symfony dependencies
 WORKDIR /www
 
-# 1. Copy dependency files first (better Docker cache)
+# Copy dependency files first (better Docker cache)
 COPY backend/composer.json backend/composer.lock* ./backend/
 
-# 2. Install dependencies (this layer is cached if composer.* doesn't change)
+# Install dependencies (cached if composer.* unchanged)
 RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
-# 3. Copy the rest of the code
-COPY . .
+# Copy backend code
+COPY backend/ ./backend/
 
-# Stage 2: Runtime Apache
+# Stage 2: Node.js assets builder (only for Webpack Encore)
+FROM node:${NODE_VERSION}-alpine AS assets-builder
+
+WORKDIR /build
+
+# Copy backend to check for package.json
+COPY backend/ ./backend/
+
+# Build Encore assets if package.json exists
+RUN if [ -f "backend/package.json" ]; then \
+        echo "==> Building Webpack Encore assets..." && \
+        cd backend && \
+        if [ -f yarn.lock ]; then yarn install --frozen-lockfile && yarn build; \
+        elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile && pnpm build; \
+        else npm ci && npm run build; fi; \
+    else \
+        echo "==> No Encore assets to build"; \
+    fi
+
+# Stage 3: Runtime Apache
 FROM php:${PHP_VERSION}-apache
 
 # Install PHP extensions and configure Apache
@@ -34,8 +53,12 @@ RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd \
 COPY .devcontainer/config/apache/vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY .devcontainer/config/php.ini.prod /usr/local/etc/php/php.ini
 
-# Copy project with correct permissions
-COPY --from=builder --chown=www-data:www-data /www/backend /var/www/html
+# Copy backend with Composer dependencies
+COPY --from=composer-builder --chown=www-data:www-data /www/backend /var/www/html
+
+# Copy built assets (if Encore was used)
+COPY --from=assets-builder --chown=www-data:www-data /build/backend/public /var/www/html/public
+
 RUN mkdir -p /var/www/html/public/uploads && chown www-data:www-data /var/www/html/public/uploads
 
 WORKDIR /var/www/html

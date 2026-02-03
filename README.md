@@ -126,12 +126,25 @@ When running inside Docker, use `--host` or `0.0.0.0` to make the server accessi
 | CORS & API communication         | [Frontend ↔ Backend](docs/frontend-backend.md) |
 | Building & testing prod images   | [Production](docs/production.md)               |
 
+## Project Types
+
+This template supports multiple project structures:
+
+| Type | Folders | Workspace |
+|------|---------|-----------|
+| **Symfony API + SPA** | `backend/` + `frontend/` | Both workspace files |
+| **Full Symfony** | `backend/` only | `backend.code-workspace` |
+| **Full JavaScript** | `app/` | `app.code-workspace` |
+
+See [Usage Guide](docs/usage.md) for detailed setup instructions.
+
 ## Multi-Root Workspaces
 
 Use the workspace files for isolated tooling:
 
 - `backend.code-workspace` → PHP/Symfony development
-- `frontend.code-workspace` → JavaScript/React development
+- `frontend.code-workspace` → JavaScript SPA (React/Vue)
+- `app.code-workspace` → Full JS apps (Next.js, Nuxt)
 
 ## Possible Improvements
 

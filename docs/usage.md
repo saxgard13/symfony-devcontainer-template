@@ -8,7 +8,43 @@ This guide explains how to set up and use the DevContainer template.
 - [VS Code](https://code.visualstudio.com/) with [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 - [Git](https://git-scm.com/)
 
-## Project Structure Options
+## Project Types
+
+This DevContainer supports multiple project structures. Choose the one that fits your needs:
+
+| Type | Folder | Workspace | Use case |
+|------|--------|-----------|----------|
+| **Symfony API + SPA** | `backend/` + `frontend/` | Both `.code-workspace` | Symfony API with React/Vue frontend |
+| **Full Symfony** | `backend/` only | `backend.code-workspace` | Traditional Symfony app with Twig |
+| **Full JavaScript** | `app/` (or `frontend/`) | `app.code-workspace` | Next.js, Nuxt, or other JS frameworks |
+
+### Adapting the Workspace File
+
+The `.code-workspace` files point to specific folders. If you use a different folder name, update the workspace:
+
+```json
+{
+  "folders": [
+    { "path": "your-folder-name" }
+  ]
+}
+```
+
+Or simply rename/copy the appropriate workspace file.
+
+### Port Usage by Project Type
+
+| Project Type | Port 8000 | Port 5173/3000 |
+|--------------|-----------|----------------|
+| Symfony API + SPA | Symfony backend | Frontend dev server |
+| Full Symfony | Symfony app | Not used |
+| Full JavaScript | Not used | Next.js/Nuxt/Vite |
+
+> **Tip:** If you only use one port, the other simply remains unused. No configuration change needed.
+
+> **Note:** Production test uses the same ports as development. Stop the DevContainer before running production tests.
+
+## Repository Options
 
 ### Option 1: Single Repository (Recommended)
 
@@ -110,10 +146,11 @@ The template includes workspace files for better tooling isolation.
 
 ### Available Workspaces
 
-| File                      | Purpose                      |
-| ------------------------- | ---------------------------- |
-| `backend.code-workspace`  | PHP/Symfony development      |
-| `frontend.code-workspace` | JavaScript/React development |
+| File                      | Purpose                           |
+| ------------------------- | --------------------------------- |
+| `backend.code-workspace`  | PHP/Symfony development           |
+| `frontend.code-workspace` | JavaScript SPA (React/Vue)        |
+| `app.code-workspace`      | Full JS apps (Next.js, Nuxt, etc) |
 
 ### Using Workspaces
 
