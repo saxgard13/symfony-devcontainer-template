@@ -15,7 +15,7 @@ services:
       - ..:/workspace:cached
     environment:
       MAILER_DSN: smtp://user:pass@mailpit:1025
-      DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
+      DATABASE_URL: mysql://${MYSQL_USER:-symfony}:${MYSQL_PASSWORD:-symfony}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
     depends_on:
       db:
         condition: service_healthy
