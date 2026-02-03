@@ -10,6 +10,7 @@ This repository provides a ready-to-use development environment for Symfony usin
 - Composer
 - Symfony CLI
 - MySQL (with preconfigured environment), you can switch to PostgreSQL if needed
+- Redis for caching and sessions
 - Node.js (for assets, Encore, etc. or separate frontend)
 - PHP-CS-Fixer preconfigured with PSR-12 rules ()  
   👉 You will need to install php-cs-fixer via composer once symfony is installed, and add a configuration file to the root of the app/ .
@@ -170,6 +171,123 @@ SERVER_VERSION=mariadb-10.11
 ```
 
 By following these steps, you can easily switch between MySQL, MariaDB, and PostgreSQL in your development environment.
+
+## Redis Cache
+
+Redis is included by default for caching and session storage.
+
+### Configuration in Symfony
+
+**1. Install the Redis adapter:**
+
+```bash
+composer require symfony/cache
+```
+
+**2. Add to your `.env`:**
+
+```env
+REDIS_URL=redis://redis:6379
+```
+
+**3. Configure cache in `config/packages/cache.yaml`:**
+
+```yaml
+framework:
+    cache:
+        app: cache.adapter.redis
+        default_redis_provider: '%env(REDIS_URL)%'
+```
+
+**4. (Optional) Use Redis for sessions in `config/packages/framework.yaml`:**
+
+```yaml
+framework:
+    session:
+        handler_id: '%env(REDIS_URL)%'
+```
+
+### Usage Example
+
+```php
+use Symfony\Contracts\Cache\CacheInterface;
+
+class ProductController extends AbstractController
+{
+    #[Route('/products', name: 'product_list')]
+    public function list(CacheInterface $cache, ProductRepository $repository): Response
+    {
+        // First call: executes the query and stores result in Redis
+        // Next calls: returns cached data (much faster)
+        $products = $cache->get('products_list', function() use ($repository) {
+            return $repository->findAllWithCategories(); // Expensive query
+        });
+
+        return $this->json($products);
+    }
+}
+```
+
+### Cache Invalidation
+
+The cache doesn't know when your data changes. You need to handle invalidation:
+
+**1. TTL (Time To Live)** - Cache expires automatically:
+
+```php
+use Symfony\Contracts\Cache\ItemInterface;
+
+$products = $cache->get('products_list', function(ItemInterface $item) use ($repository) {
+    $item->expiresAfter(3600); // Expires after 1 hour
+    return $repository->findAll();
+});
+```
+
+**2. Manual invalidation** - Delete cache when data changes:
+
+```php
+// In your controller/service that modifies products
+public function create(Product $product, CacheInterface $cache): Response
+{
+    $this->entityManager->persist($product);
+    $this->entityManager->flush();
+
+    $cache->delete('products_list'); // Invalidate cache
+
+    return $this->json($product);
+}
+```
+
+**3. Doctrine Event Listener** - Automatic invalidation:
+
+```php
+// src/EventListener/CacheInvalidator.php
+use Doctrine\ORM\Events;
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
+
+class CacheInvalidator
+{
+    public function __construct(private CacheInterface $cache) {}
+
+    #[AsDoctrineListener(event: Events::postPersist, entity: Product::class)]
+    #[AsDoctrineListener(event: Events::postUpdate, entity: Product::class)]
+    #[AsDoctrineListener(event: Events::postRemove, entity: Product::class)]
+    public function invalidate(): void
+    {
+        $this->cache->delete('products_list');
+    }
+}
+```
+
+| Strategy | Use case |
+|----------|----------|
+| **TTL** | Data that can be slightly stale (stats, public lists) |
+| **Manual** | Critical data, few modification points |
+| **Event Listener** | Many modification points, need automation |
+
+### Disable Redis
+
+If you don't need Redis, remove `docker-compose.redis.yml` from the `dockerComposeFile` array in `devcontainer.json`.
 
 ## Security
 

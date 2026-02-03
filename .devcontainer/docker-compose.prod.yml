@@ -13,7 +13,17 @@ services:
       - app-network
     # Pas de ports exposés = sécurisé (accès via tunnel SSH uniquement)
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER}", "-p${MYSQL_PASSWORD}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "${MYSQL_USER}",
+          "-p${MYSQL_PASSWORD}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -21,27 +31,40 @@ services:
 
   prod:
     build:
-        context: ..
-        dockerfile: .devcontainer/Dockerfile.apache.prod
-        args:
-          PHP_VERSION: "${PHP_VERSION}"
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.apache.prod
+      args:
+        PHP_VERSION: "${PHP_VERSION}"
     ports:
       - "8081:80"
     environment:
       APP_ENV: prod
       APP_DEBUG: 0
       DATABASE_URL: mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
-      MAILER_DSN: ${MAILER_DSN:-smtp://localhost:25}
+      MAILER_DSN: smtp://user:pass@mailpit:1025
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_started
     networks:
       - app-network
     restart: unless-stopped
     volumes:
       - uploads:/var/www/html/public/uploads
       - logs:/var/log/apache2
-  
+
+  mailpit:
+    image: axllent/mailpit
+    ports:
+      - "${MAILPIT_HTTP_PORT}:8025"
+      - "${MAILPIT_SMTP_PORT}:1025"
+    environment:
+      MP_SMTP_AUTH_ACCEPT_ANY: 1
+      MP_SMTP_AUTH_ALLOW_INSECURE: 1
+    networks:
+      - app-network
+
 networks:
   app-network:
     external: true

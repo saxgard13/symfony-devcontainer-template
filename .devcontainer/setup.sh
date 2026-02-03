@@ -20,7 +20,14 @@ set -a
 if [ -f "$SCRIPT_DIR/.env.local" ]; then
   source "$SCRIPT_DIR/.env.local"
 else
-  echo "Fichier .env.local non trouve, configuration Git ignoree."
+  echo ""
+  echo "ATTENTION: Le fichier .env.local n'existe pas!"
+  echo "Creez-le depuis .env.local.example avec vos informations Git."
+  echo ""
+  echo "Exemple:"
+  echo "  GIT_USER_NAME=\"Votre Nom\""
+  echo "  GIT_USER_EMAIL=\"votre@email.com\""
+  echo ""
 fi
 set +a
 

@@ -1,6 +1,6 @@
 {
   "name": "App Symfony",
-  "dockerComposeFile": ["docker-compose.dev.yml", "docker-compose.mysql.yml"],
+  "dockerComposeFile": ["docker-compose.dev.yml", "docker-compose.mysql.yml", "docker-compose.redis.yml"],
   "service": "dev",
   "workspaceFolder": "/workspace",
   "customizations": {
