@@ -162,6 +162,9 @@ Or if auto-delete is not enabled:
 
 - Delete the branch locally: `git branch -D feature/name`
 - Sync your local branch: `git switch main && git pull origin main`
+- Clean up remote branch references: `git fetch --prune`
+
+This removes local references to remote branches that no longer exist (branches deleted after merge).
 
 ---
 
