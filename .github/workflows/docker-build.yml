@@ -1,0 +1,163 @@
+name: Docker Build CI
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - develop
+  pull_request:
+    branches:
+      - main
+      - dev
+      - develop
+
+jobs:
+  build-dev:
+    name: Build Development Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build dev image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.dev
+          push: false
+          tags: devcontainer:dev-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            PHP_VERSION=8.3
+            NODE_VERSION=22
+
+  build-apache-prod:
+    name: Build Apache Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create backend directory (if not exists)
+        run: mkdir -p backend
+
+      - name: Create backend files for build context
+        run: |
+          touch backend/composer.json
+          echo '{}' > backend/composer.json
+          touch backend/composer.lock
+
+      - name: Build Apache prod image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.apache.prod
+          push: false
+          tags: devcontainer:apache-prod-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            PHP_VERSION=8.3
+            NODE_VERSION=22
+
+  build-node-prod:
+    name: Build Node.js Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create app directory (if not exists)
+        run: mkdir -p app
+
+      - name: Create app files for build context
+        run: |
+          echo '{ "name": "app" }' > app/package.json
+
+      - name: Build Node.js prod image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.node.prod
+          push: false
+          tags: devcontainer:node-prod-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_VERSION=22
+
+  build-spa-prod:
+    name: Build SPA Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create frontend directory (if not exists)
+        run: mkdir -p frontend
+
+      - name: Create frontend files for build context
+        run: |
+          echo '{ "name": "frontend", "scripts": { "build": "mkdir -p dist && echo Build output > dist/index.html" } }' > frontend/package.json
+
+      - name: Build SPA prod image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.spa.prod
+          push: false
+          tags: devcontainer:spa-prod-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_VERSION=22
+
+  lint-dockerfiles:
+    name: Lint Dockerfiles
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint on Dockerfile.dev
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.dev
+          ignore: DL3008,DL3009
+
+      - name: Run Hadolint on Dockerfile.apache.prod
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.apache.prod
+          ignore: DL3008,DL3009
+
+      - name: Run Hadolint on Dockerfile.node.prod
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.node.prod
+          ignore: DL3008,DL3009
+
+      - name: Run Hadolint on Dockerfile.spa.prod
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.spa.prod
+          ignore: DL3008,DL3009
