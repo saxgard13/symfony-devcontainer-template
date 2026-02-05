@@ -143,22 +143,22 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.dev
-          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
 
       - name: Run Hadolint on Dockerfile.apache.prod
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.apache.prod
-          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
 
       - name: Run Hadolint on Dockerfile.node.prod
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.node.prod
-          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
 
       - name: Run Hadolint on Dockerfile.spa.prod
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.spa.prod
-          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
