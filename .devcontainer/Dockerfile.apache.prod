@@ -37,7 +37,7 @@ RUN if [ -f "backend/package.json" ]; then \
         elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile && pnpm build; \
         else npm ci && npm run build; fi; \
     else \
-        echo "==> No Encore assets to build"; \
+        echo "==> No Encore assets to build (optional)" && mkdir -p /build/backend/public; \
     fi
 
 # Stage 3: Runtime Apache

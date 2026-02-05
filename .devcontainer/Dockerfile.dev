@@ -7,7 +7,7 @@ FROM php:${PHP_VERSION}-cli
 ARG NODE_VERSION
 
 # Install system dependencies, Node.js, Symfony CLI in a single layer
-RUN apt-get update \
+RUN set -o pipefail && apt-get update \
     && apt-get install -y --no-install-recommends \
         curl \
         git \
