@@ -85,13 +85,13 @@ A ready-to-use development environment for Symfony using DevContainers.
 
 When running inside Docker, use `--host` or `0.0.0.0` to make the server accessible from your browser:
 
-| Framework   | Docker-compatible command       |
-| ----------- | ------------------------------- |
-| **Vite**    | `npm run dev -- --host`         |
-| **Next.js** | `npm run dev -- -H 0.0.0.0`     |
-| **Nuxt**    | `npm run dev -- -H 0.0.0.0`     |
-| **Astro**   | `npm run dev -- --host`         |
-| **CRA** *(deprecated)* | `HOST=0.0.0.0 npm start` |
+| Framework              | Docker-compatible command   |
+| ---------------------- | --------------------------- |
+| **Vite**               | `npm run dev -- --host`     |
+| **Next.js**            | `npm run dev -- -H 0.0.0.0` |
+| **Nuxt**               | `npm run dev -- -H 0.0.0.0` |
+| **Astro**              | `npm run dev -- --host`     |
+| **CRA** _(deprecated)_ | `HOST=0.0.0.0 npm start`    |
 
 ## Services
 
@@ -130,11 +130,11 @@ When running inside Docker, use `--host` or `0.0.0.0` to make the server accessi
 
 This template supports multiple project structures:
 
-| Type | Folders | Workspace |
-|------|---------|-----------|
-| **Symfony API + SPA** | `backend/` + `frontend/` | Both workspace files |
-| **Full Symfony** | `backend/` only | `backend.code-workspace` |
-| **Full JavaScript** | `app/` | `app.code-workspace` |
+| Type                  | Folders                  | Workspace                |
+| --------------------- | ------------------------ | ------------------------ |
+| **Symfony API + SPA** | `backend/` + `frontend/` | Both workspace files     |
+| **Full Symfony**      | `backend/` only          | `backend.code-workspace` |
+| **Full JavaScript**   | `app/`                   | `app.code-workspace`     |
 
 See [Usage Guide](docs/usage.md) for detailed setup instructions.
 
@@ -152,6 +152,8 @@ Use the workspace files for isolated tooling:
 - Makefile for common commands
 - RabbitMQ integration
 - Custom project scaffolding options
+
+---
 
 ---
 
