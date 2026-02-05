@@ -172,7 +172,7 @@ services:
 
 ---
 
-## Full JavaScript (Next.js, Nuxt)
+## Full JavaScript (Next.js, Nuxt, Vite, etc.)
 
 For full JavaScript applications with server-side rendering.
 
@@ -184,7 +184,7 @@ The production image is at `.devcontainer/Dockerfile.node.prod`.
 - Multi-stage build (deps → builder → runner)
 - Supports npm, yarn, and pnpm
 - Non-root user (`appuser`)
-- Optimized for Next.js standalone output
+- **Framework-agnostic template** (auto-detects build output)
 
 ### Build and Run
 
@@ -202,7 +202,18 @@ docker compose -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/dock
 # Access at http://localhost:3000
 ```
 
-### Next.js Configuration
+### Framework Adaptation
+
+The Dockerfile template supports multiple JavaScript frameworks. **Adapt the COPY statements in the runner stage** based on your framework's build output:
+
+| Framework | Build Output | Adaptation |
+|-----------|--------------|-----------|
+| **Next.js (standalone)** | `.next/standalone`, `.next/static` | ✅ Default (uncommented) |
+| **Nuxt** | `.output/` | Uncomment Nuxt CMD, modify COPY |
+| **Vite (SSR)** | `dist/`, `build/` | Modify COPY paths |
+| **Other frameworks** | Custom output | Adjust to match your output |
+
+#### Next.js Configuration
 
 For Next.js standalone output, add to `next.config.js`:
 
@@ -212,17 +223,30 @@ module.exports = {
 }
 ```
 
-### Nuxt Adaptation
+The Dockerfile is pre-configured for this (lines 59-62 are active).
 
-For Nuxt, modify the Dockerfile runner stage:
+#### Nuxt Adaptation
+
+For Nuxt, modify the Dockerfile runner stage (lines 59-62 and 71-75):
 
 ```dockerfile
+# Comment out Next.js lines, uncomment Nuxt:
+
 # Copy Nuxt output
 COPY --from=builder --chown=appuser:nodejs /app/.output ./
 
 # Start Nuxt
 CMD ["node", ".output/server/index.mjs"]
 ```
+
+#### Vite/SPA with Backend
+
+If using Vite for frontend **with a backend API**:
+- Build frontend: `npm run build` → creates `dist/`
+- Use `Dockerfile.spa.prod` instead (optimized for static serving)
+- Deploy backend separately with `Dockerfile.apache.prod` or `Dockerfile.node.prod`
+
+See [Symfony API + SPA section](#symfony-api--spa) for details.
 
 ---
 

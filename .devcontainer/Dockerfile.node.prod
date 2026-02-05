@@ -29,12 +29,13 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build the application
+# Note: Adjust paths below based on your framework (Next.js, Nuxt, Vite, etc.)
 RUN \
   if [ -f yarn.lock ]; then yarn build; \
   elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm build; \
   else npm run build; \
-  fi
+  fi && mkdir -p public .next/standalone .next/static
 
 # Stage 3: Runner
 FROM node:${NODE_VERSION}-alpine AS runner
@@ -49,13 +50,16 @@ RUN addgroup --system --gid 1001 nodejs && \
     adduser --system --uid 1001 appuser
 
 # Copy built application
-# For Next.js standalone output
+# ⚠️  IMPORTANT: This template is for Next.js (standalone mode)
+# If using other frameworks (Nuxt, Vite, etc.), adapt the paths below:
+# - Nuxt:  COPY --from=builder /app/.output ./
+# - Vite:  COPY --from=builder /app/dist ./
+# - Other: Adjust to match your framework's output directory
+#
+# For Next.js, uncomment the lines below:
 COPY --from=builder --chown=appuser:nodejs /app/public ./public
 COPY --from=builder --chown=appuser:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=appuser:nodejs /app/.next/static ./.next/static
-
-# For other frameworks (Nuxt, etc.), adjust paths as needed:
-# COPY --from=builder --chown=appuser:nodejs /app/.output ./
 
 USER appuser
 
