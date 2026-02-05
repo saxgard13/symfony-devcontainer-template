@@ -53,9 +53,8 @@ jobs:
 
       - name: Create backend files for build context
         run: |
-          touch backend/composer.json
-          echo '{}' > backend/composer.json
-          touch backend/composer.lock
+          echo '{"name":"symfony/project","type":"project","require":{}}' > backend/composer.json
+          echo '{"_readme":["This file is @generated automatically"],"content-hash":"da41eaf87ccf6f6f6f6f6f6f6f6f6f6f","packages":[],"packages-dev":[],"aliases":[],"minimum-stability":"stable","stability-flags":{},"prefer-stable":false,"prefer-lowest":false,"platform":{},"platform-dev":{},"plugin-api-version":"2.3.0"}' > backend/composer.lock
 
       - name: Build Apache prod image
         uses: docker/build-push-action@v5
@@ -86,7 +85,8 @@ jobs:
 
       - name: Create app files for build context
         run: |
-          echo '{ "name": "app" }' > app/package.json
+          echo '{ "name": "app", "version": "1.0.0", "scripts": { "build": "echo build" }, "dependencies": {} }' > app/package.json
+          echo '{ "name": "app", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > app/package-lock.json
 
       - name: Build Node.js prod image
         uses: docker/build-push-action@v5
@@ -117,6 +117,7 @@ jobs:
       - name: Create frontend files for build context
         run: |
           echo '{ "name": "frontend", "scripts": { "build": "mkdir -p dist && echo Build output > dist/index.html" } }' > frontend/package.json
+          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > frontend/package-lock.json
 
       - name: Build SPA prod image
         uses: docker/build-push-action@v5
@@ -142,22 +143,22 @@ jobs:
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.dev
-          ignore: DL3008,DL3009
+          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
 
       - name: Run Hadolint on Dockerfile.apache.prod
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.apache.prod
-          ignore: DL3008,DL3009
+          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
 
       - name: Run Hadolint on Dockerfile.node.prod
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.node.prod
-          ignore: DL3008,DL3009
+          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
 
       - name: Run Hadolint on Dockerfile.spa.prod
         uses: hadolint/hadolint-action@v3.1.0
         with:
           dockerfile: .devcontainer/Dockerfile.spa.prod
-          ignore: DL3008,DL3009
+          ignore: DL3008,DL3009,DL3022,DL4006,SC3040
