@@ -16,11 +16,11 @@ RUN set -o pipefail && apt-get update \
         unzip \
         wget \
         zip \
-    # Install Node.js
-    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - \
+    # Install Node.js with retries
+    && for _ in 1 2 3; do curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION}.x | bash - && break || sleep 5; done \
     && apt-get install -y --no-install-recommends nodejs \
-    # Install Symfony CLI
-    && curl -sS https://get.symfony.com/cli/installer | bash \
+    # Install Symfony CLI with retries
+    && for _ in 1 2 3; do curl -sS https://get.symfony.com/cli/installer | bash && break || sleep 5; done \
     && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony \
     && rm -rf /root/.symfony5 \
     # Cleanup
