@@ -1,5 +1,12 @@
 # Symfony DevContainer Template
 
+[![PHP Configurable](https://img.shields.io/badge/PHP-Configurable-777BB4?logo=php&logoColor=white)](docs/configuration.md)
+[![Node.js Configurable](https://img.shields.io/badge/Node.js-Configurable-339933?logo=node.js&logoColor=white)](docs/configuration.md)
+[![Symfony](https://img.shields.io/badge/Symfony-Ready-000000?logo=symfony&logoColor=white)](https://symfony.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Dev Containers](https://img.shields.io/badge/Dev%20Containers-Supported-007ACC?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/docs/devcontainers/containers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 A ready-to-use development environment for Symfony using DevContainers.
 
 > **Note:** This template is for **local development and testing only**. Production-like configurations are included for testing purposes, not for actual deployment.
