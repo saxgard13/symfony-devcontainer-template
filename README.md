@@ -16,10 +16,10 @@ A ready-to-use development environment for Symfony using DevContainers.
 - **PHP** (configurable, default 8.3) with Xdebug, OPcache, and essential extensions
 - Symfony CLI and Composer
 - MySQL/MariaDB/PostgreSQL (switchable)
-- Redis for caching and sessions
+- **Redis** (configurable, default 7-alpine) for caching and sessions
 - **Node.js** (configurable, default 22) for frontend tooling
 - Mailpit for email testing
-- Adminer for database management
+- **Adminer** (configurable, default latest) for database management
 - Pre-configured VS Code extensions and settings
 
 ## Requirements
@@ -116,7 +116,7 @@ A ready-to-use development environment for Symfony using DevContainers.
 
 ## Customizing Versions
 
-To use different versions of PHP, Node.js, or database:
+To use different versions of PHP, Node.js, database, Redis, or Adminer:
 
 1. **Edit `.versions.json`**:
 
@@ -124,7 +124,9 @@ To use different versions of PHP, Node.js, or database:
    {
      "php": "8.4",
      "node": "20",
-     "db_image": "postgres:16"
+     "db_image": "postgres:16",
+     "redis_image": "redis:7-alpine",
+     "adminer_image": "adminer:latest"
    }
    ```
 
