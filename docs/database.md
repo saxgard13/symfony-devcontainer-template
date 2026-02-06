@@ -28,25 +28,33 @@ Change the database compose file:
 ],
 ```
 
-### Step 2: Update .env variables
+### Step 2: Update `.versions.json` and synchronize
 
-**MySQL:**
-```bash
-DB_IMAGE=mysql:8.3
-SERVER_VERSION=8.3
+Edit `.versions.json`:
+
+**For PostgreSQL:**
+```json
+{
+  "db_image": "postgres:16",
+  "server_version": null
+}
 ```
 
-**MariaDB:**
-```bash
-DB_IMAGE=mariadb:10.11
-SERVER_VERSION=mariadb-10.11
+**For MySQL/MariaDB:**
+```json
+{
+  "db_image": "mysql:8.3",
+  "server_version": "8.3"
+}
 ```
 
-**PostgreSQL:**
+Then synchronize all configuration files:
+
 ```bash
-DB_IMAGE=postgres:16
-SERVER_VERSION=   # Leave empty for PostgreSQL
+bash scripts/update-versions.sh
 ```
+
+This automatically updates `.devcontainer/.env` and all Dockerfiles.
 
 ### Step 3: Update DATABASE_URL
 

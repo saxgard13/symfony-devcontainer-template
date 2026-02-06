@@ -42,6 +42,13 @@ Configuration is managed through `.devcontainer/.env` (default values) and `.dev
 - MariaDB: `mariadb:10.11`
 - PostgreSQL: `postgres:16`
 
+### Cache & Tools Configuration
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REDIS_IMAGE` | `redis:7-alpine` | Redis Docker image |
+| `ADMINER_IMAGE` | `adminer:latest` | Adminer database GUI image |
+
 ### Git Configuration
 
 | Variable | Default | Description |
@@ -55,7 +62,7 @@ Configuration is managed through `.devcontainer/.env` (default values) and `.dev
 |----------|---------|-------------|
 | `CLEAN_VSCODE_EXTENSIONS` | `false` | Clear VS Code extensions cache on startup |
 
-## Managing Versions (PHP, Node.js, Database)
+## Managing Versions (PHP, Node.js, Database, Redis, Adminer)
 
 To simplify version management, use the centralized `.versions.json` file instead of modifying multiple files.
 
@@ -67,14 +74,21 @@ To simplify version management, use the centralized `.versions.json` file instea
 {
   "php": "8.4",
   "node": "20",
-  "db_image": "postgres:16"
+  "db_image": "postgres:16",
+  "redis_image": "redis:7-alpine",
+  "adminer_image": "adminer:latest"
 }
 ```
 
-**Available database options:**
-- MySQL: `mysql:8.3`, `mysql:8.4`
-- MariaDB: `mariadb:10.11`, `mariadb:11`
-- PostgreSQL: `postgres:16`, `postgres:17`
+**Available options:**
+- **PHP**: Any PHP version supported by Docker official images (e.g., `8.3`, `8.4`)
+- **Node.js**: Any Node.js version (e.g., `20`, `22`)
+- **Database images:**
+  - MySQL: `mysql:8.3`, `mysql:8.4`
+  - MariaDB: `mariadb:10.11`, `mariadb:11`
+  - PostgreSQL: `postgres:16`, `postgres:17`
+- **Redis images**: `redis:6-alpine`, `redis:7-alpine`, `redis:latest`
+- **Adminer images**: `adminer:latest`, `adminer:4.8.1`
 
 2. **Synchronize all configuration files:**
 
@@ -103,28 +117,17 @@ Running `scripts/update-versions.sh` synchronizes versions across:
 
 | File | What Changes |
 |------|-------------|
-| `.devcontainer/.env` | `PHP_VERSION`, `NODE_VERSION`, `DB_IMAGE`, `DEV_IMAGE` |
+| `.devcontainer/.env` | `PHP_VERSION`, `NODE_VERSION`, `DB_IMAGE`, `REDIS_IMAGE`, `ADMINER_IMAGE`, `DEV_IMAGE` |
 | `Dockerfile.dev` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
 | `Dockerfile.apache.prod` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
 | `Dockerfile.node.prod` | `ARG NODE_VERSION` |
 | `Dockerfile.spa.prod` | `ARG NODE_VERSION` |
 
-### Workflow Example
-
-```bash
-# Change versions
-sed -i 's/"php": "8.3"/"php": "8.4"/' .versions.json
-sed -i 's/"db_image": "mysql.*"/"db_image": "postgres:16"/' .versions.json
-
-# Synchronize everything
-bash scripts/update-versions.sh
-```
-
-Then rebuild the container:
-- **VS Code & compatible editors**: Press `Ctrl+Shift+P` → Select **"Dev Containers: Rebuild Container"**
-- **Other IDEs**: Use your IDE's container rebuild feature
-
 > **Important:** Always rebuild the container after changing versions. The version changes only take effect after the rebuild is complete.
+>
+> Rebuild with:
+> - **VS Code & compatible editors**: Press `Ctrl+Shift+P` → Select **"Dev Containers: Rebuild Container"**
+> - **Other IDEs**: Use your IDE's container rebuild feature
 
 > **Note:** The CI/CD pipeline uses the Dockerfile ARG defaults (maintained by `scripts/update-versions.sh`) to build images. No manual intervention needed.
 

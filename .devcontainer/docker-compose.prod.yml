@@ -5,6 +5,7 @@ services:
       dockerfile: .devcontainer/Dockerfile.apache.prod
       args:
         PHP_VERSION: "${PHP_VERSION}"
+        COMPOSER_IMAGE: "${COMPOSER_IMAGE}"
     ports:
       - "${BACKEND_PORT:-8000}:80"
     environment:
@@ -26,7 +27,7 @@ services:
       - logs:/var/log/apache2
 
   adminer:
-    image: adminer:latest
+    image: "${ADMINER_IMAGE}"
     restart: always
     ports:
       - "${ADMINER_PORT:-8080}:8080"
