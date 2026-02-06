@@ -29,9 +29,6 @@ jobs:
           tags: devcontainer:dev-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            PHP_VERSION=8.3
-            NODE_VERSION=22
 
   build-apache-prod:
     name: Build Apache Production Image
@@ -61,9 +58,6 @@ jobs:
           tags: devcontainer:apache-prod-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            PHP_VERSION=8.3
-            NODE_VERSION=22
 
   build-node-prod:
     name: Build Node.js Production Image
@@ -93,8 +87,6 @@ jobs:
           tags: devcontainer:node-prod-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            NODE_VERSION=22
 
   build-spa-prod:
     name: Build SPA Production Image
@@ -124,8 +116,6 @@ jobs:
           tags: devcontainer:spa-prod-latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            NODE_VERSION=22
 
   lint-dockerfiles:
     name: Lint Dockerfiles
