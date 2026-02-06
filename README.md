@@ -18,8 +18,12 @@ A ready-to-use development environment for Symfony using DevContainers.
 ## Requirements
 
 - [Docker](https://www.docker.com/)
-- [VS Code](https://code.visualstudio.com/) with [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+- **VS Code** with [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
+  - Or any **VS Code-compatible IDE** with Dev Containers support (Cursor, VSCodium, etc.)
+  - Other IDEs like JetBrains (PhpStorm, IntelliJ) also support Dev Containers, but with different UI
 - [Git](https://git-scm.com/)
+
+> **Note:** This template and documentation are optimized for **VS Code and compatible editors**. Instructions use VS Code's command palette (`Ctrl+Shift+P`). If you use another IDE, adjust the rebuild process accordingly.
 
 ## Quick Start
 
@@ -39,20 +43,24 @@ A ready-to-use development environment for Symfony using DevContainers.
    # Edit .env.local with your name and email
    ```
 
-4. **Create project folders**:
+4. **⚠️ Open in container** (REQUIRED before installing Symfony/npm): Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+
+   The following steps require Symfony CLI and Node.js, which are only available inside the container.
+
+5. **Create project folders** (inside container):
 
    ```bash
    mkdir backend frontend
    ```
 
-5. **Install Symfony**:
+6. **Install Symfony** (inside container):
 
    ```bash
    symfony new backend --version="7.2.*" --webapp
    rm -rf backend/.git
    ```
 
-6. **Install frontend** (optional):
+7. **Install frontend** (optional, inside container):
 
    ```bash
    # Vite (recommended)
@@ -64,8 +72,6 @@ A ready-to-use development environment for Symfony using DevContainers.
    # Then remove nested git folder
    rm -rf frontend/.git
    ```
-
-7. **Open in container**: Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
 
 8. **Start development**:
 
@@ -80,6 +86,40 @@ A ready-to-use development environment for Symfony using DevContainers.
    cd frontend
    npm run dev -- --host
    ```
+
+## Customizing Versions
+
+To use different versions of PHP, Node.js, or database:
+
+1. **Edit `.versions.json`**:
+
+   ```json
+   {
+     "php": "8.4",
+     "node": "20",
+     "db_image": "postgres:16"
+   }
+   ```
+
+2. **Synchronize all configuration files**:
+
+   ```bash
+   bash scripts/update-versions.sh
+   ```
+
+3. **⚠️ Rebuild the development container** (REQUIRED):
+
+   **VS Code & compatible editors** (Cursor, VSCodium): Press `Ctrl+Shift+P` and select **"Dev Containers: Rebuild Container"**.
+
+   **Other IDEs** (JetBrains, etc.): Use your IDE's container rebuild feature from the UI.
+
+   The version changes only take effect after rebuilding. Skipping this step means your container will still use the old versions.
+
+This updates the development environment and Dockerfiles. The CI/CD pipeline automatically uses the updated Dockerfile ARG defaults.
+
+> **Note:** The `update-versions.sh` script runs inside the dev container (Linux environment), so it works seamlessly on **Linux, macOS, and Windows**. No special tools needed on your host machine!
+
+See [Configuration Guide](docs/configuration.md#managing-versions-php-nodejs-database) for all available options.
 
 ## Frontend Dev Commands
 

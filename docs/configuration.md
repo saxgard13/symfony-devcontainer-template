@@ -55,6 +55,79 @@ Configuration is managed through `.devcontainer/.env` (default values) and `.dev
 |----------|---------|-------------|
 | `CLEAN_VSCODE_EXTENSIONS` | `false` | Clear VS Code extensions cache on startup |
 
+## Managing Versions (PHP, Node.js, Database)
+
+To simplify version management, use the centralized `.versions.json` file instead of modifying multiple files.
+
+### Quick Start
+
+1. **Edit `.versions.json`** to change versions:
+
+```json
+{
+  "php": "8.4",
+  "node": "20",
+  "db_image": "postgres:16"
+}
+```
+
+**Available database options:**
+- MySQL: `mysql:8.3`, `mysql:8.4`
+- MariaDB: `mariadb:10.11`, `mariadb:11`
+- PostgreSQL: `postgres:16`, `postgres:17`
+
+2. **Synchronize all configuration files:**
+
+```bash
+bash scripts/update-versions.sh
+```
+
+> **Cross-Platform:** Execute this script inside your dev container (it runs in a Linux environment). This works seamlessly on **Linux, macOS, and Windows** with no special setup needed on your host machine.
+
+This script automatically updates:
+- `.devcontainer/.env` (environment variables)
+- All Dockerfiles (ARG default values)
+- Production image names
+
+3. **Rebuild the development container:**
+
+**VS Code & compatible editors** (Cursor, VSCodium): Press `Ctrl+Shift+P` and select **"Dev Containers: Rebuild Container"**.
+
+**Other IDEs** (JetBrains, etc.): Use your IDE's container rebuild feature from the UI.
+
+This rebuilds the container with the new versions you specified.
+
+### What Gets Updated
+
+Running `scripts/update-versions.sh` synchronizes versions across:
+
+| File | What Changes |
+|------|-------------|
+| `.devcontainer/.env` | `PHP_VERSION`, `NODE_VERSION`, `DB_IMAGE`, `DEV_IMAGE` |
+| `Dockerfile.dev` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
+| `Dockerfile.apache.prod` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
+| `Dockerfile.node.prod` | `ARG NODE_VERSION` |
+| `Dockerfile.spa.prod` | `ARG NODE_VERSION` |
+
+### Workflow Example
+
+```bash
+# Change versions
+sed -i 's/"php": "8.3"/"php": "8.4"/' .versions.json
+sed -i 's/"db_image": "mysql.*"/"db_image": "postgres:16"/' .versions.json
+
+# Synchronize everything
+bash scripts/update-versions.sh
+```
+
+Then rebuild the container:
+- **VS Code & compatible editors**: Press `Ctrl+Shift+P` → Select **"Dev Containers: Rebuild Container"**
+- **Other IDEs**: Use your IDE's container rebuild feature
+
+> **Important:** Always rebuild the container after changing versions. The version changes only take effect after the rebuild is complete.
+
+> **Note:** The CI/CD pipeline uses the Dockerfile ARG defaults (maintained by `scripts/update-versions.sh`) to build images. No manual intervention needed.
+
 ## Creating .env.local
 
 Create `.devcontainer/.env.local` from the example:

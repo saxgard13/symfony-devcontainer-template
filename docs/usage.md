@@ -79,13 +79,19 @@ Keep DevContainer config, backend, and frontend in one Git repository.
    # Edit with your Git name/email
    ```
 
-5. Create project folders:
+5. **⚠️ Reopen in Container** (REQUIRED before using Symfony CLI and npm):
+
+   Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+
+   The following steps require Symfony CLI and Node.js, which are only available inside the container.
+
+6. Create project folders (inside container):
 
    ```bash
    mkdir backend frontend
    ```
 
-6. Install Symfony:
+7. Install Symfony (inside container):
 
    ```bash
    symfony new backend --version="7.2.*"
@@ -93,7 +99,7 @@ Keep DevContainer config, backend, and frontend in one Git repository.
    symfony new backend --version="7.2.*" --webapp
    ```
 
-7. Install frontend (optional):
+8. Install frontend (optional, inside container):
 
    ```bash
    npm create vite@latest frontend
@@ -101,21 +107,19 @@ Keep DevContainer config, backend, and frontend in one Git repository.
    # or: npx create-react-app frontend
    ```
 
-8. Remove nested .git folders:
+9. Remove nested .git folders (inside container):
 
    ```bash
    rm -rf backend/.git frontend/.git
    ```
 
-9. Commit your setup:
+10. Commit your setup (inside container):
 
-   ```bash
-   git add .
-   git commit -m "Initial project setup"
-   git push
-   ```
-
-10. Reopen in Container (Ctrl+Shift+P → "Dev Containers: Reopen in Container")
+    ```bash
+    git add .
+    git commit -m "Initial project setup"
+    git push
+    ```
 
 ### Option 2: Separate Repositories
 
