@@ -99,12 +99,17 @@ Keep DevContainer config, backend, and frontend in one Git repository.
    symfony new backend --version="7.2.*" --webapp
    ```
 
-8. Install frontend (optional, inside container):
+8. Install frontend (optional, choose your framework, inside container):
 
    ```bash
-   npm create vite@latest frontend
-   # or: npx create-next-app frontend
-   # or: npx create-react-app frontend
+   # Popular options:
+   npm create vite@latest frontend              # Vite (recommended)
+   npx create-next-app frontend                 # Next.js
+   npx create-react-app frontend                # Create React App
+   npx create-nuxt-app frontend                 # Nuxt
+   npm create astro frontend                    # Astro
+
+   # Or use any other npm-based framework of your choice
    ```
 
 9. Remove nested .git folders (inside container):

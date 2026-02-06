@@ -13,11 +13,11 @@ A ready-to-use development environment for Symfony using DevContainers.
 
 ## Features
 
-- PHP 8.3 with Xdebug, OPcache, and essential extensions
+- **PHP** (configurable, default 8.3) with Xdebug, OPcache, and essential extensions
 - Symfony CLI and Composer
 - MySQL/MariaDB/PostgreSQL (switchable)
 - Redis for caching and sessions
-- Node.js for frontend tooling
+- **Node.js** (configurable, default 22) for frontend tooling
 - Mailpit for email testing
 - Adminer for database management
 - Pre-configured VS Code extensions and settings
@@ -60,27 +60,47 @@ A ready-to-use development environment for Symfony using DevContainers.
    mkdir backend frontend
    ```
 
-6. **Install Symfony** (inside container):
+6. **Customize versions** (optional, inside container):
+
+   Edit `.versions.json` to change PHP, Node.js, or database versions before proceeding. See [Configuration Guide](docs/configuration.md#managing-versions-php-nodejs-database) for available options.
+
+7. **Install Symfony** (inside container):
 
    ```bash
+   # With web interface (recommended for traditional apps)
    symfony new backend --version="7.2.*" --webapp
+
+   # Or for API-only projects (without --webapp)
+   symfony new backend --version="7.2.*"
+   ```
+
+   Choose the Symfony version based on your PHP version:
+   - PHP 8.3: Supports Symfony 6.4+, 7.x
+   - PHP 8.4: Supports Symfony 7.x
+
+   ```bash
    rm -rf backend/.git
    ```
 
-7. **Install frontend** (optional, inside container):
+8. **Install frontend** (optional, choose your framework, inside container):
 
    ```bash
-   # Vite (recommended)
-   npm create vite@latest frontend
+   # Popular options:
+   npm create vite@latest frontend              # Vite (recommended)
+   npx create-next-app frontend                 # Next.js
+   npx create-react-app frontend                # Create React App
+   npx create-nuxt-app frontend                 # Nuxt
+   npm create astro frontend                    # Astro
 
-   # Next.js
-   npx create-next-app frontend
+   # Or any other npm-based framework
+   ```
 
-   # Then remove nested git folder
+   ```bash
+   # Remove nested git folder
    rm -rf frontend/.git
    ```
 
-8. **Start development**:
+9. **Start development**:
 
    ```bash
    # Backend
@@ -130,7 +150,9 @@ See [Configuration Guide](docs/configuration.md#managing-versions-php-nodejs-dat
 
 ## Frontend Dev Commands
 
-When running inside Docker, use `--host` or `0.0.0.0` to make the server accessible from your browser:
+When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make the dev server accessible from your browser. Here are examples for popular frameworks:
+
+> **Note:** These commands are for reference. You can use any npm-based framework - adapt the command according to your framework's documentation.
 
 | Framework              | Docker-compatible command   |
 | ---------------------- | --------------------------- |
