@@ -129,12 +129,20 @@ Use DevContainer as a shared environment, with backend/frontend in separate repo
 
 - Reusing DevContainer across projects
 - Independent versioning of backend/frontend
+- Using Claude Code (keep root workspace open for full context)
 
 #### Setup Steps
 
 1. Clone the template (or copy files)
 2. Remove `.git` from template root
-3. Initialize separate repos in `backend/` and `frontend/`:
+3. Create `.gitignore` in root to exclude nested repos:
+   ```
+   # Nested repositories (separate Git repos)
+   backend/
+   frontend/
+   app/
+   ```
+4. Initialize separate repos in `backend/` and `frontend/`:
    ```bash
    cd backend
    git init
@@ -143,6 +151,10 @@ Use DevContainer as a shared environment, with backend/frontend in separate repo
    git commit -m "Initial commit"
    git push -u origin main
    ```
+
+**💡 Tip for Claude Code:** Keep the root workspace open (`code .`) so Claude Code can see both backend and frontend. You don't need to use `.code-workspace` files - they're optional and mainly useful for IDE tool isolation when working manually.
+
+**⚠️ Note on nested Git repos:** Git automatically ignores directories with their own `.git` folder, but adding them to `.gitignore` makes this explicit and prevents accidental tracking if the nested `.git` folders are removed.
 
 ## Multi-Root Workspaces
 
