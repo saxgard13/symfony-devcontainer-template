@@ -6,22 +6,21 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "xdebug.php-debug",    
+        "xdebug.php-debug",
         "bmewburn.vscode-intelephense-client",
         "cweijan.vscode-mysql-client2",
         "neilbrayfield.php-docblocker",
         "dsznajder.es7-react-js-snippets",
         "MehediDracula.php-namespace-resolver",
         "mblode.twig-language-2",
-        "alexcvzz.vscode-sqlite",
         "joffreykern.markdown-toc",
         "mikestead.dotenv",
-        "ritwickdey.LiveServer",
         "junstyle.php-cs-fixer",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint"
       ],
       "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash",
         "database-client.autoSync": true,
         "php.suggest.basic": false,
         "editor.formatOnSave": true,
@@ -47,27 +46,9 @@
         "php-cs-fixer.autoFixBySemicolon": false,
         "php-cs-fixer.formatHtml": false,
         "php-cs-fixer.documentFormattingProvider": true,
-        "terminal.integrated.profiles.linux": {
-          "bash": {
-            "path": "/bin/bash"
-          }
-        },
-        "terminal.integrated.defaultProfile.linux": "bash",
         "editor.defaultFormatter": "esbenp.prettier-vscode",
         "[php]": {
           "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
-        },
-        "[javascript]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[typescriptreact]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[javascriptreact]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
-        },
-        "[html]": {
-          "editor.defaultFormatter": "esbenp.prettier-vscode"
         }
       }
     }
@@ -80,7 +61,7 @@
     "GIT_USER_EMAIL": "${localEnv:GIT_USER_EMAIL}"
   },
   "initializeCommand": "bash .devcontainer/init.sh",
-  "postCreateCommand": "bash /workspace/.devcontainer/setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
   "mounts": [
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.symfony5,target=/home/vscode/.symfony5,type=bind,consistency=cached"
