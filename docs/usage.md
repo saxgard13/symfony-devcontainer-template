@@ -165,18 +165,22 @@ The template includes workspace files for better tooling isolation.
 
 ### Available Workspaces
 
-| File                      | Purpose                                         |
-| ------------------------- | ----------------------------------------------- |
-| `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) |
-| `backend.code-workspace`  | PHP/Symfony development only                    |
-| `frontend.code-workspace` | JavaScript SPA (React/Vue) only                 |
-| `app.code-workspace`      | Full JS apps (Next.js, Nuxt, etc)               |
+| File                      | Purpose                                         | Related Folder |
+| ------------------------- | ----------------------------------------------- | -------------- |
+| `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) | `.shared/`     |
+| `backend.code-workspace`  | PHP/Symfony development only                    | -              |
+| `frontend.code-workspace` | JavaScript SPA (React/Vue) only                 | -              |
+| `app.code-workspace`      | Full JS apps (Next.js, Nuxt, etc)               | -              |
 
 ### Using Workspaces
 
 1. Open the `.code-workspace` file in VS Code
 2. When prompted, reopen in container
-3. When prompted about Git repository in parent folders, choose **Yes**
+3. **Git repository prompt** - The response depends on your repository structure:
+   - **Single repository (Monorepo):** Choose **Yes** - The DevContainer config, backend, frontend, and `.shared/` are all in one Git repo
+   - **Separate repositories (Multi-repo):** Choose **No** - Each folder has its own `.git` directory, and the root is not a Git repository
+
+> **Note on `.shared/` folder:** When using `project.code-workspace`, the `.shared/` folder contains project-wide documentation and configuration (e.g., `claude.md`, `architecture.md`) accessible to both backend and frontend.
 
 ### When to use each Workspace
 
