@@ -12,11 +12,11 @@ This guide explains how to set up and use the DevContainer template.
 
 This DevContainer supports multiple project structures. Choose the one that fits your needs:
 
-| Type | Folder | Workspace | Use case |
-|------|--------|-----------|----------|
-| **Symfony API + SPA** | `backend/` + `frontend/` | Both `.code-workspace` | Symfony API with React/Vue frontend |
-| **Full Symfony** | `backend/` only | `backend.code-workspace` | Traditional Symfony app with Twig |
-| **Full JavaScript** | `app/` (or `frontend/`) | `app.code-workspace` | Next.js, Nuxt, or other JS frameworks |
+| Type                  | Folder                   | Workspace                | Use case                              |
+| --------------------- | ------------------------ | ------------------------ | ------------------------------------- |
+| **Symfony API + SPA** | `backend/` + `frontend/` | `project.code-workspace` | Symfony API with React/Vue frontend   |
+| **Full Symfony**      | `backend/` only          | `backend.code-workspace` | Traditional Symfony app with Twig     |
+| **Full JavaScript**   | `app/` (or `frontend/`)  | `app.code-workspace`     | Next.js, Nuxt, or other JS frameworks |
 
 ### Adapting the Workspace File
 
@@ -24,9 +24,7 @@ The `.code-workspace` files point to specific folders. If you use a different fo
 
 ```json
 {
-  "folders": [
-    { "path": "your-folder-name" }
-  ]
+  "folders": [{ "path": "your-folder-name" }]
 }
 ```
 
@@ -34,11 +32,11 @@ Or simply rename/copy the appropriate workspace file.
 
 ### Port Usage by Project Type
 
-| Project Type | Port 8000 | Port 5173/3000 |
-|--------------|-----------|----------------|
+| Project Type      | Port 8000       | Port 5173/3000      |
+| ----------------- | --------------- | ------------------- |
 | Symfony API + SPA | Symfony backend | Frontend dev server |
-| Full Symfony | Symfony app | Not used |
-| Full JavaScript | Not used | Next.js/Nuxt/Vite |
+| Full Symfony      | Symfony app     | Not used            |
+| Full JavaScript   | Not used        | Next.js/Nuxt/Vite   |
 
 > **Tip:** If you only use one port, the other simply remains unused. No configuration change needed.
 
@@ -167,11 +165,12 @@ The template includes workspace files for better tooling isolation.
 
 ### Available Workspaces
 
-| File                      | Purpose                           |
-| ------------------------- | --------------------------------- |
-| `backend.code-workspace`  | PHP/Symfony development           |
-| `frontend.code-workspace` | JavaScript SPA (React/Vue)        |
-| `app.code-workspace`      | Full JS apps (Next.js, Nuxt, etc) |
+| File                      | Purpose                                         |
+| ------------------------- | ----------------------------------------------- |
+| `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) |
+| `backend.code-workspace`  | PHP/Symfony development only                    |
+| `frontend.code-workspace` | JavaScript SPA (React/Vue) only                 |
+| `app.code-workspace`      | Full JS apps (Next.js, Nuxt, etc)               |
 
 ### Using Workspaces
 
@@ -179,11 +178,43 @@ The template includes workspace files for better tooling isolation.
 2. When prompted, reopen in container
 3. When prompted about Git repository in parent folders, choose **Yes**
 
+### When to use each Workspace
+
+- **`project.code-workspace`** (Recommended for Symfony API + SPA): Shows only `backend/` and `frontend/`, hides config files. Perfect for focusing on code and for working with Claude Code (and others) - the AI has immediate access to both your backend and frontend, improving context awareness and faster assistance.
+- **`backend.code-workspace`** or **`frontend.code-workspace`**: Use when working on only one part independently.
+- **`app.code-workspace`**: Use for full JavaScript apps (Next.js, Nuxt).
+
 ### Benefits
 
 - PHP-CS-Fixer only runs in backend
 - ESLint/Prettier only in frontend
 - Isolated terminal and settings
+- Cleaner sidebar with Multi-Root Workspace
+
+### Documentation Structure
+
+For multi-repo projects, organize documentation hierarchically:
+
+**Project-wide documentation** (`.shared/`):
+- `claude.md` - AI context for Claude Code
+- `architecture.md` - System design & how backend/frontend interact
+- `api-spec.md` - API endpoints & contracts
+- `conventions.md` - Shared code standards
+
+**Backend documentation** (`backend/`):
+- `README.md` - Quick start
+- `docs/setup.md` - Detailed installation
+- `docs/database.md` - Database schema & migrations
+
+**Frontend documentation** (`frontend/`):
+- `README.md` - Quick start
+- `docs/setup.md` - Detailed installation
+- `docs/components.md` - Component architecture
+
+This approach ensures:
+- Claude Code has immediate access to project context
+- Each repo maintains its own specific documentation
+- No duplication of shared knowledge
 
 ## Starting Development Servers
 

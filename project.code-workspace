@@ -1,0 +1,22 @@
+{
+  "folders": [
+    {
+      "name": "Shared Config",
+      "path": ".shared"
+    },
+    {
+      "name": "Backend",
+      "path": "backend"
+    },
+    {
+      "name": "Frontend",
+      "path": "frontend"
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/vendor": true
+    }
+  }
+}
