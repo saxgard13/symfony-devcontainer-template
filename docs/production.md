@@ -4,6 +4,115 @@ This document explains the production-like configuration for testing before depl
 
 > **Important:** This configuration is for **local testing in a production-like environment**, not for actual deployment. Use it to validate your application before deploying to real infrastructure.
 
+---
+
+## Scope & Limitations
+
+This template supports **Symfony backend + flexible frontend (SPA/SSR/ISR)** in a **monorepo structure**:
+
+**✅ Supported:**
+- **Backend:** Symfony API (Apache)
+- **Frontend:** React/Vue SPA (Vite), Next.js/Nuxt SSR, or ISR
+- **Structure:** Monorepo with `/backend` and `/frontend` folders
+- **Database:** MySQL (PostgreSQL/SQLite: manual config)
+- **Testing:** Local production-like environment with Docker Compose
+
+**❌ Not Supported:**
+- Multi-repo (separate backend/frontend repositories)
+- Alternative backends (Laravel, Django, etc.)
+- Alternative web servers (Nginx instead of Apache)
+- Real production deployment (K8s, managed hosting, VPS)
+- Single-database setups with monorepo structure
+
+> **Need something different?** You can use this template as a foundation and adapt the Dockerfiles, compose files, or structure to your needs. See [architecture.md](architecture.md) for implementation details.
+
+---
+
+## Quick Start: Testing Production Locally
+
+To test your application in a production-like environment:
+
+```bash
+# 1. Stop the DevContainer (free up ports)
+# (in VS Code: Close Remote Connection)
+
+# 2. Choose your setup based on your project type (see below)
+
+# Example: Symfony API + React SPA
+docker compose \
+  -f .devcontainer/docker-compose.mysql.yml \
+  -f .devcontainer/docker-compose.prod.yml \
+  -f .devcontainer/docker-compose.frontend.prod.yml \
+  up -d
+
+# 3. Access in browser
+# - Frontend: http://localhost:5173
+# - API: http://localhost:8000
+```
+
+**With HTTPS (optional):**
+```bash
+# Generate self-signed certificates first (one-time)
+mkdir -p .devcontainer/certs
+openssl req -x509 -newkey rsa:4096 -keyout .devcontainer/certs/key.pem \
+  -out .devcontainer/certs/cert.pem -days 365 -nodes
+
+# Launch with HTTPS reverse proxy
+# Note: https.prod.yml is a reverse proxy layer that sits in front
+docker compose \
+  -f .devcontainer/docker-compose.mysql.yml \
+  -f .devcontainer/docker-compose.prod.yml \              # Backend (Apache)
+  -f .devcontainer/docker-compose.frontend.prod.yml \    # Frontend (Nginx SPA)
+  -f .devcontainer/docker-compose.https.prod.yml \       # Reverse proxy (SSL)
+  up -d
+
+# Access with HTTPS: https://localhost/
+```
+
+See [Security: HTTPS Configuration](security.md#https-in-production-with-nginx-reverse-proxy) for details.
+
+**Stop production tests:**
+```bash
+docker compose down  # Stops all containers
+```
+
+---
+
+## Choose Your Setup
+
+Use this table to pick the right docker-compose files for your project:
+
+| Your Setup | Compose Files | Ports | Notes |
+|------------|---------------|-------|-------|
+| **Full Symfony** (no frontend) | `mysql.yml` + `docker-compose.prod.yml` | 8000 | Backend only |
+| **Symfony API + React/Vue SPA** | `mysql.yml` + `prod.yml` + `frontend.prod.yml` | 8000, 5173 | Separate backend + frontend |
+| **Symfony API + SPA + HTTPS** | Add `https.prod.yml` to above | 80, 443 | Nginx SSL reverse proxy |
+| **Next.js / Nuxt (SSR)** | `mysql.yml` + `node.prod.yml` | 3000 | Server-side rendering |
+| **Next.js + HTTPS** | `mysql.yml` + `node.prod.yml` + `https.prod.yml` | 80, 443 | Node.js + SSL |
+
+**Pattern:**
+```bash
+docker compose \
+  -f .devcontainer/docker-compose.<database>.yml \
+  -f .devcontainer/docker-compose.<app>.yml \
+  [-f .devcontainer/docker-compose.https.prod.yml] \  # Optional
+  up -d
+```
+
+---
+
+## Rendering Strategies (SPA vs SSR vs ISR)
+
+For detailed information on choosing between **SPA** (Single Page Application), **SSR** (Server-Side Rendering), and **ISR** (Incremental Static Regeneration), see:
+
+[Frontend-Backend Communication: Rendering Strategies](frontend-backend.md#rendering-strategies-spa-vs-ssr-vs-isr)
+
+**Quick reference:**
+- **SPA** (React, Vue, Vite): Use `docker-compose.frontend.prod.yml`
+- **SSR/ISR** (Next.js, Nuxt): Use `docker-compose.node.prod.yml`
+
+---
+
 ## Production by Project Type
 
 | Project Type | Dockerfile | Compose File | Port |
