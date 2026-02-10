@@ -19,8 +19,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      redis:
+        condition: service_healthy
       mailpit:
-        condition: service_started
+        condition: service_healthy
     networks:
       - app-network
     command: sleep infinity
@@ -36,21 +38,7 @@ services:
     networks:
       - app-network
 
-  mailpit:
-    image: axllent/mailpit
-    ports:
-      - "${MAILPIT_HTTP_PORT}:8025"
-      - "${MAILPIT_SMTP_PORT}:1025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-    networks:
-      - app-network
-
 networks:
   app-network:
     external: true
     name: devcontainer-network
-
-volumes:
-  db-data:

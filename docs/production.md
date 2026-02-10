@@ -38,11 +38,12 @@ To test your application in a production-like environment:
 
 # 2. Choose your setup based on your project type (see below)
 
-# Example: Symfony API + React SPA
+# Example: Symfony API + React SPA (with email testing)
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.prod.yml \
   -f .devcontainer/docker-compose.frontend.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
   up -d
 
 # 3. Access in browser
@@ -63,6 +64,7 @@ docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.prod.yml \              # Backend (Apache)
   -f .devcontainer/docker-compose.frontend.prod.yml \    # Frontend (Nginx SPA)
+  -f .devcontainer/docker-compose.mailpit.yml \          # Email testing (optional)
   -f .devcontainer/docker-compose.https.prod.yml \       # Reverse proxy (SSL)
   up -d
 
@@ -95,7 +97,8 @@ Use this table to pick the right docker-compose files for your project:
 docker compose \
   -f .devcontainer/docker-compose.<database>.yml \
   -f .devcontainer/docker-compose.<app>.yml \
-  [-f .devcontainer/docker-compose.https.prod.yml] \  # Optional
+  [-f .devcontainer/docker-compose.mailpit.yml] \      # Optional: Email testing
+  [-f .devcontainer/docker-compose.https.prod.yml] \   # Optional: HTTPS reverse proxy
   up -d
 ```
 
@@ -169,10 +172,18 @@ docker build -f .devcontainer/Dockerfile.apache.prod -t my-app:prod .
 
 # Run with compose (combine with database file)
 # With MySQL:
-docker compose -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.prod.yml up -d
+docker compose \
+  -f .devcontainer/docker-compose.mysql.yml \
+  -f .devcontainer/docker-compose.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
+  up -d
 
 # With PostgreSQL:
-docker compose -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.prod.yml up -d
+docker compose \
+  -f .devcontainer/docker-compose.postgre.yml \
+  -f .devcontainer/docker-compose.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
+  up -d
 
 # Access at http://localhost:8000
 ```
@@ -211,16 +222,18 @@ The API and frontend are deployed **separately**:
 ### Option 1: Both in Docker containers
 
 ```bash
-# Build and run API + Frontend + Database
+# Build and run API + Frontend + Database (with optional email testing)
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.prod.yml \
   -f .devcontainer/docker-compose.frontend.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
   up -d
 
 # Access:
 # - API: http://localhost:8000
 # - Frontend: http://localhost:5173
+# - Mailpit (email testing): http://localhost:8025
 ```
 
 ### CORS Configuration
@@ -246,7 +259,11 @@ npm run build
 
 The API runs in Docker:
 ```bash
-docker compose -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.prod.yml up -d
+docker compose \
+  -f .devcontainer/docker-compose.mysql.yml \
+  -f .devcontainer/docker-compose.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
+  up -d
 ```
 
 ### Option 3: Reverse proxy (advanced)
