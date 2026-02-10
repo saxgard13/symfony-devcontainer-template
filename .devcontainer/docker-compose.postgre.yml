@@ -14,3 +14,6 @@ services:
       - db-data:/var/lib/postgresql/data:rw
     networks:
       - app-network
+
+volumes:
+  db-data:

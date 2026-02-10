@@ -21,7 +21,8 @@ This document describes the structure and components of the Symfony DevContainer
 │   ├── docker-compose.node.prod.yml # Node.js backend production
 │   ├── docker-compose.mysql.yml     # MySQL database service
 │   ├── docker-compose.postgre.yml   # PostgreSQL database service (alternative)
-│   ├── docker-compose.redis.yml     # Redis cache service
+│   ├── docker-compose.redis.yml     # Redis cache service (optional)
+│   ├── docker-compose.mailpit.yml   # Email testing service (optional)
 │   ├── Dockerfile.dev               # Development container image
 │   ├── Dockerfile.apache.prod       # Production Apache/PHP image
 │   ├── Dockerfile.spa.prod          # Production Nginx SPA image
@@ -59,15 +60,15 @@ This document describes the structure and components of the Symfony DevContainer
 |---------|-------|------|---------|
 | **dev** | `Dockerfile.dev` | 8000, 5173, 9003 | Main development container (PHP + Node.js) |
 | **adminer** | `adminer:latest` | 8080 | Database administration GUI |
-| **mailpit** | `axllent/mailpit` | 8025 (HTTP), 1025 (SMTP) | Email capture for testing |
 
-### Database Services
+### Database & Cache Services
 
-| File | Service | Default Image | Port |
-|------|---------|---------------|------|
-| `docker-compose.mysql.yml` | db | `mysql:8.3` | 3306 (internal) |
-| `docker-compose.postgre.yml` | db | `postgres:16` | 5432 (internal) |
-| `docker-compose.redis.yml` | redis | `redis:7-alpine` | 6379 |
+| File | Service | Default Image | Port | Type |
+|------|---------|---------------|------|------|
+| `docker-compose.mysql.yml` | db | `mysql:8.3` | 3306 (internal) | Database |
+| `docker-compose.postgre.yml` | db | `postgres:16` | 5432 (internal) | Database (alternative) |
+| `docker-compose.redis.yml` | redis | `redis:7-alpine` | 6379 | Cache (optional) |
+| `docker-compose.mailpit.yml` | mailpit | `axllent/mailpit` | 8025, 1025 | Email testing (optional) |
 
 ### Production Environments
 
@@ -77,7 +78,9 @@ This document describes the structure and components of the Symfony DevContainer
 |---------|-------|------|---------|
 | **prod** | `Dockerfile.apache.prod` | 8000 | Apache + PHP production backend |
 | **adminer** | `adminer:latest` | 8080 | Database administration GUI |
-| **mailpit** | `axllent/mailpit` | 8025/1025 | Email capture |
+
+**Optional services for production testing:**
+- `docker-compose.mailpit.yml` → Email capture (`mailpit` service on port 8025/1025)
 
 #### SPA Frontend (`docker-compose.frontend.prod.yml`)
 
@@ -452,6 +455,7 @@ docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.prod.yml \
   -f .devcontainer/docker-compose.frontend.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \      # Optional: email testing
   up -d
 ```
 
@@ -459,7 +463,7 @@ docker compose \
 - `prod` (Apache/PHP) on port 8000
 - `frontend` (Nginx SPA) on port 5173
 - `db` (MySQL, internal)
-- `mailpit` (email testing)
+- `mailpit` (email testing, optional) on port 8025/1025
 
 ### Scenario 2: Full Symfony Application
 
@@ -473,13 +477,14 @@ docker compose \
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \      # Optional: email testing
   up -d
 ```
 
 **Resulting services:**
 - `prod` (Apache/PHP) on port 8000
 - `db` (MySQL, internal)
-- `mailpit` (email testing)
+- `mailpit` (email testing, optional) on port 8025/1025
 
 ### Scenario 3: Node.js Backend (Next.js, Nuxt, etc.)
 
@@ -493,24 +498,28 @@ docker compose \
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.node.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \      # Optional: email testing
   up -d
 ```
 
 **Resulting services:**
 - `app` (Node.js) on port 3000
 - `db` (MySQL, internal)
-- `mailpit` (email testing)
+- `mailpit` (email testing, optional) on port 8025/1025
 
 ### Local Development (All Scenarios)
 
-**Single compose file for everything:**
+**Single compose file for everything** (or use VS Code DevContainer):
 ```bash
 docker compose \
   -f .devcontainer/docker-compose.dev.yml \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.redis.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
   up -d
 ```
+
+> **Note:** In VS Code, opening the project with **Reopen in Container** automatically loads all files configured in `devcontainer.json`.
 
 **All available services:**
 - `dev` (development container) on ports 8000, 5173, 9003
