@@ -530,3 +530,24 @@ Configuration is managed through:
 | `.versions.json` | Centralized version config | ✅ Yes |
 
 The `scripts/update-versions.sh` script synchronizes `.versions.json` changes to all Dockerfiles and `.env` files.
+
+---
+
+## Documentation Index
+
+For detailed information about setting up and using the template, refer to these guides:
+
+| Document | Purpose |
+|----------|---------|
+| **[Usage Guide](usage.md)** | Installation, project setup, starting development servers, and basic commands |
+| **[Configuration](configuration.md)** | Customizing PHP, Node.js, database versions and environment variables |
+| **[Database](database.md)** | MySQL/PostgreSQL setup, migrations, SSH tunnels, and database management |
+| **[Redis](redis.md)** | Caching, sessions, and Redis configuration |
+| **[Security](security.md)** | Security headers, secrets management, and best practices |
+| **[Xdebug](xdebug.md)** | Setting up PHP step debugging |
+| **[Frontend ↔ Backend](frontend-backend.md)** | CORS, API communication, and development patterns |
+| **[Quality Tools](quality-tools.md)** | PHP-CS-Fixer, PHPStan, ESLint, Prettier, and TypeScript configuration |
+| **[Development Tools](development-tools.md)** | Debug Bundle, Profiler, Maker Bundle, testing frameworks (Jest/Vitest, Storybook) |
+| **[Workflows](workflows.md)** | GitHub Actions CI/CD pipeline setup for quality, tests, security, and deployment |
+| **[Advanced](advanced.md)** | Advanced configurations, troubleshooting, and optimization tips |
+| **[Production](production.md)** | Building and testing production Docker images |

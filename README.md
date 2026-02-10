@@ -114,6 +114,17 @@ A ready-to-use development environment for Symfony using DevContainers.
    npm run dev -- --host
    ```
 
+## ⚠️ About This Documentation
+
+This template and documentation provide **guidance and best practices** for setting up a Symfony development environment. Please note:
+
+- **Not all features have been tested in production** - This template is designed for local development with Docker
+- **Documentation contains suggestions** - Configuration examples are recommendations; adapt them to your specific needs
+- **Test thoroughly before production** - Each section provides options and examples; choose what works for your project
+- **Community contributions welcome** - If you discover issues or have improvements, please contribute
+
+For production deployments, thoroughly test all configurations in your specific environment before using them.
+
 ## Customizing Versions
 
 To use different versions of PHP, Node.js, database, Redis, or Adminer:
@@ -185,17 +196,21 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 
 ## Documentation
 
-| Topic                            | Document                                       |
-| -------------------------------- | ---------------------------------------------- |
-| Project structure & services     | [Architecture](docs/architecture.md)           |
-| Environment variables & settings | [Configuration](docs/configuration.md)         |
-| MySQL, PostgreSQL, SSH tunnels   | [Database](docs/database.md)                   |
-| Cache & sessions                 | [Redis](docs/redis.md)                         |
-| Headers, secrets, best practices | [Security](docs/security.md)                   |
-| Step debugging setup             | [Xdebug](docs/xdebug.md)                       |
-| Installation & workspaces        | [Usage Guide](docs/usage.md)                   |
-| CORS & API communication         | [Frontend ↔ Backend](docs/frontend-backend.md) |
-| Building & testing prod images   | [Production](docs/production.md)               |
+| Topic                                     | Document                                       |
+| ----------------------------------------- | ---------------------------------------------- |
+| Project structure & services              | [Architecture](docs/architecture.md)           |
+| Environment variables & settings          | [Configuration](docs/configuration.md)         |
+| MySQL, PostgreSQL, SSH tunnels            | [Database](docs/database.md)                   |
+| Cache & sessions                          | [Redis](docs/redis.md)                         |
+| Headers, secrets, best practices          | [Security](docs/security.md)                   |
+| Step debugging setup                      | [Xdebug](docs/xdebug.md)                       |
+| Installation & workspaces                 | [Usage Guide](docs/usage.md)                   |
+| CORS & API communication                  | [Frontend ↔ Backend](docs/frontend-backend.md) |
+| Code quality tools & formatting           | [Quality Tools](docs/quality-tools.md)         |
+| Development tools (testing, debugging)    | [Development Tools](docs/development-tools.md) |
+| GitHub Actions & CI/CD workflows          | [Workflows](docs/workflows.md)                 |
+| Advanced topics & troubleshooting         | [Advanced](docs/advanced.md)                   |
+| Building & testing prod images            | [Production](docs/production.md)               |
 
 ## Project Types
 
