@@ -282,6 +282,67 @@ The `--host` flag is required to access from outside the container:
 | Adminer  | http://localhost:8080 | Server: `db`, User: `symfony`, Pass: `symfony` |
 | Mailpit  | http://localhost:8025 | -                                              |
 
+## Code Quality
+
+This template includes support for PHP code style fixing and static analysis:
+
+- **PHP-CS-Fixer** - Automatically fixes code to follow PSR-12 standard
+- **PHPStan** - Detects logical errors and type-related issues
+
+For complete setup instructions, configuration files, and CI/CD integration, see [**Code Quality Tools**](quality-tools.md).
+
+For GitHub Actions workflow setup (separate workflows for quality, tests, deployment, etc.), see [**GitHub Actions Workflows**](workflows.md).
+
+**Quick start:**
+
+```bash
+# Auto-fix code style
+php-cs-fixer fix src/
+
+# Check code for errors
+phpstan analyse src/
+```
+
+Both tools are pre-configured in the DevContainer with:
+- junstyle.php-cs-fixer extension (auto-fix on save)
+- Configuration files ready to customize
+- GitHub Actions workflow template for CI/CD
+
+## Development Tools
+
+Optional tools to enhance your development experience:
+
+- **Debug Bundle** - Interactive debugging toolbar for inspecting requests
+- **Profiler Pack** - Performance analysis and bottleneck detection
+- **Maker Bundle** - Code scaffolding (entities, controllers, forms)
+- **Test Pack** - PHPUnit testing framework
+
+For detailed setup and usage instructions, see [**Development Tools**](development-tools.md).
+
+**Quick start:**
+
+```bash
+# Install development tools
+composer require --dev symfony/debug-bundle
+composer require --dev symfony/profiler-pack
+composer require --dev symfony/maker-bundle
+composer require --dev symfony/test-pack
+
+# Generate an entity
+symfony console make:entity
+
+# Generate a controller
+symfony console make:controller
+
+# Create a test
+symfony console make:test
+
+# Run tests
+php bin/phpunit
+```
+
+The debug toolbar appears automatically at the bottom of every page in development mode.
+
 ## Common Commands
 
 ```bash
@@ -301,4 +362,9 @@ symfony console make:migration
 # Frontend
 npm install
 npm run build
+
+# Code Quality
+php-cs-fixer fix src/                    # Auto-fix code style
+php-cs-fixer fix src/ --dry-run --diff   # Preview changes without fixing
+phpstan analyse src/                     # Analyze for errors
 ```
