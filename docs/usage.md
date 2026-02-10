@@ -284,18 +284,18 @@ The `--host` flag is required to access from outside the container:
 
 ## Code Quality
 
+### Backend (PHP/Symfony)
+
 This template includes support for PHP code style fixing and static analysis:
 
 - **PHP-CS-Fixer** - Automatically fixes code to follow PSR-12 standard
 - **PHPStan** - Detects logical errors and type-related issues
 
-For complete setup instructions, configuration files, and CI/CD integration, see [**Code Quality Tools**](quality-tools.md).
-
-For GitHub Actions workflow setup (separate workflows for quality, tests, deployment, etc.), see [**GitHub Actions Workflows**](workflows.md).
-
 **Quick start:**
 
 ```bash
+cd backend
+
 # Auto-fix code style
 php-cs-fixer fix src/
 
@@ -303,25 +303,57 @@ php-cs-fixer fix src/
 phpstan analyse src/
 ```
 
-Both tools are pre-configured in the DevContainer with:
-- junstyle.php-cs-fixer extension (auto-fix on save)
-- Configuration files ready to customize
-- GitHub Actions workflow template for CI/CD
+Both tools are pre-configured with junstyle.php-cs-fixer extension (auto-fix on save).
+
+### Frontend (JavaScript/TypeScript)
+
+Frontend quality tools enforce code standards:
+
+- **ESLint** - Finds code quality problems and suspicious patterns
+- **Prettier** - Auto-formats code to maintain consistency
+- **TypeScript** - Type checking for JavaScript code
+
+**Quick start:**
+
+```bash
+cd frontend
+
+# Check for code quality issues
+npm run lint
+
+# Auto-fix linting issues
+npm run lint:fix
+
+# Check code formatting
+npm run format:check
+
+# Auto-format code
+npm run format
+
+# Type checking (if using TypeScript)
+npm run type-check
+```
+
+For complete setup instructions, configuration files, and CI/CD integration, see [**Code Quality Tools**](quality-tools.md).
+
+For GitHub Actions workflow setup (separate workflows for quality, tests, deployment, etc.), see [**GitHub Actions Workflows**](workflows.md).
 
 ## Development Tools
 
-Optional tools to enhance your development experience:
+### Backend (PHP/Symfony)
+
+Optional tools to enhance your Symfony development experience:
 
 - **Debug Bundle** - Interactive debugging toolbar for inspecting requests
 - **Profiler Pack** - Performance analysis and bottleneck detection
 - **Maker Bundle** - Code scaffolding (entities, controllers, forms)
 - **Test Pack** - PHPUnit testing framework
 
-For detailed setup and usage instructions, see [**Development Tools**](development-tools.md).
-
 **Quick start:**
 
 ```bash
+cd backend
+
 # Install development tools
 composer require --dev symfony/debug-bundle
 composer require --dev symfony/profiler-pack
@@ -343,28 +375,96 @@ php bin/phpunit
 
 The debug toolbar appears automatically at the bottom of every page in development mode.
 
-## Common Commands
+### Frontend (JavaScript/TypeScript)
+
+Optional tools to enhance your frontend development experience:
+
+- **Jest/Vitest** - Unit and component testing framework
+- **Testing Library** - Component testing utilities (works with Jest/Vitest)
+- **Storybook** - Component development and documentation
+- **Prettier** - Code formatting for consistency
+
+**Quick start:**
 
 ```bash
-# Symfony
+cd frontend
+
+# Install testing framework (choose one)
+npm install --save-dev vitest @testing-library/react @testing-library/jest-dom
+
+# OR for Jest
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom
+
+# Install Prettier (optional, often included by default)
+npm install --save-dev prettier
+
+# Run tests
+npm test
+
+# Format code
+npm run format
+
+# Start Storybook (if installed)
+npm run storybook
+```
+
+For detailed setup and usage instructions, see [**Development Tools**](development-tools.md).
+
+## Common Commands
+
+### Backend (Symfony)
+
+```bash
+# Generate code
 symfony console make:controller
+symfony console make:entity
 symfony console doctrine:migrations:migrate
+
+# Database
+symfony console doctrine:database:create
+symfony console make:migration
+
+# Cache & tools
 symfony console cache:clear
 
 # Composer
 composer require package-name
 composer install
 
-# Database
-symfony console doctrine:database:create
-symfony console make:migration
-
-# Frontend
-npm install
-npm run build
-
 # Code Quality
 php-cs-fixer fix src/                    # Auto-fix code style
 php-cs-fixer fix src/ --dry-run --diff   # Preview changes without fixing
 phpstan analyse src/                     # Analyze for errors
+
+# Testing
+php bin/phpunit
+php bin/phpunit tests/Controller/        # Run specific tests
+```
+
+### Frontend (JavaScript/React/Vue/etc)
+
+```bash
+# Dependencies
+npm install
+npm install package-name --save-dev
+
+# Development
+npm run dev                      # Start dev server
+npm run build                    # Build for production
+
+# Code Quality
+npm run lint                     # Check for code issues
+npm run lint:fix                 # Auto-fix linting issues
+npm run format                   # Format code with Prettier
+npm run format:check             # Check if code is formatted
+npm run type-check               # Type checking (TypeScript)
+
+# Testing
+npm test                         # Run tests
+npm test -- --coverage           # Tests with coverage report
+npm test -- --watch              # Watch mode
+
+# Storybook
+npm run storybook                # Start Storybook dev server
+npm run build-storybook          # Build static Storybook site
 ```

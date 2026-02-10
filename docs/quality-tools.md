@@ -125,6 +125,217 @@ includes:
 
 ---
 
+## Frontend Quality Tools
+
+Code quality tools for JavaScript/TypeScript frontend development.
+
+### Overview
+
+| Tool | Package | Purpose | Installation | Extension |
+|------|---------|---------|---|---|
+| **ESLint** | `eslint` | Linting (find code problems) | npm | ✅ Pre-installed in devcontainer.json |
+| **Prettier** | `prettier` | Code formatting | npm | ✅ Pre-installed in devcontainer.json |
+| **TypeScript** | `typescript` | Type checking | npm | ✅ Built into most frameworks |
+
+---
+
+### Installation
+
+Inside your `frontend/` folder:
+
+```bash
+npm install --save-dev eslint prettier typescript
+npm init @eslint/config  # Interactive setup for ESLint
+```
+
+This adds:
+- **eslint** - Finds and reports code quality issues
+- **prettier** - Auto-formats code (complements ESLint)
+- **typescript** - Type checking for `.ts` and `.tsx` files
+
+---
+
+### ESLint
+
+**What it does:**
+- Finds code quality problems (unused variables, suspicious patterns)
+- Prevents bugs before runtime
+- Enforces coding standards
+- Integrates with VSCode for real-time feedback
+
+**Configuration** (`.eslintrc.json`):
+
+```json
+{
+  "env": {
+    "browser": true,
+    "es2021": true,
+    "node": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": "latest",
+    "sourceType": "module"
+  },
+  "plugins": [
+    "react",
+    "@typescript-eslint"
+  ],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "no-unused-vars": "warn",
+    "@typescript-eslint/no-explicit-any": "warn"
+  }
+}
+```
+
+**Usage:**
+
+```bash
+# Check for issues
+npm run lint
+
+# Fix automatically (where possible)
+npm run lint -- --fix
+
+# Dry run (show what would be fixed)
+npm run lint -- --fix --dry-run
+```
+
+Add these scripts to `frontend/package.json`:
+```json
+{
+  "scripts": {
+    "lint": "eslint src --ext .js,.jsx,.ts,.tsx",
+    "lint:fix": "eslint src --ext .js,.jsx,.ts,.tsx --fix"
+  }
+}
+```
+
+### Prettier
+
+**What it does:**
+- Auto-formats code (indentation, quotes, semicolons, etc.)
+- Enforces consistent style across the team
+- Integrates with VSCode for format-on-save
+
+**Configuration** (`.prettierrc.json`):
+
+```json
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2,
+  "useTabs": false,
+  "arrowParens": "always"
+}
+```
+
+**Usage:**
+
+```bash
+# Format all files
+npm run format
+
+# Check if files are formatted
+npm run format:check
+
+# Format specific file
+npx prettier --write src/App.jsx
+```
+
+Add these scripts to `frontend/package.json`:
+```json
+{
+  "scripts": {
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
+    "format:check": "prettier --check \"src/**/*.{js,jsx,ts,tsx,css,md}\""
+  }
+}
+```
+
+### TypeScript
+
+**What it does:**
+- Type checking for JavaScript code
+- Catches bugs at development time (before runtime)
+- Improves IDE autocompletion
+- Optional (can run alongside JavaScript)
+
+**Configuration** (`tsconfig.json`):
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "useDefineForClassFields": true,
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "strict": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx"
+  },
+  "include": ["src"],
+  "references": [{ "path": "./tsconfig.node.json" }]
+}
+```
+
+**Usage:**
+
+```bash
+# Type check without compilation
+npx tsc --noEmit
+
+# Watch mode
+npx tsc --noEmit --watch
+```
+
+### Configuration Layers for Frontend
+
+Similar to PHP-CS-Fixer, there are **TWO separate configuration layers**:
+
+| Layer | Location | Controls | Scope |
+|-------|----------|----------|-------|
+| **VSCode Extension** | `.devcontainer/devcontainer.json` | **WHEN** formatting happens | Local dev only (VSCode) |
+| **ESLint/Prettier** | `.eslintrc.json`, `.prettierrc.json` | **WHAT** gets formatted | Everywhere (local + CI/CD) |
+
+### Real-World Example
+
+**Developer A's VSCode settings:**
+```json
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode"
+}
+```
+
+**Developer B's VSCode settings:**
+```json
+{
+  "editor.formatOnSave": false
+}
+```
+
+**Both use the same `.prettierrc.json`**, so they produce **identical code** ✅
+
+In CI/CD, ESLint and Prettier rules apply regardless of developer preferences.
+
+---
+
 ## VS Code Extension Settings vs PHP-CS-Fixer Configuration
 
 ### ⚠️ Important Distinction

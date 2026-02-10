@@ -8,20 +8,24 @@ The recommended setup uses **separate workflow files** for different purposes. E
 
 ```
 .github/workflows/
-├── quality.yml          # PHP-CS-Fixer + PHPStan code quality checks
-├── tests.yml            # PHPUnit backend tests
-├── build.yml            # Frontend build & lint (ESLint, etc.)
-├── security.yml         # Dependency scanning & security audits
-└── deploy.yml           # Production deployment (manual trigger)
+├── quality.yml                # PHP-CS-Fixer + PHPStan code quality checks
+├── tests.yml                  # PHPUnit backend tests
+├── frontend-quality.yml       # ESLint + Prettier + TypeScript checks
+├── frontend-tests.yml         # Jest/Vitest frontend tests
+├── frontend-build.yml         # Frontend build & bundle size check
+├── security.yml               # Dependency scanning & security audits
+└── deploy.yml                 # Production deployment (manual trigger)
 ```
 
 ### When Each Workflow Runs
 
 | Workflow | Trigger | Purpose | Duration |
 |----------|---------|---------|----------|
-| **quality.yml** | Every push & PR | Check code style & detect errors | ~2-3 min |
-| **tests.yml** | Every push & PR | Run PHPUnit tests | ~5-10 min |
-| **build.yml** | Every push & PR | Build frontend, check lint | ~3-5 min |
+| **quality.yml** | Every push & PR | Check backend code style & detect errors | ~2-3 min |
+| **tests.yml** | Every push & PR | Run PHPUnit backend tests | ~5-10 min |
+| **frontend-quality.yml** | Every push & PR | ESLint, Prettier, TypeScript checks | ~2-3 min |
+| **frontend-tests.yml** | Every push & PR | Run Jest/Vitest frontend tests | ~5-10 min |
+| **frontend-build.yml** | Every push & PR | Build frontend, check bundle size | ~3-5 min |
 | **security.yml** | Daily or on push | Scan dependencies & code | ~5-10 min |
 | **deploy.yml** | Manual trigger | Deploy to production | ~10-20 min |
 
@@ -150,11 +154,109 @@ jobs:
 
 ---
 
-## 3. Frontend Build & Lint Workflow
+## 3. Frontend Quality Workflow
 
-File: `.github/workflows/build.yml`
+File: `.github/workflows/frontend-quality.yml`
 
-Builds the frontend and checks for lint errors.
+Runs ESLint, Prettier, and TypeScript checks on every push.
+
+```yaml
+name: Frontend Quality
+
+on: [push, pull_request]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: ESLint (code quality)
+        run: cd frontend && npm run lint
+
+      - name: Prettier (code formatting)
+        run: cd frontend && npm run format:check
+
+      - name: TypeScript (type checking)
+        run: cd frontend && npm run type-check
+        continue-on-error: true
+```
+
+**What it checks:**
+- ✅ No ESLint violations (code quality)
+- ✅ Code follows formatting rules (Prettier)
+- ✅ No TypeScript errors (optional)
+- ❌ Fails the build if violations found
+
+---
+
+## 3.5 Frontend Tests Workflow
+
+File: `.github/workflows/frontend-tests.yml`
+
+Runs Jest or Vitest tests and generates coverage reports.
+
+```yaml
+name: Frontend Tests
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: cd frontend && npm install
+
+      - name: Run tests
+        run: cd frontend && npm test -- --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: frontend/coverage/coverage-final.json
+          flags: frontend
+
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./frontend/coverage/lcov.info
+```
+
+**What it checks:**
+- ✅ All unit tests pass
+- ✅ All component tests pass
+- 📊 Generates code coverage reports
+- 💬 Posts coverage report on PR
+
+---
+
+## 4. Frontend Build Workflow
+
+File: `.github/workflows/frontend-build.yml`
+
+Builds the frontend and checks bundle size.
 
 ```yaml
 name: Frontend Build
@@ -177,27 +279,22 @@ jobs:
       - name: Install dependencies
         run: cd frontend && npm install
 
-      - name: Run ESLint
-        run: cd frontend && npm run lint
-        continue-on-error: true  # Report errors but don't fail
-
       - name: Build frontend
         run: cd frontend && npm run build
 
       - name: Check bundle size
         run: cd frontend && npm run analyze
-        continue-on-error: true
+        continue-on-error: true  # Warn but don't fail
 ```
 
 **What it checks:**
-- ✅ No ESLint violations
 - ✅ Frontend builds successfully
-- ✅ Bundle size is reasonable
+- 📦 Bundle size is reasonable
 - 💡 Optional: Flag large dependencies
 
 ---
 
-## 4. Security Workflow
+## 5. Security Workflow
 
 File: `.github/workflows/security.yml`
 
@@ -240,7 +337,7 @@ jobs:
 
 ---
 
-## 5. Deployment Workflow
+## 6. Deployment Workflow
 
 File: `.github/workflows/deploy.yml`
 
@@ -334,24 +431,60 @@ jobs:
 
 ## Monorepo Configuration
 
-If you use separate `backend/` and `frontend/` folders, adjust paths:
+If you use separate `backend/` and `frontend/` folders, adjust paths in workflows:
 
-**Quality workflow (backend only):**
+**Backend quality workflow:**
 ```yaml
 - name: Install dependencies
   run: cd backend && composer install
 
 - name: PHP-CS-Fixer
   run: cd backend && vendor/bin/php-cs-fixer fix src/ --dry-run --diff
+
+- name: PHPStan
+  run: cd backend && vendor/bin/phpstan analyse src/
 ```
 
-**Build workflow (frontend only):**
+**Backend tests workflow:**
+```yaml
+- name: Install dependencies
+  run: cd backend && composer install
+
+- name: Run tests
+  run: cd backend && php bin/phpunit
+```
+
+**Frontend quality workflow:**
 ```yaml
 - name: Install dependencies
   run: cd frontend && npm install
 
 - name: ESLint
   run: cd frontend && npm run lint
+
+- name: Prettier
+  run: cd frontend && npm run format:check
+
+- name: TypeScript
+  run: cd frontend && npm run type-check
+```
+
+**Frontend tests workflow:**
+```yaml
+- name: Install dependencies
+  run: cd frontend && npm install
+
+- name: Run tests
+  run: cd frontend && npm test -- --coverage
+```
+
+**Frontend build workflow:**
+```yaml
+- name: Install dependencies
+  run: cd frontend && npm install
+
+- name: Build
+  run: cd frontend && npm run build
 ```
 
 ---
@@ -548,19 +681,35 @@ Click "Details" to see which step failed.
 mkdir -p .github/workflows
 ```
 
-1. `.github/workflows/quality.yml` - Quality checks
-2. `.github/workflows/tests.yml` - Run tests
-3. `.github/workflows/build.yml` - Frontend build
-4. `.github/workflows/deploy.yml` - Production deployment
+**Backend Workflows:**
+1. `.github/workflows/quality.yml` - PHP-CS-Fixer + PHPStan checks
+2. `.github/workflows/tests.yml` - PHPUnit backend tests
+
+**Frontend Workflows:**
+3. `.github/workflows/frontend-quality.yml` - ESLint + Prettier + TypeScript checks
+4. `.github/workflows/frontend-tests.yml` - Jest/Vitest tests with coverage
+5. `.github/workflows/frontend-build.yml` - Frontend build & bundle size
+
+**Shared Workflows:**
+6. `.github/workflows/security.yml` - Security scanning
+7. `.github/workflows/deploy.yml` - Production deployment
 
 **Add to `README.md`:**
 
 ```markdown
 ## CI/CD Status
 
+### Backend
 ![Code Quality](https://github.com/your-org/your-repo/actions/workflows/quality.yml/badge.svg)
 ![Tests](https://github.com/your-org/your-repo/actions/workflows/tests.yml/badge.svg)
-![Build](https://github.com/your-org/your-repo/actions/workflows/build.yml/badge.svg)
+
+### Frontend
+![Quality](https://github.com/your-org/your-repo/actions/workflows/frontend-quality.yml/badge.svg)
+![Tests](https://github.com/your-org/your-repo/actions/workflows/frontend-tests.yml/badge.svg)
+![Build](https://github.com/your-org/your-repo/actions/workflows/frontend-build.yml/badge.svg)
+
+### Security
+![Security](https://github.com/your-org/your-repo/actions/workflows/security.yml/badge.svg)
 ```
 
 ---

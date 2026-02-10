@@ -39,7 +39,11 @@ composer require --dev symfony/maker-bundle
 
 # Testing
 composer require --dev symfony/test-pack
+composer require --dev symfony/browser-kit
+composer require --dev symfony/css-selector
 ```
+
+**Note:** `symfony/test-pack` automatically includes `symfony/browser-kit` and `symfony/css-selector`, so the additional commands above are optional but shown for clarity if you prefer explicit installation.
 
 ---
 
@@ -240,6 +244,261 @@ php bin/phpunit --coverage-html var/coverage
 
 # View in browser
 open var/coverage/index.html
+```
+
+---
+
+## Frontend Development Tools
+
+Optional tools to enhance your JavaScript/TypeScript frontend development experience.
+
+### Overview
+
+| Tool | Package | Purpose | Use Case |
+|------|---------|---------|-------------|
+| **Jest** or **Vitest** | `jest`, `vitest` | Unit & component testing | Testing React/Vue/Svelte logic |
+| **Testing Library** | `@testing-library/react`, etc. | Component testing utilities | Testing user interactions |
+| **Storybook** | `storybook` | Component development & documentation | Building & documenting UI components |
+| **Prettier** | `prettier` | Code formatting | Auto-formatting JavaScript/TypeScript |
+
+### Installation
+
+#### Testing Framework (Choose One)
+
+**Option 1: Jest** (More mature, common in Create React App)
+```bash
+cd frontend
+npm install --save-dev jest @testing-library/react @testing-library/jest-dom
+npx jest --init
+```
+
+**Option 2: Vitest** (Faster, modern, recommended for Vite projects)
+```bash
+cd frontend
+npm install --save-dev vitest @testing-library/react @testing-library/jest-dom
+```
+
+#### Storybook (Optional)
+
+```bash
+cd frontend
+npx storybook@latest init
+```
+
+Automatically detects your framework (React, Vue, etc.) and installs dependencies.
+
+#### Prettier (Code Formatting)
+
+```bash
+cd frontend
+npm install --save-dev prettier
+```
+
+> **Note:** Most JS frameworks (Next.js, Vite, Create React App) include Prettier in their initial setup. Check `package.json` first.
+
+### Jest
+
+**What it does:**
+- Runs unit tests for JavaScript/TypeScript code
+- Tests React/Vue/Svelte component logic
+- Generates code coverage reports
+- Runs with built-in mocking and async support
+
+**Quick Start:**
+
+```bash
+# Create a test file
+touch src/components/Button.test.jsx
+
+# Add a simple test
+cat > src/components/Button.test.jsx << 'EOF'
+import { render, screen } from '@testing-library/react';
+import Button from './Button';
+
+test('renders button with text', () => {
+  render(<Button>Click me</Button>);
+  expect(screen.getByText('Click me')).toBeInTheDocument();
+});
+EOF
+
+# Run tests
+npm test
+
+# Watch mode
+npm test -- --watch
+
+# Coverage report
+npm test -- --coverage
+```
+
+**Configuration** (`.jest.config.js`):
+```javascript
+export default {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/setupTests.js'],
+  moduleNameMapper: {
+    '\\.(css|less|scss)$': 'identity-obj-proxy',
+  },
+  testMatch: [
+    '<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}',
+    '<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}',
+  ],
+};
+```
+
+### Vitest
+
+**What it does:**
+- Modern unit testing framework (faster than Jest)
+- Same API as Jest (drop-in replacement)
+- Works great with Vite, Next.js 13+
+- Built-in TypeScript support
+
+**Quick Start:**
+
+```bash
+# Already installed via npm install --save-dev vitest
+
+# Create a test file
+touch src/components/Button.test.jsx
+
+# Run tests
+npm run test
+
+# Watch mode
+npm run test -- --watch
+
+# Coverage
+npm run test -- --coverage
+```
+
+**Configuration** (`vitest.config.ts`):
+```typescript
+import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/setupTests.ts'],
+  },
+});
+```
+
+### Testing Library
+
+**What it does:**
+- Provides utilities to test React/Vue/Svelte components
+- Tests behavior from a user's perspective (not implementation details)
+- Works with Jest, Vitest, or any testing framework
+
+**Common Methods:**
+
+```javascript
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+test('user interaction', async () => {
+  const user = userEvent.setup();
+  render(<LoginForm />);
+
+  // Find elements like a user would
+  await user.type(screen.getByLabelText(/username/i), 'john');
+  await user.type(screen.getByLabelText(/password/i), 'secret');
+  await user.click(screen.getByRole('button', { name: /login/i }));
+
+  expect(screen.getByText(/welcome/i)).toBeInTheDocument();
+});
+```
+
+### Storybook
+
+**What it does:**
+- Isolated component development environment
+- Auto-generates component documentation
+- Tests component variations (stories)
+- Works with React, Vue, Svelte, Angular, etc.
+
+**Quick Start:**
+
+```bash
+# Initialize Storybook (auto-detects your framework)
+npx storybook@latest init
+
+# Start Storybook server
+npm run storybook
+
+# Build static site
+npm run build-storybook
+```
+
+**Example Story** (`src/components/Button.stories.jsx`):
+
+```jsx
+import Button from './Button';
+
+export default {
+  title: 'Components/Button',
+  component: Button,
+  args: { children: 'Click me' },
+};
+
+export const Primary = {};
+export const Disabled = { args: { disabled: true } };
+export const Large = { args: { size: 'large' } };
+```
+
+Access at `http://localhost:6006`
+
+### Prettier
+
+**What it does:**
+- Auto-formats JavaScript/TypeScript/CSS/HTML
+- Enforces consistent code style
+- Integrates with VSCode (auto-format on save)
+
+**Quick Start:**
+
+```bash
+# Format all files
+npm run format
+
+# Check formatting (dry run)
+npm run format:check
+```
+
+**Configuration** (`.prettierrc.json`):
+
+```json
+{
+  "semi": true,
+  "trailingComma": "es5",
+  "singleQuote": true,
+  "printWidth": 100,
+  "tabWidth": 2
+}
+```
+
+**VS Code Integration:**
+
+Add to `.vscode/settings.json` (in `frontend/` folder):
+```json
+{
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  }
+}
 ```
 
 ---
