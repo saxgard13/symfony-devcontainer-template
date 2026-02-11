@@ -4,6 +4,7 @@
 
 VERSIONS_FILE=".versions.json"
 ENV_FILE=".devcontainer/.env"
+DEVCONTAINER_FILE=".devcontainer/devcontainer.json"
 
 # Dockerfiles to update
 DOCKERFILES=(
@@ -62,6 +63,12 @@ for dockerfile in "${DOCKERFILES[@]}"; do
   fi
 done
 
+# Update devcontainer.json with Intelephense PHP version
+if [ -f "$DEVCONTAINER_FILE" ]; then
+  sed -i.bak "s/\"intelephense.environment.phpVersion\": \"[^\"]*\"/\"intelephense.environment.phpVersion\": \"$PHP_VERSION\"/" "$DEVCONTAINER_FILE"
+  rm -f "${DEVCONTAINER_FILE}.bak"
+fi
+
 echo "✅ Versions updated from .versions.json:"
 echo "   PHP: $PHP_VERSION"
 echo "   Node: $NODE_VERSION"
@@ -73,6 +80,7 @@ echo "   DEV_IMAGE: symfony-devcontainer-template-image:php$PHP_VERSION-node$NOD
 echo ""
 echo "Updated files:"
 echo "   ✓ .devcontainer/.env"
+echo "   ✓ .devcontainer/devcontainer.json (Intelephense PHP version)"
 for dockerfile in "${DOCKERFILES[@]}"; do
   if [ -f "$dockerfile" ]; then
     echo "   ✓ $dockerfile"

@@ -1,6 +1,11 @@
 {
   "name": "App Symfony",
-  "dockerComposeFile": ["docker-compose.dev.yml", "docker-compose.mysql.yml", "docker-compose.redis.yml", "docker-compose.mailpit.yml"],
+  "dockerComposeFile": [
+    "docker-compose.dev.yml",
+    "docker-compose.mysql.yml",
+    "docker-compose.redis.yml",
+    "docker-compose.mailpit.yml"
+  ],
   "service": "dev",
   "workspaceFolder": "/workspace",
   "customizations": {
@@ -65,5 +70,12 @@
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.symfony5,target=/home/vscode/.symfony5,type=bind,consistency=cached"
   ],
-  "forwardPorts": [8000]
+  "forwardPorts": [8000, 9003, 5173, 3000],
+  "portsAttributes": {
+    "8000": { "label": "Symfony Server" },
+    "9003": { "label": "Xdebug" },
+    "5173": { "label": "Vite" },
+    "8025": { "label": "Mailpit" },
+    "3000": { "label": "Next, Nuxt etc." }
+  }
 }

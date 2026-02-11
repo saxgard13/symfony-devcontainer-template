@@ -2,15 +2,23 @@ services:
   mailpit:
     image: axllent/mailpit
     ports:
-      - "${MAILPIT_HTTP_PORT:-8025}:8025"
-      - "${MAILPIT_SMTP_PORT:-1025}:1025"
+      - "8025:8025" # UI web
+      - "1025:1025" # SMTP interne si nécessaire
     environment:
       MP_SMTP_AUTH_ACCEPT_ANY: 1
       MP_SMTP_AUTH_ALLOW_INSECURE: 1
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:8025/"]
+      test:
+        [
+          "CMD",
+          "wget",
+          "--quiet",
+          "--tries=1",
+          "--spider",
+          "http://localhost:8025/",
+        ]
       interval: 5s
       timeout: 3s
       retries: 5

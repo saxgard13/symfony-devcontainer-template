@@ -9,10 +9,22 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-symfony}
     volumes:
       - db-data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "${MYSQL_USER:-symfony}", "-p${MYSQL_PASSWORD:-symfony}"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "${MYSQL_USER:-symfony}",
+          "-p${MYSQL_PASSWORD:-symfony}",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

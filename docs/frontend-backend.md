@@ -667,15 +667,17 @@ const clientApiUrl = 'http://localhost:8000/api'  // Browser on host machine
    netstat -ano | findstr :8000  # Windows
    ```
 
-2. **Change ports in `.devcontainer/.env`:**
+2. **Change frontend port in `.devcontainer/.env`** (if using non-standard frontend):
    ```bash
-   BACKEND_PORT=8001  # Use different port
+   FRONTEND_LOCALHOST_PORT=3000  # For Next.js or other framework
    ```
 
 3. **Or stop conflicting service:**
    ```bash
    docker compose down
    ```
+
+> **Note:** Backend port (8000) and other service ports are defined in `docker-compose.*.yml` files and cannot be overridden via `.env`.
 
 ### Frontend Can't Access API (Development)
 

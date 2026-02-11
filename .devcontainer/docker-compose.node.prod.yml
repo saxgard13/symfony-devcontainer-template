@@ -6,28 +6,17 @@ services:
       args:
         NODE_VERSION: "${NODE_VERSION}"
     image: "${PROJECT_NAME}-node:prod"
-    ports:
-      - "3000:3000"
     environment:
       NODE_ENV: production
       DATABASE_URL: mysql://${MYSQL_USER:-symfony}:${MYSQL_PASSWORD:-symfony}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
     depends_on:
       db:
         condition: service_healthy
+      mailpit:
+        condition: service_healthy
     networks:
       - app-network
     restart: unless-stopped
-
-  mailpit:
-    image: axllent/mailpit
-    ports:
-      - "${MAILPIT_HTTP_PORT_PROD_TEST:-8026}:8025"
-      - "${MAILPIT_SMTP_PORT_PROD_TEST:-1026}:1025"
-    environment:
-      MP_SMTP_AUTH_ACCEPT_ANY: 1
-      MP_SMTP_AUTH_ALLOW_INSECURE: 1
-    networks:
-      - app-network
 
 networks:
   app-network:

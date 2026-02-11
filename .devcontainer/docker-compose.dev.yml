@@ -7,10 +7,7 @@ services:
         PHP_VERSION: "${PHP_VERSION}"
         NODE_VERSION: "${NODE_VERSION}"
     image: "${DEV_IMAGE}"
-    ports:
-      - "${BACKEND_PORT}:8000"
-      - "${FRONTEND_LOCALHOST_PORT}:${FRONTEND_INTERNAL_PORT}"
-      - "9003:9003"
+    ports: []
     volumes:
       - ..:/workspace:cached
     environment:
@@ -31,7 +28,7 @@ services:
     image: "${ADMINER_IMAGE}"
     restart: always
     ports:
-      - "${ADMINER_PORT:-8080}:8080"
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy

@@ -19,13 +19,20 @@ Configuration is managed through `.devcontainer/.env` (default values) and `.dev
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `BACKEND_PORT` | `8000` | Symfony server port |
-| `FRONTEND_LOCALHOST_PORT` | `5173` | Frontend dev server port (host) |
-| `FRONTEND_INTERNAL_PORT` | `5173` | Frontend port inside Docker network |
-| `ADMINER_PORT` | `8080` | Adminer database GUI port |
-| `ADMINER_PORT_PROD_TEST` | `8081` | Adminer port for production testing |
-| `MAILPIT_HTTP_PORT` | `8025` | Mailpit web interface port |
-| `MAILPIT_SMTP_PORT` | `1025` | Mailpit SMTP port |
+| `FRONTEND_LOCALHOST_PORT` | `5173` | Frontend dev server port (used for CORS in production config) |
+
+**Port Forwarding (DevContainer):**
+
+The following ports are automatically forwarded to your host machine via `devcontainer.json` `forwardPorts`:
+
+| Port | Service | Notes |
+|------|---------|-------|
+| `8000` | Symfony backend | Exposed in docker-compose services |
+| `9003` | Xdebug debugger | For VS Code debugging |
+| `5173` | Frontend dev server | Vite/React/Vue |
+| `3000` | Alternative frontend | Next.js/Nuxt compatibility |
+
+Other services (Adminer, Mailpit) are defined in `docker-compose.*.yml` files and don't require `.env` configuration.
 
 ### Database Configuration
 
@@ -118,10 +125,13 @@ Running `scripts/update-versions.sh` synchronizes versions across:
 | File | What Changes |
 |------|-------------|
 | `.devcontainer/.env` | `PHP_VERSION`, `NODE_VERSION`, `DB_IMAGE`, `REDIS_IMAGE`, `ADMINER_IMAGE`, `DEV_IMAGE` |
+| `.devcontainer/devcontainer.json` | `intelephense.environment.phpVersion` (for VS Code PHP intellisense) |
 | `Dockerfile.dev` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
 | `Dockerfile.apache.prod` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
 | `Dockerfile.node.prod` | `ARG NODE_VERSION` |
 | `Dockerfile.spa.prod` | `ARG NODE_VERSION` |
+
+> **Note:** The `intelephense.environment.phpVersion` setting is automatically synchronized with your PHP version, so you don't need to manually update it in devcontainer.json.
 
 > **Important:** Always rebuild the container after changing versions. The version changes only take effect after the rebuild is complete.
 >
@@ -146,6 +156,9 @@ Example content:
 GIT_USER_NAME="Your Name"
 GIT_USER_EMAIL="your@email.com"
 
+# Custom frontend port (if needed for non-standard framework)
+# FRONTEND_LOCALHOST_PORT=3000
+
 # Custom database credentials (optional)
 MYSQL_ROOT_PASSWORD=secure_password
 MYSQL_USER=myapp
@@ -153,6 +166,7 @@ MYSQL_PASSWORD=myapp_password
 ```
 
 > **Note:** `.env.local` is gitignored to protect your personal settings.
+> Most configuration is automatic - override only what's needed.
 
 ## PHP Configuration
 
