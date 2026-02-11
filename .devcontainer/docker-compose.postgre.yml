@@ -1,12 +1,15 @@
 services:
   db:
     image: "${DB_IMAGE}"
+    ports:
+      - "5432:5432"
     environment:
       POSTGRES_DB: "${PROJECT_NAME}_db"
       POSTGRES_PASSWORD: symfony
       POSTGRES_USER: symfony
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
+      test:
+        ["CMD", "pg_isready", "-d", "${POSTGRES_DB}", "-U", "${POSTGRES_USER}"]
       timeout: 5s
       retries: 5
       start_period: 60s

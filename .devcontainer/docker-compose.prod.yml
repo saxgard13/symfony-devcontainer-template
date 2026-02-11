@@ -5,9 +5,8 @@ services:
       dockerfile: .devcontainer/Dockerfile.apache.prod
       args:
         PHP_VERSION: "${PHP_VERSION}"
-        COMPOSER_IMAGE: "${COMPOSER_IMAGE}"
     ports:
-      - "${BACKEND_PORT:-8000}:80"
+      - "8000:80"
     environment:
       APP_ENV: prod
       APP_DEBUG: 0
@@ -30,7 +29,7 @@ services:
     image: "${ADMINER_IMAGE}"
     restart: always
     ports:
-      - "${ADMINER_PORT:-8080}:8080"
+      - "8080:8080"
     depends_on:
       db:
         condition: service_healthy

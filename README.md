@@ -177,12 +177,17 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 
 ## Services
 
-| Service  | URL                   | Purpose             |
+| Service  | URL (Default)         | Purpose             |
 | -------- | --------------------- | ------------------- |
 | Backend  | http://localhost:8000 | Symfony application |
-| Frontend | http://localhost:5173 | Frontend dev server |
+| Frontend | http://localhost:5173 | Frontend dev server _(Vite)_ |
 | Adminer  | http://localhost:8080 | Database GUI        |
 | Mailpit  | http://localhost:8025 | Email testing       |
+
+> **Frontend Port varies by framework:**
+> - **Vite** (default): `http://localhost:5173`
+> - **Next.js / Nuxt**: `http://localhost:3000` (update `FRONTEND_LOCALHOST_PORT=3000` in `.devcontainer/.env`)
+> - See [Configuration Guide](docs/configuration.md) for details
 
 ## Database
 
