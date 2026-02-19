@@ -10,16 +10,18 @@ This guide explains how to set up and use the DevContainer template.
 
 ## Project Types
 
-This DevContainer supports multiple project structures. Choose the one that fits your needs:
+This DevContainer officially supports the following project structures:
 
-| Type                      | Folder                   | Workspace                | Use case                                       |
-| ------------------------- | ------------------------ | ------------------------ | ---------------------------------------------- |
-| **Symfony API + SPA**     | `backend/` + `frontend/` | `project.code-workspace` | Symfony API with React/Vue (client-side)       |
-| **Symfony API + SSR**     | `backend/` + `frontend/` | `project.code-workspace` | Symfony API with Next.js/Nuxt (server-side)    |
-| **Full Symfony**          | `backend/` only          | `backend.code-workspace` | Traditional Symfony app with Twig              |
-| **Full JavaScript (SSR)** | `frontend/`              | `frontend.code-workspace` | Next.js, Nuxt without separate backend        |
+| Type                          | Frontend         | Folder                   | Workspace                |
+| ----------------------------- | ---------------- | ------------------------ | ------------------------ |
+| **Symfony full-stack**        | —                | `backend/` only          | `backend.code-workspace` |
+| **Symfony API + SPA**         | Vite (React/Vue) | `backend/` + `frontend/` | `project.code-workspace` |
+| **Symfony API + SSR**         | Next.js          | `backend/` + `frontend/` | `project.code-workspace` |
+| **Full JavaScript (SSR)**     | Next.js          | `frontend/` only         | `frontend.code-workspace` |
 
-> **Note:** The `frontend/` folder is used for all frontend types — **SPA** (React, Vue with Vite) and **SSR/ISR** (Next.js, Nuxt). The rendering strategy determines which Docker Compose file to use, not the folder name.
+> **Note:** The `frontend/` folder is used for both SPA (Vite) and SSR (Next.js). The rendering strategy determines which Docker Compose file to use in production, not the folder name.
+
+> **Other frameworks (Nuxt, Astro, SvelteKit...):** Development works out of the box with any Node.js framework. For production Docker images, see [Framework Adaptation Guide](framework-adaptation.md).
 
 ### Adapting the Workspace File
 
@@ -100,18 +102,15 @@ Keep DevContainer config, backend, and frontend in one Git repository.
    symfony new backend --version="7.2.*" --webapp
    ```
 
-8. Install frontend (optional, choose your framework, inside container):
+8. Install frontend (optional, inside container):
 
    ```bash
-   # Popular options:
-   npm create vite@latest frontend              # Vite (recommended)
-   npx create-next-app frontend                 # Next.js
-   npx create-react-app frontend                # Create React App
-   npx create-nuxt-app frontend                 # Nuxt
-   npm create astro frontend                    # Astro
-
-   # Or use any other npm-based framework of your choice
+   # Officially supported:
+   npm create vite@latest frontend              # Vite SPA (recommended)
+   npx create-next-app frontend                 # Next.js SSR
    ```
+
+   > **Other frameworks (Nuxt, Astro, etc.):** Development works out of the box. For production, see [Framework Adaptation Guide](framework-adaptation.md).
 
 9. Remove nested .git folders (inside container):
 
@@ -172,7 +171,7 @@ The template includes workspace files for better tooling isolation.
 | `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) | `.shared/`     |
 | `backend.code-workspace`  | PHP/Symfony development only                    | -              |
 | `frontend.code-workspace` | JavaScript SPA (React/Vue) only                 | -              |
-| `app.code-workspace`      | Full JS apps (Next.js, Nuxt, etc)               | -              |
+| `frontend.code-workspace`      | Full JS apps (Next.js)                          | -              |
 
 ### Using Workspaces
 
@@ -188,7 +187,7 @@ The template includes workspace files for better tooling isolation.
 
 - **`project.code-workspace`** (Recommended for Symfony API + SPA): Shows only `backend/` and `frontend/`, hides config files. Perfect for focusing on code and for working with Claude Code (and others) - the AI has immediate access to both your backend and frontend, improving context awareness and faster assistance.
 - **`backend.code-workspace`** or **`frontend.code-workspace`**: Use when working on only one part independently.
-- **`app.code-workspace`**: Use for full JavaScript apps (Next.js, Nuxt).
+- **`frontend.code-workspace`**: Use for full JavaScript apps (Next.js).
 
 ### Benefits
 
@@ -238,13 +237,12 @@ symfony server:start --no-tls --allow-http --listen-ip=0.0.0.0 --port=8000
 
 The `--host` flag is required to access from outside the container:
 
-| Framework            | Command                     |
-| -------------------- | --------------------------- |
-| **Vite**             | `npm run dev -- --host`     |
-| **Create React App** | `HOST=0.0.0.0 npm start`    |
-| **Next.js**          | `npm run dev -- -H 0.0.0.0` |
-| **Nuxt**             | `npm run dev -- -H 0.0.0.0` |
-| **Astro**            | `npm run dev -- --host`     |
+| Framework   | Command                      |
+| ----------- | ---------------------------- |
+| **Vite**    | `npm run dev -- --host`      |
+| **Next.js** | `npm run dev -- -H 0.0.0.0`  |
+
+> **Other frameworks:** Pass the equivalent `--host 0.0.0.0` flag. VS Code auto-detects and forwards the port automatically.
 
 ## Symfony HTTPS Setup
 

@@ -310,10 +310,12 @@ docker compose -f .devcontainer/docker-compose.frontend.prod.yml ...
 - Perfect for SEO and performance
 
 **Best for:**
-- Next.js, Nuxt with SSR mode
+- Next.js with SSR mode (officially supported)
 - Content-heavy sites needing good SEO
 - Ecommerce, blogs, marketing sites
 - When server-side data fetching is needed
+
+> **Nuxt:** SSR works with Nuxt as well but requires Dockerfile adaptation. See [Framework Adaptation Guide](framework-adaptation.md).
 
 **SEO:** ✅ Excellent (HTML includes dynamic metadata)
 
@@ -362,7 +364,7 @@ export async function getStaticProps() {
 | **SEO** | Needs extra work | Excellent | Excellent |
 | **Dynamic Content** | Via API calls | Server data | Pre-built + periodic updates |
 | **Cost** | Low (static) | Medium (server) | Medium (build time) |
-| **Best Framework** | React, Vue, Vite | Next.js, Nuxt | Next.js |
+| **Best Framework** | React, Vue, Vite | Next.js | Next.js |
 | **Infrastructure** | Nginx | Node.js | Node.js |
 
 ---
@@ -473,18 +475,20 @@ export default function Page({ data }) {
 
 ## Changing Frontend Framework (Development)
 
-When switching from Vite to another framework, you might need to adjust ports:
+> **For Nuxt, Astro and other frameworks:** Development works out of the box (VS Code auto-detects ports). For production Docker images, see [Framework Adaptation Guide](framework-adaptation.md).
+
+When switching from Vite to Next.js, you might need to adjust ports:
 
 1. **For frameworks using different default ports:**
    - Vite: 5173
    - Next.js dev: 3000
-   - Nuxt dev: 3000
 
 2. **In Symfony CORS configuration:**
    ```yaml
-   allow_origin: ['http://localhost:5173']  # Dev (browser access)
+   allow_origin: ['http://localhost:5173']  # Dev (Vite)
    # or
    allow_origin: ['http://localhost:3000']  # If using Next.js dev server
+   # For other frameworks: update FRONTEND_LOCALHOST_PORT in .devcontainer/.env
    ```
 
 3. **Important:** In production, CORS should allow the Nginx domain/service name:

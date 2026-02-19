@@ -8,23 +8,24 @@ This document explains the production-like configuration for testing before depl
 
 ## Scope & Limitations
 
-This template supports **Symfony backend + flexible frontend (SPA/SSR/ISR)** in a **monorepo structure**:
+**✅ Officially supported project types:**
 
-**✅ Supported:**
-- **Backend:** Symfony API (Apache)
-- **Frontend:** React/Vue SPA (Vite), Next.js/Nuxt SSR, or ISR
-- **Structure:** Monorepo with `/backend` and `/frontend` folders
-- **Database:** MySQL (PostgreSQL/SQLite: manual config)
-- **Testing:** Local production-like environment with Docker Compose
+| Type | Backend | Frontend | Dockerfile(s) |
+|------|---------|----------|---------------|
+| **Symfony full-stack** | Symfony (Apache) | — | `Dockerfile.apache.prod` |
+| **Symfony API + SPA** | Symfony (Apache) | Vite (React/Vue) | `Dockerfile.apache.prod` + `Dockerfile.spa.prod` |
+| **Symfony API + SSR** | Symfony (Apache) | Next.js | `Dockerfile.apache.prod` + `Dockerfile.node.prod` |
+| **Full JavaScript** | — | Next.js | `Dockerfile.node.prod` |
+
+**⚠️ Adaptable (requires Dockerfile modifications):**
+- Nuxt, Astro, SvelteKit and other Node.js frameworks → see [Framework Adaptation Guide](framework-adaptation.md)
 
 **❌ Not Supported:**
-- Multi-repo (separate backend/frontend repositories)
 - Alternative backends (Laravel, Django, etc.)
 - Alternative web servers (Nginx instead of Apache)
 - Real production deployment (K8s, managed hosting, VPS)
-- Single-database setups with monorepo structure
 
-> **Need something different?** You can use this template as a foundation and adapt the Dockerfiles, compose files, or structure to your needs. See [architecture.md](architecture.md) for implementation details.
+> **Need to adapt?** See [Framework Adaptation Guide](framework-adaptation.md) for step-by-step instructions to support other frameworks.
 
 ---
 
@@ -46,7 +47,7 @@ docker compose \
 # Frontend: http://localhost:5173 — API: http://localhost:8000
 ```
 
-**Symfony API + SSR** (Next.js, Nuxt — server-side rendering)
+**Symfony API + SSR** (Next.js — server-side rendering)
 ```bash
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
@@ -57,7 +58,7 @@ docker compose \
 # Frontend: http://localhost:3000 — API: http://localhost:8000
 ```
 
-**Full JavaScript SSR** (Next.js, Nuxt — sans backend Symfony)
+**Full JavaScript SSR** (Next.js — sans backend Symfony)
 ```bash
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
@@ -240,19 +241,18 @@ services:
 
 ---
 
-## Full JavaScript (Next.js, Nuxt, Vite, etc.)
+## Full JavaScript (Next.js)
 
 For full JavaScript applications with server-side rendering.
 
 ### Dockerfile
 
-The production image is at `.devcontainer/Dockerfile.node.prod`.
+The production image is at `.devcontainer/Dockerfile.node.prod`, pre-configured for **Next.js standalone mode**.
 
 **Features:**
 - Multi-stage build (deps → builder → runner)
 - Supports npm, yarn, and pnpm
 - Non-root user (`appuser`)
-- **Framework-agnostic template** (auto-detects build output)
 
 ### Build and Run
 
@@ -263,18 +263,7 @@ docker build -f .devcontainer/Dockerfile.node.prod -t my-app:prod .
 
 > Pour lancer avec `docker compose`, voir le [Quick Start](#quick-start-testing-production-locally).
 
-### Framework Adaptation
-
-The Dockerfile template supports multiple JavaScript frameworks. **Adapt the COPY statements in the runner stage** based on your framework's build output:
-
-| Framework | Build Output | Adaptation |
-|-----------|--------------|-----------|
-| **Next.js (standalone)** | `.next/standalone`, `.next/static` | ✅ Default (uncommented) |
-| **Nuxt** | `.output/` | Uncomment Nuxt CMD, modify COPY |
-| **Vite (SSR)** | `dist/`, `build/` | Modify COPY paths |
-| **Other frameworks** | Custom output | Adjust to match your output |
-
-#### Next.js Configuration
+### Next.js Configuration
 
 For Next.js standalone output, add to `next.config.js`:
 
@@ -284,30 +273,17 @@ module.exports = {
 }
 ```
 
-The Dockerfile is pre-configured for this (lines 59-62 are active).
-
-#### Nuxt Adaptation
-
-For Nuxt, modify the Dockerfile runner stage (lines 59-62 and 71-75):
-
-```dockerfile
-# Comment out Next.js lines, uncomment Nuxt:
-
-# Copy Nuxt output
-COPY --from=builder --chown=appuser:nodejs /app/.output ./
-
-# Start Nuxt
-CMD ["node", ".output/server/index.mjs"]
-```
+The Dockerfile is pre-configured for this.
 
 #### Vite/SPA with Backend
 
 If using Vite for frontend **with a backend API**:
-- Build frontend: `npm run build` → creates `dist/`
-- Use `Dockerfile.spa.prod` instead (optimized for static serving)
-- Deploy backend separately with `Dockerfile.apache.prod` or `Dockerfile.node.prod`
+- Use `Dockerfile.spa.prod` (optimized for static serving)
+- Deploy backend separately with `Dockerfile.apache.prod`
 
 See [Symfony API + SPA section](#symfony-api--spa) for details.
+
+> **Using Nuxt, Astro or another framework?** See [Framework Adaptation Guide](framework-adaptation.md) for step-by-step Dockerfile modifications.
 
 ---
 

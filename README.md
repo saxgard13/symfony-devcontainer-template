@@ -7,7 +7,13 @@
 [![Dev Containers](https://img.shields.io/badge/Dev%20Containers-Supported-007ACC?logo=visualstudiocode&logoColor=white)](https://code.visualstudio.com/docs/devcontainers/containers)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A ready-to-use development environment for Symfony using DevContainers.
+A ready-to-use development environment built and tested for:
+
+- **Symfony** — full-stack or API backend
+- **Vite + React/Vue** — SPA frontend paired with Symfony
+- **Next.js** — SSR frontend paired with Symfony, or standalone
+
+> **Other frameworks (Nuxt, Astro, SvelteKit...):** Development works out of the box inside the container. For production Docker images, a [Framework Adaptation Guide](docs/framework-adaptation.md) is provided so you can adapt the template to your needs with minimal effort.
 
 > **Note:** This template is for **local development and testing only**. Production-like configurations are included for testing purposes, not for actual deployment.
 
@@ -82,23 +88,20 @@ A ready-to-use development environment for Symfony using DevContainers.
    rm -rf backend/.git
    ```
 
-8. **Install frontend** (optional, choose your framework, inside container):
+8. **Install frontend** (optional, inside container):
 
    ```bash
-   # Popular options:
-   npm create vite@latest frontend              # Vite (recommended)
-   npx create-next-app frontend                 # Next.js
-   npx create-react-app frontend                # Create React App
-   npx create-nuxt-app frontend                 # Nuxt
-   npm create astro frontend                    # Astro
-
-   # Or any other npm-based framework
+   # Officially supported:
+   npm create vite@latest frontend              # Vite SPA (recommended)
+   npx create-next-app frontend                 # Next.js SSR
    ```
 
    ```bash
    # Remove nested git folder
    rm -rf frontend/.git
    ```
+
+   > **Other frameworks (Nuxt, Astro, etc.):** Supported in development (any Node.js framework runs inside the container). For production Docker images, see [Framework Adaptation Guide](docs/framework-adaptation.md).
 
 9. **Start development**:
 
@@ -167,13 +170,12 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 
 > **Note:** These commands are for reference. You can use any npm-based framework - adapt the command according to your framework's documentation.
 
-| Framework              | Docker-compatible command   |
-| ---------------------- | --------------------------- |
-| **Vite**               | `npm run dev -- --host`     |
-| **Next.js**            | `npm run dev -- -H 0.0.0.0` |
-| **Nuxt**               | `npm run dev -- -H 0.0.0.0` |
-| **Astro**              | `npm run dev -- --host`     |
-| **CRA** _(deprecated)_ | `HOST=0.0.0.0 npm start`    |
+| Framework   | Docker-compatible command    |
+| ----------- | ---------------------------- |
+| **Vite**    | `npm run dev -- --host`      |
+| **Next.js** | `npm run dev -- -H 0.0.0.0`  |
+
+> **Other frameworks:** Any Node.js framework works in dev — pass the equivalent `--host 0.0.0.0` flag. VS Code auto-detects and forwards the port. See [Framework Adaptation Guide](docs/framework-adaptation.md) for production setup.
 
 ## Services
 
@@ -186,8 +188,8 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 
 > **Frontend Port varies by framework:**
 > - **Vite** (default): `http://localhost:5173`
-> - **Next.js / Nuxt**: `http://localhost:3000` (update `FRONTEND_LOCALHOST_PORT=3000` in `.devcontainer/.env`)
-> - See [Configuration Guide](docs/configuration.md) for details
+> - **Next.js**: `http://localhost:3000` → update `FRONTEND_LOCALHOST_PORT=3000` in `.devcontainer/.env`
+> - **Other frameworks:** update `FRONTEND_LOCALHOST_PORT` to match your framework's default port
 
 ## Database
 
@@ -219,14 +221,16 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 
 ## Project Types
 
-This template supports multiple project structures:
+This template officially supports the following project structures:
 
-| Type                      | Folders                  | Workspace                |
-| ------------------------- | ------------------------ | ------------------------ |
-| **Symfony API + SPA**     | `backend/` + `frontend/` | Both workspace files     |
-| **Symfony API + SSR**     | `backend/` + `frontend/` | Both workspace files     |
-| **Full Symfony**          | `backend/` only          | `backend.code-workspace` |
-| **Full JavaScript (SSR)** | `frontend/`              | `frontend.code-workspace` |
+| Type                           | Frontend          | Folders                  |
+| ------------------------------ | ----------------- | ------------------------ |
+| **Symfony full-stack**         | —                 | `backend/` only          |
+| **Symfony API + SPA**          | Vite (React/Vue)  | `backend/` + `frontend/` |
+| **Symfony API + SSR**          | Next.js           | `backend/` + `frontend/` |
+| **Full JavaScript (SSR)**      | Next.js           | `frontend/` only         |
+
+> **Other frameworks (Nuxt, Astro, SvelteKit...):** Development works out of the box. For production Docker images, see [Framework Adaptation Guide](docs/framework-adaptation.md).
 
 See [Usage Guide](docs/usage.md) for detailed setup instructions.
 
@@ -235,7 +239,7 @@ See [Usage Guide](docs/usage.md) for detailed setup instructions.
 Use the workspace files for isolated tooling:
 
 - `backend.code-workspace` → PHP/Symfony development
-- `frontend.code-workspace` → JavaScript frontend (SPA or SSR: React, Vue, Next.js, Nuxt)
+- `frontend.code-workspace` → JavaScript frontend (Vite SPA or Next.js SSR)
 
 ## Possible Improvements
 
