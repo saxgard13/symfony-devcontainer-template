@@ -293,8 +293,7 @@ VS Code Multi-Root Workspaces allow flexible project organization while maintain
 |---|---|---|
 | **`project.code-workspace`** (Recommended) | `.shared/`, `backend/`, `frontend/` | Symfony API + SPA development together |
 | **`backend.code-workspace`** | `backend/` only | Backend-only development |
-| **`frontend.code-workspace`** | `frontend/` only | Frontend-only development |
-| **`app.code-workspace`** | `app/` or root | Full JavaScript applications (Next.js, Nuxt) |
+| **`frontend.code-workspace`** | `frontend/` only | Frontend-only or Full JavaScript (Next.js, Nuxt) |
 
 **Why Use Multi-Root Workspaces:**
 - ✅ Each folder has isolated VSCode settings, extensions, and terminals

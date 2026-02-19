@@ -6,8 +6,11 @@ services:
       args:
         NODE_VERSION: "${NODE_VERSION}"
     image: "${PROJECT_NAME}-node:prod"
+    ports:
+      - "${FRONTEND_LOCALHOST_PORT:-3000}:3000"
     environment:
       NODE_ENV: production
+      API_URL: http://prod
       DATABASE_URL: mysql://${MYSQL_USER:-symfony}:${MYSQL_PASSWORD:-symfony}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}
     depends_on:
       db:

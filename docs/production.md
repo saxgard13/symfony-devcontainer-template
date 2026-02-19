@@ -30,25 +30,48 @@ This template supports **Symfony backend + flexible frontend (SPA/SSR/ISR)** in 
 
 ## Quick Start: Testing Production Locally
 
-To test your application in a production-like environment:
+**1. Stop the DevContainer** (to free up ports)
+> In VS Code: *Close Remote Connection*
 
+**2. Choose your command based on your project type:**
+
+**Symfony API + SPA** (React, Vue — client-side rendering)
 ```bash
-# 1. Stop the DevContainer (free up ports)
-# (in VS Code: Close Remote Connection)
-
-# 2. Choose your setup based on your project type (see below)
-
-# Example: Symfony API + React SPA (with email testing)
 docker compose \
   -f .devcontainer/docker-compose.mysql.yml \
   -f .devcontainer/docker-compose.prod.yml \
   -f .devcontainer/docker-compose.frontend.prod.yml \
   -f .devcontainer/docker-compose.mailpit.yml \
-  up -d
+  up -d --build
+# Frontend: http://localhost:5173 — API: http://localhost:8000
+```
 
-# 3. Access in browser
-# - Frontend: http://localhost:5173
-# - API: http://localhost:8000
+**Symfony API + SSR** (Next.js, Nuxt — server-side rendering)
+```bash
+docker compose \
+  -f .devcontainer/docker-compose.mysql.yml \
+  -f .devcontainer/docker-compose.prod.yml \
+  -f .devcontainer/docker-compose.node.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
+  up -d --build
+# Frontend: http://localhost:3000 — API: http://localhost:8000
+```
+
+**Full JavaScript SSR** (Next.js, Nuxt — sans backend Symfony)
+```bash
+docker compose \
+  -f .devcontainer/docker-compose.mysql.yml \
+  -f .devcontainer/docker-compose.node.prod.yml \
+  -f .devcontainer/docker-compose.mailpit.yml \
+  up -d --build
+# Frontend: http://localhost:3000
+```
+
+> **PostgreSQL ?** Remplace `docker-compose.mysql.yml` par `docker-compose.postgre.yml`. Voir [Database Configuration](database.md).
+
+**3. Run database migrations** (first launch only)
+```bash
+docker exec devcontainer-prod-1 php bin/console doctrine:migrations:migrate --no-interaction
 ```
 
 **With HTTPS (optional):**
@@ -82,70 +105,15 @@ docker compose down  # Stops all containers
 
 ## Choose Your Setup
 
-Use this table to pick the right docker-compose files for your project:
+| Your Setup | Compose Files | Ports |
+|------------|---------------|-------|
+| **Full Symfony** (no frontend) | `mysql.yml` + `prod.yml` | 8000 |
+| **Symfony API + SPA** | `mysql.yml` + `prod.yml` + `frontend.prod.yml` | 8000, 5173 |
+| **Symfony API + SSR** | `mysql.yml` + `prod.yml` + `node.prod.yml` | 8000, 3000 |
+| **Full JavaScript (SSR)** | `mysql.yml` + `node.prod.yml` | 3000 |
+| **+ HTTPS** | Add `https.prod.yml` to any above | 80, 443 |
 
-| Your Setup | Compose Files | Ports | Notes |
-|------------|---------------|-------|-------|
-| **Full Symfony** (no frontend) | `mysql.yml` + `docker-compose.prod.yml` | 8000 | Backend only |
-| **Symfony API + React/Vue SPA** | `mysql.yml` + `prod.yml` + `frontend.prod.yml` | 8000, 5173 | Separate backend + frontend |
-| **Symfony API + SPA + HTTPS** | Add `https.prod.yml` to above | 80, 443 | Nginx SSL reverse proxy |
-| **Next.js / Nuxt (SSR)** | `mysql.yml` + `node.prod.yml` | 3000 | Server-side rendering |
-| **Next.js + HTTPS** | `mysql.yml` + `node.prod.yml` + `https.prod.yml` | 80, 443 | Node.js + SSL |
-
-**Pattern:**
-```bash
-docker compose \
-  -f .devcontainer/docker-compose.<database>.yml \
-  -f .devcontainer/docker-compose.<app>.yml \
-  [-f .devcontainer/docker-compose.mailpit.yml] \      # Optional: Email testing
-  [-f .devcontainer/docker-compose.https.prod.yml] \   # Optional: HTTPS reverse proxy
-  up -d
-```
-
----
-
-## Rendering Strategies (SPA vs SSR vs ISR)
-
-For detailed information on choosing between **SPA** (Single Page Application), **SSR** (Server-Side Rendering), and **ISR** (Incremental Static Regeneration), see:
-
-[Frontend-Backend Communication: Rendering Strategies](frontend-backend.md#rendering-strategies-spa-vs-ssr-vs-isr)
-
-**Quick reference:**
-- **SPA** (React, Vue, Vite): Use `docker-compose.frontend.prod.yml`
-- **SSR/ISR** (Next.js, Nuxt): Use `docker-compose.node.prod.yml`
-
----
-
-## Production by Project Type
-
-| Project Type | Dockerfile | Compose File | Port |
-|--------------|------------|--------------|------|
-| **Full Symfony** | `Dockerfile.apache.prod` | `docker-compose.prod.yml` | 8000 |
-| **Symfony API + SPA** | `Dockerfile.apache.prod` + `Dockerfile.spa.prod` | `docker-compose.prod.yml` + `docker-compose.frontend.prod.yml` | 8000, 5173 |
-| **Full JavaScript (SSR)** | `Dockerfile.node.prod` | `docker-compose.node.prod.yml` | 3000 |
-
-> **Note:** Production test uses the same ports as development. Stop the DevContainer before running production tests to avoid port conflicts.
-
----
-
-## Modular Compose Files
-
-Production compose files are **modular** - they don't include the database service. This allows you to:
-- Choose between MySQL or PostgreSQL
-- Avoid configuration duplication
-- Mix and match services as needed
-
-**Always combine with a database file:**
-
-```bash
-# Pattern: database file + app file
-docker compose -f .devcontainer/docker-compose.<db>.yml -f .devcontainer/docker-compose.<app>.yml up -d
-```
-
-| Database | Compose File |
-|----------|--------------|
-| MySQL | `docker-compose.mysql.yml` |
-| PostgreSQL | `docker-compose.postgre.yml` |
+> Les compose files de prod sont **modulaires** : ils n'incluent pas la base de données. Combine toujours avec `mysql.yml` ou `postgre.yml`. Pour SPA vs SSR, voir [Rendering Strategies](frontend-backend.md#rendering-strategies-spa-vs-ssr-vs-isr).
 
 ---
 
@@ -167,26 +135,11 @@ The Dockerfile detects your project structure and builds accordingly:
 ### Build and Run
 
 ```bash
-# Build (auto-detects project structure)
+# Build only (auto-detects project structure)
 docker build -f .devcontainer/Dockerfile.apache.prod -t my-app:prod .
-
-# Run with compose (combine with database file)
-# With MySQL:
-docker compose \
-  -f .devcontainer/docker-compose.mysql.yml \
-  -f .devcontainer/docker-compose.prod.yml \
-  -f .devcontainer/docker-compose.mailpit.yml \
-  up -d
-
-# With PostgreSQL:
-docker compose \
-  -f .devcontainer/docker-compose.postgre.yml \
-  -f .devcontainer/docker-compose.prod.yml \
-  -f .devcontainer/docker-compose.mailpit.yml \
-  up -d
-
-# Access at http://localhost:8000
 ```
+
+> Pour lancer avec `docker compose`, voir le [Quick Start](#quick-start-testing-production-locally).
 
 ### Build Stages
 
@@ -221,20 +174,9 @@ The API and frontend are deployed **separately**:
 
 ### Option 1: Both in Docker containers
 
-```bash
-# Build and run API + Frontend + Database (with optional email testing)
-docker compose \
-  -f .devcontainer/docker-compose.mysql.yml \
-  -f .devcontainer/docker-compose.prod.yml \
-  -f .devcontainer/docker-compose.frontend.prod.yml \
-  -f .devcontainer/docker-compose.mailpit.yml \
-  up -d
+> Voir la commande **Symfony API + SPA** dans le [Quick Start](#quick-start-testing-production-locally).
 
-# Access:
-# - API: http://localhost:8000
-# - Frontend: http://localhost:5173
-# - Mailpit (email testing): http://localhost:8025
-```
+Accès : API `http://localhost:8000` — Frontend `http://localhost:5173` — Mailpit `http://localhost:8025`
 
 ### CORS Configuration
 
@@ -315,18 +257,11 @@ The production image is at `.devcontainer/Dockerfile.node.prod`.
 ### Build and Run
 
 ```bash
-# Build
+# Build only
 docker build -f .devcontainer/Dockerfile.node.prod -t my-app:prod .
-
-# Run with compose (combine with database file)
-# With MySQL:
-docker compose -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.node.prod.yml up -d
-
-# With PostgreSQL:
-docker compose -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.node.prod.yml up -d
-
-# Access at http://localhost:3000
 ```
+
+> Pour lancer avec `docker compose`, voir le [Quick Start](#quick-start-testing-production-locally).
 
 ### Framework Adaptation
 
@@ -428,13 +363,13 @@ COPY . .
 
 ```dockerfile
 # 1. Copy package files
-COPY app/package.json app/package-lock.json* ./
+COPY frontend/package.json frontend/package-lock.json* ./
 
 # 2. Install dependencies (cached if package*.json unchanged)
 RUN npm ci
 
 # 3. Copy source and build
-COPY app/ .
+COPY frontend/ .
 RUN npm run build
 ```
 
@@ -452,6 +387,49 @@ db:
 ```
 
 See [Database Configuration](database.md#production-database-access) for SSH tunnel setup.
+
+---
+
+## Initialiser les données en production
+
+Les fixtures Symfony (`doctrine:fixtures:load`) sont des dépendances dev et **ne sont pas disponibles** dans l'image de production. Voici les alternatives pour insérer des données initiales.
+
+### Option 1 — Via l'API (recommandé)
+
+> **Note sécurité :** Cette approche fonctionne uniquement si vos endpoints API ne sont pas protégés par une authentification. En production réelle, pensez à sécuriser vos routes (JWT, API key, etc.).
+
+Si votre entité expose un endpoint `POST` via API Platform :
+
+```bash
+curl -X POST http://localhost:8000/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe", "email": "john@example.com"}'
+```
+
+### Option 2 — Via Adminer
+
+Ouvrez http://localhost:8080 et connectez-vous :
+
+| Champ | Valeur |
+|-------|--------|
+| Serveur | `db` |
+| Utilisateur | `symfony` (valeur `MYSQL_USER` dans `.env`) |
+| Mot de passe | `symfony` (valeur `MYSQL_PASSWORD` dans `.env`) |
+| Base de données | `monprojet_db` (valeur `PROJECT_NAME` + `_db`) |
+
+Puis insérez via l'onglet **SQL** :
+
+```sql
+INSERT INTO user (name, email) VALUES ('John Doe', 'john@example.com');
+```
+
+### Option 3 — Via SQL direct dans le conteneur MySQL
+
+```bash
+docker exec -it devcontainer-db-1 mysql \
+  -u symfony -psymfony monprojet_db \
+  -e "INSERT INTO user (name, email) VALUES ('John Doe', 'john@example.com');"
+```
 
 ---
 
@@ -482,3 +460,27 @@ This template provides a foundation, but real production requires additional con
 - **Networking**: Configure proper DNS, reverse proxies, load balancers
 - **Monitoring**: Set up APM, log aggregation, alerting
 - **Scaling**: Plan for horizontal scaling if needed
+
+---
+
+## Évaluation pour une vraie production
+
+Ce template est une **bonne base** (~80%) mais nécessite quelques ajustements avant un déploiement réel.
+
+| Sujet | Statut | Problème | Solution |
+|-------|--------|----------|----------|
+| **Multi-stage builds** | ✅ | Images légères et optimisées | — |
+| **`--no-dev` Composer** | ✅ | Dépendances de prod uniquement | — |
+| **`standalone` Next.js** | ✅ | Image Node.js légère | — |
+| **`restart: unless-stopped`** | ✅ | Redémarrage automatique | — |
+| **Healthchecks MySQL** | ✅ | Démarrage ordonné des services | — |
+| **OPcache PHP** | ✅ | Performances PHP optimisées | — |
+| **Headers sécurité Apache** | ✅ | X-Frame-Options, CSP, etc. | — |
+| **HTTPS/SSL** | ⚠️ | Pas de SSL par défaut | Activer `docker-compose.https.prod.yml` + Let's Encrypt |
+| **Secrets** | ⚠️ | Mots de passe dans `.env` | Ne jamais committer `.env`, injecter via CI/CD |
+| **APP_SECRET Symfony** | ⚠️ | Non défini | Générer et injecter une vraie valeur |
+| **Port MySQL exposé** | ⚠️ | 3306 accessible sur l'hôte | Supprimer la section `ports` en prod |
+| **CORS** | ⚠️ | Pointe sur `localhost` | Mettre le vrai domaine du frontend |
+| **Logs** | ⚠️ | Pas d'agrégation | Ajouter Loki/Grafana ou logging cloud |
+| **Backups BDD** | ⚠️ | Aucune stratégie | Cron de dump MySQL |
+| **Limites ressources** | ⚠️ | Pas de limits CPU/RAM | Ajouter `deploy.resources` dans les compose files |
