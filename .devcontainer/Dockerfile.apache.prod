@@ -23,7 +23,7 @@ COPY backend/ ./backend/
 
 # Run post-install scripts now that bin/console is available
 RUN cd backend && composer dump-autoload --optimize --no-dev \
-    && php bin/console cache:warmup --env=prod --no-debug
+    && if [ -f bin/console ]; then php bin/console cache:warmup --env=prod --no-debug; fi
 
 # Stage 2: Node.js assets builder (only for Webpack Encore)
 FROM node:${NODE_VERSION}-alpine AS assets-builder

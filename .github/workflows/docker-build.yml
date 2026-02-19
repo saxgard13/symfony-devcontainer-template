@@ -70,13 +70,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Create app directory (if not exists)
-        run: mkdir -p app
+      - name: Create frontend directory (if not exists)
+        run: mkdir -p frontend
 
-      - name: Create app files for build context
+      - name: Create frontend files for build context
         run: |
-          echo '{ "name": "app", "version": "1.0.0", "scripts": { "build": "echo build" }, "dependencies": {} }' > app/package.json
-          echo '{ "name": "app", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > app/package-lock.json
+          echo '{ "name": "frontend", "version": "1.0.0", "scripts": { "build": "echo build" }, "dependencies": {} }' > frontend/package.json
+          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > frontend/package-lock.json
 
       - name: Build Node.js prod image
         uses: docker/build-push-action@v5
