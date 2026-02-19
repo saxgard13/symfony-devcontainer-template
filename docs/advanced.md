@@ -8,64 +8,433 @@ This guide covers scenarios **not directly supported** by the template, with exa
 
 ## 1. Backend Server Alternatives for Symfony
 
-### Nginx + PHP-FPM (Instead of Apache)
+### PHP-FPM + Nginx as Reverse Proxy
 
 **When to use:**
 
+- Single entry point for both backend and frontend (same port, same HTTPS)
+- HTTPS termination at the Nginx level without touching other containers
 - Better performance for high concurrency
-- Lower memory footprint
-- Reverse proxy capabilities needed
-- Prefer Unix socket communication
+- Lower memory footprint than Apache + mod_php
 
-**Key changes:**
+> **Default setup:** The template uses Apache (`Dockerfile.apache.prod`). PHP-FPM + Nginx is an advanced alternative for a more production-like setup.
 
-1. Create `Dockerfile.nginx-fpm.prod` (similar to template but with Nginx instead of Apache)
-2. Modify `docker-compose.prod.yml` to separate PHP-FPM and Nginx services
-3. Create Nginx config file for Symfony
+---
 
-**Quick example:**
+#### Dockerfile.phpfpm.prod
 
 ```dockerfile
-# Stage 3: PHP-FPM
-FROM php:8.3-fpm-alpine
-RUN docker-php-ext-install pdo_mysql opcache
-COPY backend/ /app
-WORKDIR /app
-EXPOSE 9000
+ARG PHP_VERSION=8.3
+ARG NODE_VERSION=22
 
-# Stage 4: Nginx
-FROM nginx:alpine
-COPY config/nginx/symfony.conf /etc/nginx/conf.d/default.conf
-COPY --from=3 /app /app
-EXPOSE 80
+# Stage 1: Composer dependencies
+FROM php:${PHP_VERSION}-cli AS composer-builder
+
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        unzip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /www
+
+COPY backend/composer.json backend/composer.lock* ./backend/
+
+RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
+
+COPY backend/ ./backend/
+
+RUN cd backend && composer dump-autoload --optimize --no-dev \
+    && if [ -f bin/console ]; then php bin/console cache:warmup --env=prod --no-debug; fi
+
+# Stage 2: Node.js assets builder (only for Webpack Encore)
+FROM node:${NODE_VERSION}-alpine AS assets-builder
+
+WORKDIR /build
+
+COPY backend/ ./backend/
+
+RUN if [ -f "backend/package.json" ]; then \
+        echo "==> Building Webpack Encore assets..." && \
+        cd backend && \
+        if [ -f yarn.lock ]; then yarn install --frozen-lockfile && yarn build; \
+        elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile && pnpm build; \
+        else npm ci && npm run build; fi; \
+    else \
+        echo "==> No Encore assets to build (optional)" && mkdir -p /build/backend/public; \
+    fi
+
+# Stage 3: PHP-FPM runtime (no Xdebug in prod)
+FROM php:${PHP_VERSION}-fpm-alpine
+
+COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
+RUN install-php-extensions pdo_mysql opcache intl gd bcmath zip
+
+COPY .devcontainer/config/php.ini.prod /usr/local/etc/php/php.ini
+
+COPY --from=composer-builder --chown=www-data:www-data /www/backend /var/www/backend
+COPY --from=assets-builder --chown=www-data:www-data /build/backend/public /var/www/backend/public
+
+RUN mkdir -p /var/www/backend/public/uploads && chown www-data:www-data /var/www/backend/public/uploads
+
+WORKDIR /var/www/backend
+EXPOSE 9000
+CMD ["php-fpm"]
 ```
 
+---
+
+#### config/nginx/security_headers.conf
+
+Extract security headers into a dedicated snippet to avoid the Nginx inheritance trap:
+
+> **Important — Nginx `add_header` scope:** If a `location` block defines its own `add_header` (e.g. `Cache-Control`), it **stops inheriting** headers from the parent `server` block. Using a separate `include` file and calling it in every `location` that needs headers is the reliable solution.
+
+```nginx
+# .devcontainer/config/nginx/security_headers.conf
+add_header X-Frame-Options "DENY" always;
+add_header X-Content-Type-Options "nosniff" always;
+add_header X-XSS-Protection "1; mode=block" always;
+add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" always;
+```
+
+#### config/nginx/symfony.prod.conf
+
+Two variants depending on your project type:
+
+**Variant A — Symfony API + Next.js SSR (two containers):**
+
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name localhost;
+
+    ssl_certificate     /etc/nginx/certs/localhost.crt;
+    ssl_certificate_key /etc/nginx/certs/localhost.key;
+
+    # Symfony backend: all requests to /api/ go to PHP-FPM
+    location /api/ {
+        include /etc/nginx/security_headers.conf;
+
+        root /var/www/backend/public;
+        try_files $uri /index.php$is_args$args;
+
+        location ~ \.php$ {
+            include /etc/nginx/security_headers.conf;
+            fastcgi_pass phpfpm:9000;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param SERVER_NAME $host;
+            fastcgi_param HTTP_AUTHORIZATION $http_authorization; # Required for JWT Bearer
+        }
+    }
+
+    # Frontend: all other requests proxied to the Node.js container
+    location / {
+        include /etc/nginx/security_headers.conf;
+        proxy_pass http://frontend:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+**Variant B — Symfony API + Vite SPA (static files, no frontend container):**
+
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name localhost;
+
+    ssl_certificate     /etc/nginx/certs/localhost.crt;
+    ssl_certificate_key /etc/nginx/certs/localhost.key;
+
+    # Symfony backend
+    location /api/ {
+        include /etc/nginx/security_headers.conf;
+
+        root /var/www/backend/public;
+        try_files $uri /index.php$is_args$args;
+
+        location ~ \.php$ {
+            include /etc/nginx/security_headers.conf;
+            fastcgi_pass phpfpm:9000;
+            include fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+            fastcgi_param HTTP_AUTHORIZATION $http_authorization; # Required for JWT Bearer
+        }
+    }
+
+    # SPA: serve built static files, fallback to index.html for client-side routing
+    location / {
+        include /etc/nginx/security_headers.conf;
+        root /var/www/frontend/dist;
+        try_files $uri $uri/ /index.html;
+    }
+}
+```
+
+---
+
+#### docker-compose.phpfpm.prod.yml
+
 ```yaml
-# docker-compose.nginx.prod.yml
 services:
-  php-fpm:
+  phpfpm:
     build:
       context: ..
-      dockerfile: .devcontainer/Dockerfile.nginx-fpm.prod
-      target: 3
+      dockerfile: .devcontainer/Dockerfile.phpfpm.prod
     environment:
       APP_ENV: prod
+      DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db
     depends_on:
       db:
         condition: service_healthy
-
-  nginx:
-    build:
-      context: ..
-      dockerfile: .devcontainer/Dockerfile.nginx-fpm.prod
-      target: 4
-    ports:
-      - "8000:80"
-    depends_on:
-      - php-fpm
     networks:
       - app-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./.devcontainer/config/nginx/symfony.prod.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./.devcontainer/config/nginx/security_headers.conf:/etc/nginx/security_headers.conf:ro
+      - app-public:/var/www/backend/public:ro
+      - ./.devcontainer/certs:/etc/nginx/certs:ro
+    depends_on:
+      - phpfpm
+    networks:
+      - app-network
+
+  # Only needed for Symfony API + Next.js SSR (Variant A)
+  frontend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.node.prod
+    environment:
+      NODE_ENV: production
+    networks:
+      - app-network
+
+  db:
+    extends:
+      file: docker-compose.mysql.yml
+      service: db
+    networks:
+      - app-network
+
+volumes:
+  app-public:
+
+networks:
+  app-network:
+    driver: bridge
 ```
+
+---
+
+#### HTTPS: Generating a self-signed certificate
+
+```bash
+mkdir -p .devcontainer/certs
+
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout .devcontainer/certs/localhost.key \
+  -out .devcontainer/certs/localhost.crt \
+  -subj "/CN=localhost"
+```
+
+> **For browser-trusted local HTTPS**, use [mkcert](https://github.com/FiloSottile/mkcert) instead — it generates certificates signed by a local CA that your browser trusts without security warnings:
+>
+> ```bash
+> mkcert -install
+> mkcert -key-file .devcontainer/certs/localhost.key \
+>        -cert-file .devcontainer/certs/localhost.crt \
+>        localhost 127.0.0.1
+> ```
+
+---
+
+#### Architecture Overview
+
+```
+Browser (HTTPS :443)
+        │
+      Nginx  ← SSL termination
+   ┌────┴────┐
+   │         │
+ /api/*      /*
+PHP-FPM    Node.js     ← SSR (Variant A)
+(Symfony)  (Next.js)
+                       or static files  ← SPA (Variant B)
+```
+
+#### Comparison: Apache vs PHP-FPM + Nginx
+
+| Feature                   | Apache (default)  | PHP-FPM + Nginx         |
+|---------------------------|-------------------|-------------------------|
+| Setup complexity          | Simple            | More complex            |
+| Frontend routing          | Separate port     | Same port, same Nginx   |
+| HTTPS termination         | Per-service       | Single point            |
+| Performance (concurrency) | Moderate          | Better                  |
+| Memory footprint          | Higher            | Lower                   |
+
+> **Bottom line:** Apache is the default for its simplicity. PHP-FPM + Nginx is worth it when you want a unified HTTPS entry point for both backend and frontend in a prod-like test environment.
+
+---
+
+### Adding HTTPS to the Existing Apache Setup (Nginx as SSL Terminator)
+
+If you want HTTPS without replacing Apache or touching your existing Dockerfiles, add a lightweight Nginx container **purely for SSL termination** in front of your existing services.
+
+**Apache and Node.js containers stay completely unchanged.**
+
+> This is simpler than the PHP-FPM + Nginx approach: everything goes through `proxy_pass`, so there is no FastCGI complexity and all headers (including `Authorization: Bearer`) are forwarded automatically.
+
+---
+
+#### config/nginx/ssl-proxy.conf
+
+```nginx
+server {
+    listen 80;
+    server_name localhost;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl;
+    server_name localhost;
+
+    ssl_certificate     /etc/nginx/certs/localhost.crt;
+    ssl_certificate_key /etc/nginx/certs/localhost.key;
+
+    # Security Headers
+    include /etc/nginx/security_headers.conf;
+
+    # Symfony backend (Apache container)
+    location /api/ {
+        proxy_pass http://apache:80;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+        # proxy_pass forwards all headers including Authorization: Bearer automatically
+    }
+
+    # Frontend (Node.js container for SSR, or remove if SPA served separately)
+    location / {
+        proxy_pass http://frontend:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-Proto https;
+    }
+}
+```
+
+> **`security_headers.conf`** — create the same snippet as described above. At the `server` level, `include` works without the inheritance problem **as long as no child `location` has its own `add_header`**. Since all locations here only use `proxy_set_header` (not `add_header`), putting the include once at server level is sufficient.
+
+---
+
+#### docker-compose.ssl-proxy.yml
+
+Add this alongside your existing `docker-compose.prod.yml`:
+
+```yaml
+services:
+  nginx-proxy:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./.devcontainer/config/nginx/ssl-proxy.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./.devcontainer/config/nginx/security_headers.conf:/etc/nginx/security_headers.conf:ro
+      - ./.devcontainer/certs:/etc/nginx/certs:ro
+    depends_on:
+      - apache
+      - frontend
+    networks:
+      - app-network
+
+  apache:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.apache.prod
+    # No ports exposed directly — Nginx is the only entry point
+    environment:
+      APP_ENV: prod
+      DATABASE_URL: mysql://symfony:symfony@db:3306/${PROJECT_NAME}_db
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile.node.prod
+    # No ports exposed directly
+    environment:
+      NODE_ENV: production
+    networks:
+      - app-network
+
+  db:
+    extends:
+      file: docker-compose.mysql.yml
+      service: db
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+```
+
+> **Note:** Apache and Node.js no longer expose ports directly — only Nginx does. Containers communicate internally via service names (`apache`, `frontend`) on the Docker network.
+
+---
+
+#### Architecture Overview
+
+```
+Browser (HTTPS :443)
+        │
+   Nginx proxy  ← SSL termination only, no FastCGI
+   ┌─────┴──────┐
+   │            │
+ /api/*         /*
+Apache        Node.js
+(unchanged)  (unchanged)
+```
+
+#### Comparison with PHP-FPM + Nginx
+
+| | Nginx SSL terminator | PHP-FPM + Nginx |
+|--|---------------------|-----------------|
+| Existing Dockerfiles | Unchanged | Replaced |
+| Nginx config complexity | Simple (proxy_pass only) | Complex (FastCGI + proxy_pass) |
+| Authorization header | Automatic | Requires `HTTP_AUTHORIZATION` |
+| Performance | Slightly lower | Better |
+| When to use | Add HTTPS quickly | Full production-like architecture |
 
 ---
 

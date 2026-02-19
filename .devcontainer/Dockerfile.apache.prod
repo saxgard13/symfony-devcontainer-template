@@ -50,7 +50,7 @@ FROM php:${PHP_VERSION}-apache
 # Install PHP extensions and configure Apache
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/
 
-RUN install-php-extensions bcmath intl pdo_mysql zip opcache gd \
+RUN install-php-extensions bcmath intl pdo_mysql redis zip opcache gd \
     && a2enmod rewrite headers
 
 # Copy configurations
