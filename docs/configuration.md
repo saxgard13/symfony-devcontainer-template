@@ -19,7 +19,7 @@ Configuration is managed through `.devcontainer/.env` (default values) and `.dev
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `FRONTEND_LOCALHOST_PORT` | `5173` | Frontend dev server port (used for CORS in production config) |
+| `FRONTEND_LOCALHOST_PORT` | `5173` | Frontend dev server port (used for CORS in production config). Use `3000` for Next.js. |
 
 **Port Forwarding (DevContainer):**
 
@@ -30,7 +30,7 @@ The following ports are automatically forwarded to your host machine via `devcon
 | `8000` | Symfony backend | Exposed in docker-compose services |
 | `9003` | Xdebug debugger | For VS Code debugging |
 | `5173` | Frontend dev server | Vite/React/Vue |
-| `3000` | Alternative frontend | Next.js/Nuxt compatibility |
+| `3000` | Alternative frontend | Next.js compatibility |
 
 Other services (Adminer, Mailpit) are defined in `docker-compose.*.yml` files and don't require `.env` configuration.
 
@@ -156,7 +156,8 @@ Example content:
 GIT_USER_NAME="Your Name"
 GIT_USER_EMAIL="your@email.com"
 
-# Custom frontend port (if needed for non-standard framework)
+# Frontend port: 5173 (Vite, default) or 3000 (Next.js)
+# For other frameworks, set to match your framework's default port
 # FRONTEND_LOCALHOST_PORT=3000
 
 # Custom database credentials (optional)

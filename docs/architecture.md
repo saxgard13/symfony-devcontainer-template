@@ -92,7 +92,7 @@ This document describes the structure and components of the Symfony DevContainer
 
 | Service | Image | Port | Purpose |
 |---------|-------|------|---------|
-| **app** | `Dockerfile.node.prod` | 3000 | Node.js application (Next.js, Nuxt, etc.) |
+| **app** | `Dockerfile.node.prod` | 3000 | Node.js application (Next.js — officially supported) |
 | **mailpit** | `axllent/mailpit` | 8025/1025 | Email capture |
 
 ## Dockerfiles Overview
@@ -148,7 +148,7 @@ Multi-stage build for static Single Page Applications.
 - Health check endpoint at `/health`
 - Port: 80 (maps to 5173 on host)
 
-**Use case:** React, Vue, Vite, CRA, Astro, or any static SPA
+**Use case:** React, Vue, Vite — any static SPA. For Astro, see [Framework Adaptation Guide](framework-adaptation.md).
 
 ### 4. Dockerfile.node.prod (Node.js Backend)
 
@@ -163,10 +163,9 @@ Multi-stage build for server-side rendered applications.
 - Template pre-configured for Next.js standalone mode
 - Supports npm, yarn, and pnpm
 - Non-root user: `appuser`
-- Framework-agnostic (can adapt for Nuxt, etc.)
 - Port: 3000
 
-**Use case:** Next.js, Nuxt, or other Node.js SSR applications
+**Use case:** Next.js SSR (officially supported). For Nuxt, Astro SSR and others, see [Framework Adaptation Guide](framework-adaptation.md).
 
 ## Container Startup Flow
 
@@ -293,7 +292,7 @@ VS Code Multi-Root Workspaces allow flexible project organization while maintain
 |---|---|---|
 | **`project.code-workspace`** (Recommended) | `.shared/`, `backend/`, `frontend/` | Symfony API + SPA development together |
 | **`backend.code-workspace`** | `backend/` only | Backend-only development |
-| **`frontend.code-workspace`** | `frontend/` only | Frontend-only or Full JavaScript (Next.js, Nuxt) |
+| **`frontend.code-workspace`** | `frontend/` only | Frontend-only or Full JavaScript (Next.js) |
 
 **Why Use Multi-Root Workspaces:**
 - ✅ Each folder has isolated VSCode settings, extensions, and terminals
@@ -392,7 +391,7 @@ Runs inside the container after startup:
 |---------|---------------|-----------|---------|
 | **Symfony Backend** | 8000 | 8000 | API/Web server |
 | **Frontend Dev Server** | 5173 | 5173 | Vite/SPA development |
-| **Node.js App** | 3000 | 3000 | Next.js/Nuxt etc. |
+| **Node.js App** | 3000 | 3000 | Next.js SSR |
 | **XDebug** | 9003 | 9003 | Step debugging |
 | **Database (MySQL)** | 3306 | - | Internal only |
 | **Database (PostgreSQL)** | 5432 | - | Internal only |
@@ -485,7 +484,7 @@ docker compose \
 - `db` (MySQL, internal)
 - `mailpit` (email testing, optional) on port 8025/1025
 
-### Scenario 3: Node.js Backend (Next.js, Nuxt, etc.)
+### Scenario 3: Node.js Backend (Next.js)
 
 **Use when:** Full JavaScript application with server-side rendering
 
@@ -559,3 +558,4 @@ For detailed information about setting up and using the template, refer to these
 | **[Workflows](workflows.md)** | GitHub Actions CI/CD pipeline setup for quality, tests, security, and deployment |
 | **[Advanced](advanced.md)** | Advanced configurations, troubleshooting, and optimization tips |
 | **[Production](production.md)** | Building and testing production Docker images |
+| **[Framework Adaptation](framework-adaptation.md)** | Adapting the template for Nuxt, Astro, and other frameworks |

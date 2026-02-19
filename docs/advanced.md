@@ -819,16 +819,18 @@ HEROKU_EMAIL=email@example.com
 
 ## 5. Alternative Frontend/Backend Frameworks (Quick Reference)
 
+> **Note:** The officially supported frontend frameworks are **Vite (SPA)** and **Next.js (SSR)**. The frameworks below work in development out of the box, but require Dockerfile adaptation for production. See [Framework Adaptation Guide](framework-adaptation.md).
+
 ### Frontend Alternatives
 
-| Framework     | Builder | Port | Notes                              |
-| ------------- | ------- | ---- | ---------------------------------- |
-| **Astro**     | vite    | 3000 | Static-first, integrates with APIs |
-| **SvelteKit** | vite    | 5173 | Full-stack capable                 |
-| **Remix**     | esbuild | 3000 | React-based, server-side routing   |
-| **Nuxt**      | webpack | 3000 | Vue-based, SSR/SSG                 |
+| Framework     | Builder | Dev Port | Notes                              |
+| ------------- | ------- | -------- | ---------------------------------- |
+| **Nuxt**      | vite    | 3000     | Vue-based, SSR/SSG                 |
+| **Astro**     | vite    | 4321     | Static-first, integrates with APIs |
+| **SvelteKit** | vite    | 5173     | Full-stack capable                 |
+| **Remix**     | esbuild | 3000     | React-based, server-side routing   |
 
-**Adaptation:** Replace `Dockerfile.spa.prod` build commands with their build tools.
+**Adaptation for production:** See [Framework Adaptation Guide](framework-adaptation.md) for step-by-step Dockerfile modifications.
 
 ### Backend Alternatives
 
