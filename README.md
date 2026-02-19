@@ -221,11 +221,12 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 
 This template supports multiple project structures:
 
-| Type                  | Folders                  | Workspace                |
-| --------------------- | ------------------------ | ------------------------ |
-| **Symfony API + SPA** | `backend/` + `frontend/` | Both workspace files     |
-| **Full Symfony**      | `backend/` only          | `backend.code-workspace` |
-| **Full JavaScript**   | `app/`                   | `app.code-workspace`     |
+| Type                      | Folders                  | Workspace                |
+| ------------------------- | ------------------------ | ------------------------ |
+| **Symfony API + SPA**     | `backend/` + `frontend/` | Both workspace files     |
+| **Symfony API + SSR**     | `backend/` + `frontend/` | Both workspace files     |
+| **Full Symfony**          | `backend/` only          | `backend.code-workspace` |
+| **Full JavaScript (SSR)** | `frontend/`              | `frontend.code-workspace` |
 
 See [Usage Guide](docs/usage.md) for detailed setup instructions.
 
@@ -234,8 +235,7 @@ See [Usage Guide](docs/usage.md) for detailed setup instructions.
 Use the workspace files for isolated tooling:
 
 - `backend.code-workspace` → PHP/Symfony development
-- `frontend.code-workspace` → JavaScript SPA (React/Vue)
-- `app.code-workspace` → Full JS apps (Next.js, Nuxt)
+- `frontend.code-workspace` → JavaScript frontend (SPA or SSR: React, Vue, Next.js, Nuxt)
 
 ## Possible Improvements
 

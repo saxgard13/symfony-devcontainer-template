@@ -9,7 +9,10 @@
       "type": "php",
       "request": "launch",
       "port": 9003,
-      "log": true
+      "log": true,
+      "pathMappings": {
+        "/workspace": "${workspaceFolder}"
+      }
     },
     {
       "name": "Launch currently open script",
@@ -21,7 +24,7 @@
       "runtimeArgs": ["-dxdebug.start_with_request=yes"],
       "env": {
         "XDEBUG_MODE": "debug,develop",
-        "XDEBUG_CONFIG": "client_host=10.0.2.15 client_port=9003"
+        "XDEBUG_CONFIG": "client_host=127.0.0.1 client_port=9003"
       }
     },
     {

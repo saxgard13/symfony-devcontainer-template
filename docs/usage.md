@@ -12,11 +12,14 @@ This guide explains how to set up and use the DevContainer template.
 
 This DevContainer supports multiple project structures. Choose the one that fits your needs:
 
-| Type                  | Folder                   | Workspace                | Use case                              |
-| --------------------- | ------------------------ | ------------------------ | ------------------------------------- |
-| **Symfony API + SPA** | `backend/` + `frontend/` | `project.code-workspace` | Symfony API with React/Vue frontend   |
-| **Full Symfony**      | `backend/` only          | `backend.code-workspace` | Traditional Symfony app with Twig     |
-| **Full JavaScript**   | `app/` (or `frontend/`)  | `app.code-workspace`     | Next.js, Nuxt, or other JS frameworks |
+| Type                      | Folder                   | Workspace                | Use case                                       |
+| ------------------------- | ------------------------ | ------------------------ | ---------------------------------------------- |
+| **Symfony API + SPA**     | `backend/` + `frontend/` | `project.code-workspace` | Symfony API with React/Vue (client-side)       |
+| **Symfony API + SSR**     | `backend/` + `frontend/` | `project.code-workspace` | Symfony API with Next.js/Nuxt (server-side)    |
+| **Full Symfony**          | `backend/` only          | `backend.code-workspace` | Traditional Symfony app with Twig              |
+| **Full JavaScript (SSR)** | `frontend/`              | `frontend.code-workspace` | Next.js, Nuxt without separate backend        |
+
+> **Note:** The `frontend/` folder is used for all frontend types — **SPA** (React, Vue with Vite) and **SSR/ISR** (Next.js, Nuxt). The rendering strategy determines which Docker Compose file to use, not the folder name.
 
 ### Adapting the Workspace File
 
@@ -143,7 +146,6 @@ Use DevContainer as a shared environment, with backend/frontend in separate repo
    # Nested repositories (separate Git repos)
    backend/
    frontend/
-   app/
    ```
 4. Initialize separate repos in `backend/` and `frontend/`:
    ```bash

@@ -26,7 +26,7 @@ services:
 
   adminer:
     image: "${ADMINER_IMAGE}"
-    restart: always
+    restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:

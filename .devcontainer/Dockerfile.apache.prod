@@ -16,10 +16,14 @@ WORKDIR /www
 COPY backend/composer.json backend/composer.lock* ./backend/
 
 # Install dependencies (cached if composer.* unchanged)
-RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress
+RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
 
 # Copy backend code
 COPY backend/ ./backend/
+
+# Run post-install scripts now that bin/console is available
+RUN cd backend && composer dump-autoload --optimize --no-dev \
+    && php bin/console cache:warmup --env=prod --no-debug
 
 # Stage 2: Node.js assets builder (only for Webpack Encore)
 FROM node:${NODE_VERSION}-alpine AS assets-builder

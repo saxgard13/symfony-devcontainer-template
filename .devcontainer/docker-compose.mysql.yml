@@ -1,7 +1,7 @@
 services:
   db:
     image: "${DB_IMAGE}"
-    restart: always
+    restart: unless-stopped
     environment:
       MYSQL_DATABASE: "${PROJECT_NAME}_db"
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-roots}

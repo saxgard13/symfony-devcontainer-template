@@ -6,6 +6,8 @@ services:
       args:
         NODE_VERSION: "${NODE_VERSION}"
     image: "${PROJECT_NAME}-frontend:prod"
+    ports:
+      - "${FRONTEND_LOCALHOST_PORT:-5173}:80"
     networks:
       - app-network
     restart: unless-stopped
