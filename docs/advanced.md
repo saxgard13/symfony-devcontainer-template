@@ -261,14 +261,7 @@ openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
   -subj "/CN=localhost"
 ```
 
-> **For browser-trusted local HTTPS**, use [mkcert](https://github.com/FiloSottile/mkcert) instead — it generates certificates signed by a local CA that your browser trusts without security warnings:
->
-> ```bash
-> mkcert -install
-> mkcert -key-file .devcontainer/certs/localhost.key \
->        -cert-file .devcontainer/certs/localhost.crt \
->        localhost 127.0.0.1
-> ```
+> **For browser-trusted local HTTPS**, use the built-in Caddy reverse proxy instead — see [HTTPS Guide](https.md). No manual certificate setup required.
 
 ---
 
@@ -670,7 +663,7 @@ cat > .shared/claude.md << 'EOF'
 - CORS enabled for `http://localhost:5173`
 
 ## Development Commands
-- Backend: `symfony server:start` (port 8000)
+- Backend: `symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000`
 - Frontend: `npm run dev -- --host` (port 5173)
 
 ## Important Rules

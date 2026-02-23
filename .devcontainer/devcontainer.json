@@ -70,12 +70,15 @@
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
     "source=${localEnv:HOME}/.symfony5,target=/home/vscode/.symfony5,type=bind,consistency=cached"
   ],
-  "forwardPorts": [8000, 9003, 5173, 3000],
+  "forwardPorts": [8000, 8443, 9003, 5173, 5443, 3000, 3443],
   "portsAttributes": {
-    "8000": { "label": "Symfony Server" },
+    "8000": { "label": "Symfony Server (HTTP)" },
+    "8443": { "label": "Symfony HTTPS (Caddy)", "protocol": "https" },
     "9003": { "label": "Xdebug" },
-    "5173": { "label": "Vite" },
+    "5173": { "label": "Vite (HTTP)" },
+    "5443": { "label": "Vite HTTPS (Caddy)", "protocol": "https" },
     "8025": { "label": "Mailpit" },
-    "3000": { "label": "Next, Nuxt etc." }
+    "3000": { "label": "Next, Nuxt etc. (HTTP)" },
+    "3443": { "label": "Next, Nuxt HTTPS (Caddy)", "protocol": "https" }
   }
 }

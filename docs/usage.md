@@ -226,12 +226,10 @@ This approach ensures:
 ### Backend (Symfony)
 
 ```bash
-# With HTTPS (after certificate setup):
-symfony server:start --listen-ip=0.0.0.0 --port=8000
-
-# Without HTTPS (simpler):
-symfony server:start --no-tls --allow-http --listen-ip=0.0.0.0 --port=8000
+symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000
 ```
+
+> For HTTPS in development, use the Caddy reverse proxy — see [HTTPS Guide](https.md).
 
 ### Frontend
 
@@ -244,34 +242,6 @@ The `--host` flag is required to access from outside the container:
 
 > **Other frameworks:** Pass the equivalent `--host 0.0.0.0` flag. VS Code auto-detects and forwards the port automatically.
 
-## Symfony HTTPS Setup
-
-### First Time Setup
-
-1. Inside container, install CA:
-
-   ```bash
-   symfony server:ca:install
-   ```
-
-2. On **host machine**, trust the certificate:
-
-   **Linux:**
-
-   ```bash
-   sudo cp ~/.symfony5/certs/rootCA.pem /usr/local/share/ca-certificates/symfony-ca.crt
-   sudo update-ca-certificates
-   ```
-
-   **macOS:**
-
-   ```bash
-   sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain ~/.symfony5/certs/rootCA.pem
-   ```
-
-   **Windows:**
-   - Navigate to `%USERPROFILE%\.symfony5\certs\`
-   - Double-click `rootCA.pem` → Install → "Trusted Root Certification Authorities"
 
 ## Accessing Services
 

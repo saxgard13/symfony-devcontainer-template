@@ -1,0 +1,17 @@
+# Symfony backend (all setups)
+# IMPORTANT: Symfony must run on plain HTTP — use: symfony serve --no-tls
+https://localhost:8443 {
+    reverse_proxy dev:8000
+}
+
+# Vite SPA frontend — uncomment if needed
+https://localhost:5443 {
+    reverse_proxy dev:5173
+}
+
+# Next.js SSR/ISR — uncomment if needed
+# Next.js runs on plain HTTP internally, Caddy handles TLS for the browser.
+# SSR fetches to Symfony use http://localhost:8000 (no TLS, no CA issues).
+https://localhost:3443 {
+    reverse_proxy dev:3000
+}

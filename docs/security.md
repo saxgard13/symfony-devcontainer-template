@@ -76,7 +76,7 @@ For production with HTTPS, add to your Apache config:
 </VirtualHost>
 ```
 
-> **Note:** For local development, use `symfony serve` which handles HTTPS automatically.
+> **Note:** For local development with HTTPS, use the built-in Caddy reverse proxy — see [HTTPS Guide](https.md).
 
 ## Docker Ignore
 

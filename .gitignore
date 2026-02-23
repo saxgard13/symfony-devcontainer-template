@@ -7,3 +7,6 @@
 .ssh/
 
 .claude/
+
+# Caddy exported CA cert — machine-specific, not to be committed
+.devcontainer/config/caddy/export/
