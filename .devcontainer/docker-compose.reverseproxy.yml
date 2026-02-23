@@ -1,0 +1,21 @@
+services:
+  caddy:
+    image: caddy:alpine
+    ports:
+      - "8443:8443"
+      - "5443:5443"
+      - "3443:3443"
+    volumes:
+      - ./config/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./config/caddy/entrypoint.sh:/entrypoint.sh
+      - ./config/caddy/export:/export
+      - caddy_data:/data
+    entrypoint: ["/bin/sh", "/entrypoint.sh"]
+    depends_on:
+      dev:
+        condition: service_started
+    networks:
+      - app-network
+
+volumes:
+  caddy_data:

@@ -174,7 +174,7 @@ Multi-stage build for server-side rendered applications.
           │
           ▼
 2. Runs init.sh on host
-   ├── Creates ~/.symfony5 folder (certificates)
+   ├── Creates ~/.symfony5 folder (Symfony CLI)
    └── Establishes Docker network "app-network"
           │
           ▼
@@ -374,7 +374,7 @@ This ensures consistency across development and production builds.
 ### init.sh (Host-side initialization)
 
 Runs on the host machine before container starts:
-- Creates `~/.symfony5` folder for HTTPS certificates
+- Creates `~/.symfony5` folder for Symfony CLI
 - Establishes Docker network `app-network`
 
 ### setup.sh (Container-side initialization)
@@ -429,7 +429,7 @@ The DevContainer automatically installs these extensions:
 |------|-----------|---------|
 | Project folder | `/workspace` | Code editing |
 | `~/.ssh` | `/home/vscode/.ssh` | Git/SSH access |
-| `~/.symfony5` | `/home/vscode/.symfony5` | Symfony certificates |
+| `~/.symfony5` | `/home/vscode/.symfony5` | Symfony CLI data |
 | `db-data` (volume) | `/var/lib/mysql` | Database persistence |
 | `redis-data` (volume) | `/data` | Redis persistence |
 | `uploads` (volume) | `/var/www/html/public/uploads` | Production file uploads |
@@ -559,3 +559,4 @@ For detailed information about setting up and using the template, refer to these
 | **[Advanced](advanced.md)** | Advanced configurations, troubleshooting, and optimization tips |
 | **[Production](production.md)** | Building and testing production Docker images |
 | **[Framework Adaptation](framework-adaptation.md)** | Adapting the template for Nuxt, Astro, and other frameworks |
+| **[HTTPS](https.md)** | Local HTTPS with Caddy reverse proxy — all supported architectures |

@@ -108,11 +108,11 @@ A ready-to-use development environment built and tested for:
    ```bash
    # Backend
    cd backend
-   symfony server:start --no-tls --allow-http --listen-ip=0.0.0.0 --port=8000
+   symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000
    ```
 
    ```bash
-   # Frontend (in another terminal)
+   # Frontend — Vite (default setup, in another terminal)
    cd frontend
    npm run dev -- --host
    ```
@@ -218,6 +218,8 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 | GitHub Actions & CI/CD workflows          | [Workflows](docs/workflows.md)                 |
 | Advanced topics & troubleshooting         | [Advanced](docs/advanced.md)                   |
 | Building & testing prod images            | [Production](docs/production.md)               |
+| HTTPS in development (Caddy)              | [HTTPS](docs/https.md)                         |
+| Adapting to Nuxt, Astro, etc.             | [Framework Adaptation](docs/framework-adaptation.md) |
 
 ## Project Types
 

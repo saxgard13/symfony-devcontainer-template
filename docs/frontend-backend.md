@@ -188,17 +188,17 @@ Create a `.env` file in your `frontend/` directory:
 
 **Vite:**
 ```bash
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=http://localhost:8000
 ```
 
 **Next.js (dev mode):**
 ```bash
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
+NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
 **Create React App:**
 ```bash
-REACT_APP_API_URL=http://localhost:8000/api
+REACT_APP_API_URL=http://localhost:8000
 ```
 
 ### Production: SPA Built as Static Files
@@ -207,7 +207,7 @@ When you build your frontend for production (e.g., `npm run build`), the built f
 
 The API URL in the built SPA should still be:
 ```bash
-VITE_API_URL=http://localhost:8000/api  # or your production domain
+VITE_API_URL=http://localhost:8000  # or your production domain
 ```
 
 > **Key Points:**
@@ -267,7 +267,7 @@ The Nginx configuration includes:
    - Result: Lightweight Nginx container serving static SPA
 
 3. **API communication:**
-   - Your built SPA calls backend at: `http://localhost:8000/api` (or your domain)
+   - Your built SPA calls backend at: `http://localhost:8000` (or your domain)
    - Nginx handles all routing to `/index.html` for client-side routing
 
 ---
@@ -582,17 +582,17 @@ For SSR frameworks (Next.js, Nuxt running on `Dockerfile.node.prod`), API calls 
 // src/pages/api.js or getServerSideProps
 
 // ✅ Server-side code (runs in Node.js container)
-const serverApiUrl = 'http://prod:8000/api'  // Internal Docker hostname
+const serverApiUrl = 'http://prod:8000'  // Internal Docker hostname
 
 // ✅ Client-side code (runs in browser)
-const clientApiUrl = 'http://localhost:8000/api'  // Browser on host machine
+const clientApiUrl = 'http://localhost:8000'  // Browser on host machine
 ```
 
 **Key distinction:**
 | Location | Context | URL | Service |
 |----------|---------|-----|---------|
-| **Server-side** | Next.js/Nuxt server | `http://prod:8000/api` | Internal Docker name |
-| **Client-side** | Browser on host | `http://localhost:8000/api` | Host machine |
+| **Server-side** | Next.js/Nuxt server | `http://prod:8000` | Internal Docker name |
+| **Client-side** | Browser on host | `http://localhost:8000` | Host machine |
 
 ## Troubleshooting
 
@@ -688,10 +688,10 @@ const clientApiUrl = 'http://localhost:8000/api'  // Browser on host machine
 **Error:** 404 or ECONNREFUSED from SPA
 
 **Checklist:**
-- [ ] Backend is running: `cd backend && symfony server:start`
+- [ ] Backend is running: `cd backend && symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000`
 - [ ] Frontend dev server is running: `cd frontend && npm run dev`
 - [ ] CORS is configured with `CORS_ALLOW_ORIGIN=http://localhost:5173`
-- [ ] API URL in frontend code: `VITE_API_URL=http://localhost:8000/api`
+- [ ] API URL in frontend code: `VITE_API_URL=http://localhost:8000`
 - [ ] Network connection: Both services on `app-network`
 
 ### Frontend Can't Access API (Production)
@@ -743,7 +743,7 @@ CORS_ALLOW_ORIGIN=http://localhost:5173
 **`frontend/.env.local`:**
 ```bash
 # Browser runs on host machine, accesses localhost
-VITE_API_URL=http://localhost:8000/api
+VITE_API_URL=http://localhost:8000
 ```
 
 **`frontend/src/hooks/useProducts.js`:**
@@ -756,9 +756,9 @@ export function useProducts() {
 
   useEffect(() => {
     // Browser code: use localhost
-    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-    fetch(`${apiUrl}/products`)
+    fetch(`${apiUrl}/api/products`)
       .then(res => {
         if (!res.ok) throw new Error(`API error: ${res.status}`);
         return res.json();
@@ -837,7 +837,7 @@ docker compose \
 
 #### Access Production
 
-- **API:** `http://localhost:8000/api`
+- **API:** `http://localhost:8000`
 - **SPA:** `http://localhost:5173`
 
 Both URLs use localhost because you're accessing from your host machine's browser.
@@ -848,10 +848,10 @@ Both URLs use localhost because you're accessing from your host machine's browse
 
 | Context | URL | Reason |
 |---------|-----|--------|
-| **Browser (dev)** | `http://localhost:8000/api` | Browser on host machine |
-| **Browser (prod)** | `http://localhost:8000/api` | Still your host machine |
-| **Node.js server-side (dev)** | `http://dev:8000/api` | Inside Docker container |
-| **Node.js server-side (prod)** | `http://prod:8000/api` | Inside Docker container |
+| **Browser (dev)** | `http://localhost:8000` | Browser on host machine |
+| **Browser (prod)** | `http://localhost:8000` | Still your host machine |
+| **Node.js server-side (dev)** | `http://dev:8000` | Inside Docker container |
+| **Node.js server-side (prod)** | `http://prod:8000` | Inside Docker container |
 | **Nginx (prod)** | `http://frontend:5173` | Nginx SPA service (for CORS) |
 
 **Key Rule:** Use `localhost` for browser code, use internal service names for backend-to-backend communication.

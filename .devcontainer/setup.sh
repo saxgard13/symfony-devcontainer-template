@@ -30,6 +30,9 @@ else
 fi
 set +a
 
+# Caddy exports root.crt to config/caddy/export/ via its entrypoint wrapper
+# Nothing to do here — the file is already accessible on the host for browser import
+
 # Git configuration if variables are defined
 GIT_INFO=""
 if [ -n "$GIT_USER_NAME" ] && [ -n "$GIT_USER_EMAIL" ]; then
