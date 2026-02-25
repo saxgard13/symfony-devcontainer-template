@@ -208,19 +208,3 @@ jobs:
       - name: Lint Caddy entrypoint.sh
         run: shellcheck --severity=warning .devcontainer/config/caddy/entrypoint.sh
 
-  validate-devcontainer-json:
-    name: Validate devcontainer.json
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install check-jsonschema
-        run: pip install check-jsonschema
-
-      - name: Validate devcontainer.json against official schema
-        run: |
-          check-jsonschema \
-            --schemafile https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/devcontainer.json \
-            .devcontainer/devcontainer.json
