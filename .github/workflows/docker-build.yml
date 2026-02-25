@@ -148,3 +148,64 @@ jobs:
         with:
           dockerfile: .devcontainer/Dockerfile.spa.prod
           ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
+
+  validate-compose:
+    name: Validate Docker Compose Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create required directories and stub files
+        run: |
+          mkdir -p backend frontend
+          touch backend/composer.json backend/composer.lock
+          touch frontend/package.json frontend/package-lock.json
+
+      - name: Validate docker-compose.dev.yml
+        run: docker compose -f .devcontainer/docker-compose.dev.yml config --quiet
+
+      - name: Validate docker-compose.mysql.yml
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml config --quiet
+
+      - name: Validate docker-compose.postgre.yml
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.postgre.yml config --quiet
+
+      - name: Validate docker-compose.redis.yml
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.redis.yml config --quiet
+
+      - name: Validate docker-compose.mailpit.yml
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.reverseproxy.yml
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
+
+      - name: Validate docker-compose.prod.yml
+        run: docker compose -f .devcontainer/docker-compose.prod.yml config --quiet
+
+      - name: Validate docker-compose.node.prod.yml
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml config --quiet
+
+      - name: Validate docker-compose.frontend.prod.yml
+        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml config --quiet
+
+  lint-shell-scripts:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint init.sh
+        run: shellcheck .devcontainer/init.sh
+
+      - name: Lint setup.sh
+        run: shellcheck .devcontainer/setup.sh
+
+      - name: Lint Caddy entrypoint.sh
+        run: shellcheck .devcontainer/config/caddy/entrypoint.sh
