@@ -243,12 +243,16 @@ Use the workspace files for isolated tooling:
 - `backend.code-workspace` → PHP/Symfony development
 - `frontend.code-workspace` → JavaScript frontend (Vite SPA or Next.js SSR)
 
-## Possible Improvements
+## Optional Services
 
-- GitHub Actions CI/CD pipeline
-- Makefile for common commands
-- RabbitMQ integration
-- Custom project scaffolding options
+Depending on your project needs, you can add these services as additional Docker Compose files (following the same modular pattern as Redis or Mailpit):
+
+| Service | Use case | Docker image |
+|---------|----------|--------------|
+| **RabbitMQ** | Async message queue with Symfony Messenger | `rabbitmq:3-management` |
+| **Meilisearch** | Full-text search & autocomplete — easier to set up than Elasticsearch | `getmeili/meilisearch` |
+| **Elasticsearch** | Full-text search (heavier, more features, more complex) | `elasticsearch:8` |
+| **MinIO** | S3-compatible local object storage | `minio/minio` |
 
 ---
 
