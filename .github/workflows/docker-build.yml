@@ -163,21 +163,15 @@ jobs:
           touch backend/composer.json backend/composer.lock
           touch frontend/package.json frontend/package-lock.json
 
-      # docker-compose.dev.yml requires a db service — always combine with a db file
-      - name: Validate dev + mysql
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml config --quiet
+      # docker-compose.dev.yml requires db + redis + mailpit — always include all three
+      - name: Validate dev + mysql (base stack)
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
-      - name: Validate dev + postgre
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.postgre.yml config --quiet
-
-      - name: Validate dev + mysql + redis
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml config --quiet
-
-      - name: Validate dev + mysql + mailpit
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+      - name: Validate dev + postgre (base stack)
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
       - name: Validate dev + mysql + reverseproxy
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
 
       - name: Validate docker-compose.prod.yml
         run: docker compose -f .devcontainer/docker-compose.prod.yml config --quiet
