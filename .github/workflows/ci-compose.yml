@@ -52,8 +52,6 @@ jobs:
       - name: Validate docker-compose.node.prod.yml + postgre
         run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
-      - name: Validate docker-compose.frontend.prod.yml + mysql
-        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
-
-      - name: Validate docker-compose.frontend.prod.yml + postgre
-        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+      # docker-compose.frontend.prod.yml is a standalone SPA (Nginx only) — no db or mailpit dependency
+      - name: Validate docker-compose.frontend.prod.yml (standalone)
+        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml config --quiet
