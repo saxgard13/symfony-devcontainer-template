@@ -1,0 +1,56 @@
+name: CI - Docker Compose
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/docker-compose*.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/docker-compose*.yml'
+
+jobs:
+  validate-compose:
+    name: Validate Docker Compose Files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create required directories and stub files
+        run: |
+          mkdir -p backend frontend
+          touch backend/composer.json backend/composer.lock
+          touch frontend/package.json frontend/package-lock.json
+
+      # docker-compose.dev.yml requires db + redis + mailpit — always include all three
+      - name: Validate dev + mysql (base stack)
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate dev + postgre (base stack)
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate dev + mysql + reverseproxy
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
+
+      - name: Validate docker-compose.prod.yml + mysql
+        run: docker compose -f .devcontainer/docker-compose.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.prod.yml + postgre
+        run: docker compose -f .devcontainer/docker-compose.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.node.prod.yml + mysql
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.node.prod.yml + postgre
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.frontend.prod.yml + mysql
+        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.frontend.prod.yml + postgre
+        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet

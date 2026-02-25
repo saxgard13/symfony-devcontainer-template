@@ -1,0 +1,84 @@
+name: CI - DevContainer
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/Dockerfile.dev'
+      - '.devcontainer/devcontainer.json'
+      - '.devcontainer/docker-compose.dev.yml'
+      - '.devcontainer/docker-compose.mysql.yml'
+      - '.devcontainer/docker-compose.postgre.yml'
+      - '.devcontainer/docker-compose.redis.yml'
+      - '.devcontainer/docker-compose.mailpit.yml'
+      - '.devcontainer/docker-compose.reverseproxy.yml'
+      - '.devcontainer/*.sh'
+      - '.devcontainer/config/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/Dockerfile.dev'
+      - '.devcontainer/devcontainer.json'
+      - '.devcontainer/docker-compose.dev.yml'
+      - '.devcontainer/docker-compose.mysql.yml'
+      - '.devcontainer/docker-compose.postgre.yml'
+      - '.devcontainer/docker-compose.redis.yml'
+      - '.devcontainer/docker-compose.mailpit.yml'
+      - '.devcontainer/docker-compose.reverseproxy.yml'
+      - '.devcontainer/*.sh'
+      - '.devcontainer/config/**'
+
+jobs:
+  build-and-test:
+    name: Build & Test DevContainer
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build & test devcontainer
+        uses: devcontainers/ci@v0.3
+        with:
+          runCmd: |
+            php --version
+            composer --version
+            node --version
+            npm --version
+            symfony version
+
+  lint-dockerfile-dev:
+    name: Lint Dockerfile.dev
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint on Dockerfile.dev
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.dev
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
+
+  lint-shell-scripts:
+    name: Lint Shell Scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get install -y shellcheck
+
+      - name: Lint init.sh
+        run: shellcheck --severity=warning .devcontainer/init.sh
+
+      - name: Lint setup.sh
+        run: shellcheck --severity=warning .devcontainer/setup.sh
+
+      - name: Lint Caddy entrypoint.sh
+        run: shellcheck --severity=warning .devcontainer/config/caddy/entrypoint.sh

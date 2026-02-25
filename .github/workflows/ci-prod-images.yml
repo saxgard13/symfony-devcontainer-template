@@ -1,0 +1,125 @@
+name: CI - Production Images
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/Dockerfile.apache.prod'
+      - '.devcontainer/Dockerfile.node.prod'
+      - '.devcontainer/Dockerfile.spa.prod'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.devcontainer/Dockerfile.apache.prod'
+      - '.devcontainer/Dockerfile.node.prod'
+      - '.devcontainer/Dockerfile.spa.prod'
+
+jobs:
+  lint-dockerfiles:
+    name: Lint Prod Dockerfiles
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Hadolint on Dockerfile.apache.prod
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.apache.prod
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
+
+      - name: Run Hadolint on Dockerfile.node.prod
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.node.prod
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
+
+      - name: Run Hadolint on Dockerfile.spa.prod
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: .devcontainer/Dockerfile.spa.prod
+          ignore: DL3003,DL3008,DL3009,DL3022,DL4006,SC3040
+
+  build-apache-prod:
+    name: Build Apache Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create backend files for build context
+        run: |
+          mkdir -p backend
+          echo '{"name":"symfony/project","type":"project","require":{}}' > backend/composer.json
+          echo '{"_readme":["This file is @generated automatically"],"content-hash":"da41eaf87ccf6f6f6f6f6f6f6f6f6f6f","packages":[],"packages-dev":[],"aliases":[],"minimum-stability":"stable","stability-flags":{},"prefer-stable":false,"prefer-lowest":false,"platform":{},"platform-dev":{},"plugin-api-version":"2.3.0"}' > backend/composer.lock
+
+      - name: Build Apache prod image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.apache.prod
+          push: false
+          tags: devcontainer:apache-prod-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-node-prod:
+    name: Build Node.js Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create frontend files for build context
+        run: |
+          mkdir -p frontend
+          echo '{ "name": "frontend", "version": "1.0.0", "scripts": { "build": "echo build" }, "dependencies": {} }' > frontend/package.json
+          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > frontend/package-lock.json
+
+      - name: Build Node.js prod image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.node.prod
+          push: false
+          tags: devcontainer:node-prod-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  build-spa-prod:
+    name: Build SPA Production Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create frontend files for build context
+        run: |
+          mkdir -p frontend
+          echo '{ "name": "frontend", "scripts": { "build": "mkdir -p dist && echo Build output > dist/index.html" } }' > frontend/package.json
+          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > frontend/package-lock.json
+
+      - name: Build SPA prod image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: .devcontainer/Dockerfile.spa.prod
+          push: false
+          tags: devcontainer:spa-prod-latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
