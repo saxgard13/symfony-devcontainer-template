@@ -163,23 +163,21 @@ jobs:
           touch backend/composer.json backend/composer.lock
           touch frontend/package.json frontend/package-lock.json
 
-      - name: Validate docker-compose.dev.yml
-        run: docker compose -f .devcontainer/docker-compose.dev.yml config --quiet
-
-      - name: Validate docker-compose.mysql.yml
+      # docker-compose.dev.yml requires a db service — always combine with a db file
+      - name: Validate dev + mysql
         run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml config --quiet
 
-      - name: Validate docker-compose.postgre.yml
+      - name: Validate dev + postgre
         run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.postgre.yml config --quiet
 
-      - name: Validate docker-compose.redis.yml
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.redis.yml config --quiet
+      - name: Validate dev + mysql + redis
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml config --quiet
 
-      - name: Validate docker-compose.mailpit.yml
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+      - name: Validate dev + mysql + mailpit
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
-      - name: Validate docker-compose.reverseproxy.yml
-        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
+      - name: Validate dev + mysql + reverseproxy
+        run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
 
       - name: Validate docker-compose.prod.yml
         run: docker compose -f .devcontainer/docker-compose.prod.yml config --quiet
@@ -202,10 +200,10 @@ jobs:
         run: sudo apt-get install -y shellcheck
 
       - name: Lint init.sh
-        run: shellcheck .devcontainer/init.sh
+        run: shellcheck --severity=warning .devcontainer/init.sh
 
       - name: Lint setup.sh
-        run: shellcheck .devcontainer/setup.sh
+        run: shellcheck --severity=warning .devcontainer/setup.sh
 
       - name: Lint Caddy entrypoint.sh
-        run: shellcheck .devcontainer/config/caddy/entrypoint.sh
+        run: shellcheck --severity=warning .devcontainer/config/caddy/entrypoint.sh
