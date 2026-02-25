@@ -220,4 +220,7 @@ jobs:
         run: pip install check-jsonschema
 
       - name: Validate devcontainer.json against official schema
-        run: check-jsonschema --builtin-schema vendor.devcontainers .devcontainer/devcontainer.json
+        run: |
+          check-jsonschema \
+            --schemafile https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/devcontainer.json \
+            .devcontainer/devcontainer.json
