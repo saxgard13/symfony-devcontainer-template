@@ -1,3 +1,4 @@
+# Dev stack — combine with a db, redis and mailpit compose file
 services:
   dev:
     build:
