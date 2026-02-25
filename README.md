@@ -253,6 +253,7 @@ Depending on your project needs, you can add these services as additional Docker
 | **Meilisearch** | Full-text search & autocomplete — easier to set up than Elasticsearch | `getmeili/meilisearch` |
 | **Elasticsearch** | Full-text search (heavier, more features, more complex) | `elasticsearch:8` |
 | **MinIO** | S3-compatible local object storage | `minio/minio` |
+| **Mercure** | Real-time push / live updates (SSE) — native Symfony integration | `dunglas/mercure` |
 
 ---
 
