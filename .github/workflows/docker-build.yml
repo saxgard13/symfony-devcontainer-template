@@ -10,25 +10,22 @@ on:
 
 jobs:
   build-dev:
-    name: Build Development Image
+    name: Build & Test DevContainer
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Build dev image
-        uses: docker/build-push-action@v5
+      - name: Build & test devcontainer
+        uses: devcontainers/ci@v0.3
         with:
-          context: .
-          file: .devcontainer/Dockerfile.dev
-          push: false
-          tags: devcontainer:dev-latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          runCmd: |
+            php --version
+            composer --version
+            node --version
+            npm --version
+            symfony version
 
   build-apache-prod:
     name: Build Apache Production Image
