@@ -180,10 +180,10 @@ jobs:
         run: docker compose -f .devcontainer/docker-compose.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
       - name: Validate docker-compose.node.prod.yml + mysql
-        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.mysql.yml config --quiet
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
       - name: Validate docker-compose.node.prod.yml + postgre
-        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.postgre.yml config --quiet
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
       - name: Validate docker-compose.frontend.prod.yml + mysql
         run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
