@@ -1,16 +1,19 @@
 name: CI - Docker Compose
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
     paths:
       - '.devcontainer/docker-compose*.yml'
+      - '.github/workflows/ci-compose.yml'
   pull_request:
     branches:
       - main
     paths:
       - '.devcontainer/docker-compose*.yml'
+      - '.github/workflows/ci-compose.yml'
 
 jobs:
   validate-compose:

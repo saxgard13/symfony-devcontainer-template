@@ -1,6 +1,7 @@
 name: CI - Production Images
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -8,6 +9,7 @@ on:
       - '.devcontainer/Dockerfile.apache.prod'
       - '.devcontainer/Dockerfile.node.prod'
       - '.devcontainer/Dockerfile.spa.prod'
+      - '.github/workflows/ci-prod-images.yml'
   pull_request:
     branches:
       - main
@@ -15,6 +17,7 @@ on:
       - '.devcontainer/Dockerfile.apache.prod'
       - '.devcontainer/Dockerfile.node.prod'
       - '.devcontainer/Dockerfile.spa.prod'
+      - '.github/workflows/ci-prod-images.yml'
 
 jobs:
   lint-dockerfiles:

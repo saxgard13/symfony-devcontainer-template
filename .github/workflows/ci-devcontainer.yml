@@ -1,6 +1,7 @@
 name: CI - DevContainer
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -15,6 +16,7 @@ on:
       - '.devcontainer/docker-compose.reverseproxy.yml'
       - '.devcontainer/*.sh'
       - '.devcontainer/config/**'
+      - '.github/workflows/ci-devcontainer.yml'
   pull_request:
     branches:
       - main
@@ -29,6 +31,7 @@ on:
       - '.devcontainer/docker-compose.reverseproxy.yml'
       - '.devcontainer/*.sh'
       - '.devcontainer/config/**'
+      - '.github/workflows/ci-devcontainer.yml'
 
 jobs:
   build-and-test:
