@@ -173,14 +173,26 @@ jobs:
       - name: Validate dev + mysql + reverseproxy
         run: docker compose -f .devcontainer/docker-compose.dev.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.redis.yml -f .devcontainer/docker-compose.mailpit.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
 
-      - name: Validate docker-compose.prod.yml
-        run: docker compose -f .devcontainer/docker-compose.prod.yml config --quiet
+      - name: Validate docker-compose.prod.yml + mysql
+        run: docker compose -f .devcontainer/docker-compose.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
-      - name: Validate docker-compose.node.prod.yml
-        run: docker compose -f .devcontainer/docker-compose.node.prod.yml config --quiet
+      - name: Validate docker-compose.prod.yml + postgre
+        run: docker compose -f .devcontainer/docker-compose.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
-      - name: Validate docker-compose.frontend.prod.yml
-        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml config --quiet
+      - name: Validate docker-compose.prod.yml + mysql + reverseproxy
+        run: docker compose -f .devcontainer/docker-compose.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml -f .devcontainer/docker-compose.reverseproxy.yml config --quiet
+
+      - name: Validate docker-compose.node.prod.yml + mysql
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.mysql.yml config --quiet
+
+      - name: Validate docker-compose.node.prod.yml + postgre
+        run: docker compose -f .devcontainer/docker-compose.node.prod.yml -f .devcontainer/docker-compose.postgre.yml config --quiet
+
+      - name: Validate docker-compose.frontend.prod.yml + mysql
+        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.mysql.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
+
+      - name: Validate docker-compose.frontend.prod.yml + postgre
+        run: docker compose -f .devcontainer/docker-compose.frontend.prod.yml -f .devcontainer/docker-compose.postgre.yml -f .devcontainer/docker-compose.mailpit.yml config --quiet
 
   lint-shell-scripts:
     name: Lint Shell Scripts
