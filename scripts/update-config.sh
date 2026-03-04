@@ -40,6 +40,24 @@ if [ -z "$PROJECT_NAME" ] || [ -z "$PHP_VERSION" ] || [ -z "$NODE_VERSION" ] || 
   exit 1
 fi
 
+# Validate values to prevent sed corruption
+if ! echo "$PROJECT_NAME" | grep -qE '^[a-z0-9][a-z0-9-]*$'; then
+  echo "❌ Error: project_name must contain only lowercase letters, numbers, and hyphens (e.g. 'my-project')"
+  exit 1
+fi
+if ! echo "$PHP_VERSION" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
+  echo "❌ Error: php version must be a number (e.g. '8.3')"
+  exit 1
+fi
+if ! echo "$NODE_VERSION" | grep -qE '^[0-9]+(\.[0-9]+)*$'; then
+  echo "❌ Error: node version must be a number (e.g. '22')"
+  exit 1
+fi
+if ! echo "$FRONTEND_PORT" | grep -qE '^[0-9]+$'; then
+  echo "❌ Error: frontend_localhost_port must be a number (e.g. '5173')"
+  exit 1
+fi
+
 # Update .env file
 sed -i.bak "s/^PROJECT_NAME=.*/PROJECT_NAME=$PROJECT_NAME/" "$ENV_FILE"
 sed -i.bak "s/^PHP_VERSION=.*/PHP_VERSION=$PHP_VERSION/" "$ENV_FILE"
