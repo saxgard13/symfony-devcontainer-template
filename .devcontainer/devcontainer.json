@@ -7,7 +7,7 @@
     "docker-compose.mailpit.yml"
   ],
   "service": "dev",
-  "workspaceFolder": "/workspace",
+  "workspaceFolder": "/workspace-devcontainer",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -68,7 +68,9 @@
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "mounts": [
     "source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
-    "source=${localEnv:HOME}/.symfony5,target=/home/vscode/.symfony5,type=bind,consistency=cached"
+    "source=${localEnv:HOME}/.symfony5,target=/home/vscode/.symfony5,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached"
   ],
   "forwardPorts": [8000, 8443, 9003, 5173, 5443, 3000, 3443],
   "portsAttributes": {

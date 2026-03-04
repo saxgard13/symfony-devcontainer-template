@@ -23,6 +23,7 @@ This document describes the structure and components of the Symfony DevContainer
 │   ├── docker-compose.postgre.yml   # PostgreSQL database service (alternative)
 │   ├── docker-compose.redis.yml     # Redis cache service (optional)
 │   ├── docker-compose.mailpit.yml   # Email testing service (optional)
+│   ├── docker-compose.reverseproxy.yml # Caddy HTTPS reverse proxy (optional)
 │   ├── Dockerfile.dev               # Development container image
 │   ├── Dockerfile.apache.prod       # Production Apache/PHP image
 │   ├── Dockerfile.spa.prod          # Production Nginx SPA image
@@ -32,7 +33,7 @@ This document describes the structure and components of the Symfony DevContainer
 │   ├── .env                         # Default environment variables
 │   └── .env.local.example           # Template for local overrides
 ├── scripts/
-│   └── update-versions.sh           # Version synchronization script
+│   └── update-config.sh             # Configuration synchronization script
 ├── .github/                         # GitHub workflows and templates
 ├── .vscode/                         # VS Code workspace settings
 ├── backend/                         # Your Symfony project (create it)
@@ -47,7 +48,7 @@ This document describes the structure and components of the Symfony DevContainer
 ├── app.code-workspace               # VS Code workspace for full JS apps
 ├── backend.code-workspace           # VS Code multi-root workspace (backend only)
 ├── frontend.code-workspace          # VS Code multi-root workspace (frontend only)
-├── .versions.json                   # Centralized version configuration
+├── .config.json                     # Centralized project and version configuration
 ├── .dockerignore                    # Files excluded from Docker builds
 └── README.md                        # Quick start guide
 ```
@@ -69,6 +70,7 @@ This document describes the structure and components of the Symfony DevContainer
 | `docker-compose.postgre.yml` | db | `postgres:16` | 5432 (internal) | Database (alternative) |
 | `docker-compose.redis.yml` | redis | `redis:7-alpine` | 6379 | Cache (optional) |
 | `docker-compose.mailpit.yml` | mailpit | `axllent/mailpit` | 8025, 1025 | Email testing (optional) |
+| `docker-compose.reverseproxy.yml` | caddy | `caddy:2-alpine` | 80, 443 | HTTPS reverse proxy (optional) |
 
 ### Production Environments
 
@@ -347,25 +349,28 @@ VS Code Multi-Root Workspaces allow flexible project organization while maintain
 
 ## Version Management
 
-### .versions.json
+### .config.json
 
-Centralized configuration file that defines all major component versions:
+Centralized configuration file that defines the project name and all major component versions:
 
 ```json
 {
+  "project_name": "monprojet",
   "php": "8.3",
   "node": "22",
   "db_image": "mysql:8.3",
   "server_version": "8.3",
   "redis_image": "redis:7-alpine",
-  "adminer_image": "adminer:latest"
+  "adminer_image": "adminer:latest",
+  "frontend_localhost_port": "5173"
 }
 ```
 
-The `scripts/update-versions.sh` script synchronizes these versions across:
-- `.devcontainer/.env` (environment variables)
+The `scripts/update-config.sh` script synchronizes these values across:
+- `.devcontainer/.env` (`PROJECT_NAME` + environment variables)
+- `.devcontainer/devcontainer.json` (`workspaceFolder`)
+- `.vscode/launch.json` (Xdebug pathMappings)
 - All 4 Dockerfiles (ARG defaults)
-- Production image names
 
 This ensures consistency across development and production builds.
 
@@ -534,9 +539,9 @@ Configuration is managed through:
 |------|---------|-----------------|
 | `.devcontainer/.env` | Default values (PHP, Node versions, ports) | ✅ Yes |
 | `.devcontainer/.env.local` | Local overrides (Git user, credentials) | ❌ No (gitignored) |
-| `.versions.json` | Centralized version config | ✅ Yes |
+| `.config.json` | Centralized project name and version config | ✅ Yes |
 
-The `scripts/update-versions.sh` script synchronizes `.versions.json` changes to all Dockerfiles and `.env` files.
+The `scripts/update-config.sh` script synchronizes `.config.json` changes to all Dockerfiles and `.env` files.
 
 ---
 
@@ -560,3 +565,4 @@ For detailed information about setting up and using the template, refer to these
 | **[Production](production.md)** | Building and testing production Docker images |
 | **[Framework Adaptation](framework-adaptation.md)** | Adapting the template for Nuxt, Astro, and other frameworks |
 | **[HTTPS](https.md)** | Local HTTPS with Caddy reverse proxy — all supported architectures |
+| **[AI Assistant](ai-assistant.md)** | Claude Code setup, project memory isolation, and AI-assisted development |

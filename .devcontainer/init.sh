@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# Create Claude Code config files on the host if they don't exist
+if [ ! -d "$HOME/.claude" ]; then
+  echo "→ Creating $HOME/.claude folder for Claude Code config..."
+  mkdir -p "$HOME/.claude"
+fi
+if [ ! -f "$HOME/.claude.json" ]; then
+  echo "→ Creating $HOME/.claude.json for Claude Code config..."
+  echo '{}' > "$HOME/.claude.json"
+fi
+
 # Create the .symfony5 folder on the host if it doesn't exist (for HTTPS certificates)
 SYMFONY_DIR="$HOME/.symfony5"
 if [ ! -d "$SYMFONY_DIR" ]; then

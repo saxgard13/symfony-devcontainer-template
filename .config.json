@@ -1,8 +1,10 @@
 {
+  "project_name": "devcontainer",
   "php": "8.3",
   "node": "22",
   "db_image": "mysql:8.3",
   "server_version": "8.3",
   "redis_image": "redis:7-alpine",
-  "adminer_image": "adminer:latest"
+  "adminer_image": "adminer:latest",
+  "frontend_localhost_port": "5173"
 }

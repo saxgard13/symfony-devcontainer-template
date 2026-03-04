@@ -28,9 +28,9 @@ Change the database compose file:
 ],
 ```
 
-### Step 2: Update `.versions.json` and synchronize
+### Step 2: Update `.config.json` and synchronize
 
-Edit `.versions.json`:
+Edit `.config.json`:
 
 **For PostgreSQL:**
 ```json
@@ -51,7 +51,7 @@ Edit `.versions.json`:
 Then synchronize all configuration files:
 
 ```bash
-bash scripts/update-versions.sh
+bash scripts/update-config.sh
 ```
 
 This automatically updates `.devcontainer/.env` and all Dockerfiles.
