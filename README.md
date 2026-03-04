@@ -49,26 +49,33 @@ A ready-to-use development environment built and tested for:
    code your-project
    ```
 
-3. **Configure Git identity** (before opening in container):
+3. **Configure the project** — edit `.config.json` and run the sync script:
+
+   ```bash
+   # 1. Edit .config.json — set project_name, PHP/Node versions, database, frontend port
+   bash scripts/update-config.sh
+   ```
+
+   > **Do this before opening the container.** Changing `project_name` after the container is built requires a full rebuild.
+   >
+   > → See [Customizing Versions](#customizing-versions) below and the [Configuration Guide](docs/configuration.md#managing-versions-php-nodejs-database) for all available options.
+
+4. **Configure Git identity**:
 
    ```bash
    cp .devcontainer/.env.local.example .devcontainer/.env.local
    # Edit .env.local with your name and email
    ```
 
-4. **⚠️ Open in container** (REQUIRED before installing Symfony/npm): Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
+5. **⚠️ Open in container** (REQUIRED before installing Symfony/npm): Press `Ctrl+Shift+P` → "Dev Containers: Reopen in Container"
 
    The following steps require Symfony CLI and Node.js, which are only available inside the container.
 
-5. **Create project folders** (inside container):
+6. **Create project folders** (inside container):
 
    ```bash
    mkdir backend frontend
    ```
-
-6. **Customize versions** (optional, inside container):
-
-   Edit `.versions.json` to change PHP, Node.js, or database versions before proceeding. See [Configuration Guide](docs/configuration.md#managing-versions-php-nodejs-database) for available options.
 
 7. **Install Symfony** (inside container):
 
@@ -132,22 +139,27 @@ For production deployments, thoroughly test all configurations in your specific 
 
 To use different versions of PHP, Node.js, database, Redis, or Adminer:
 
-1. **Edit `.versions.json`**:
+1. **Edit `.config.json`**:
 
    ```json
    {
+     "project_name": "monprojet",
      "php": "8.4",
      "node": "20",
      "db_image": "postgres:16",
      "redis_image": "redis:7-alpine",
-     "adminer_image": "adminer:latest"
+     "adminer_image": "adminer:latest",
+     "frontend_localhost_port": "5173"
    }
    ```
+
+   - **`project_name`**: unique project identifier, used as the container workspace path (and to isolate Claude Code memory per project if you use it)
+   - **`frontend_localhost_port`**: port exposed on localhost for the frontend dev server — `5173` for Vite, `3000` for Next.js/Nuxt, `4200` for Angular
 
 2. **Synchronize all configuration files**:
 
    ```bash
-   bash scripts/update-versions.sh
+   bash scripts/update-config.sh
    ```
 
 3. **⚠️ Rebuild the development container** (REQUIRED):
@@ -160,7 +172,7 @@ To use different versions of PHP, Node.js, database, Redis, or Adminer:
 
 This updates the development environment and Dockerfiles. The CI/CD pipeline automatically uses the updated Dockerfile ARG defaults.
 
-> **Note:** The `update-versions.sh` script runs inside the dev container (Linux environment), so it works seamlessly on **Linux, macOS, and Windows**. No special tools needed on your host machine!
+> **Note:** The `update-config.sh` script runs inside the dev container (Linux environment), so it works seamlessly on **Linux, macOS, and Windows**. No special tools needed on your host machine!
 
 See [Configuration Guide](docs/configuration.md#managing-versions-php-nodejs-database) for all available options.
 
@@ -220,6 +232,7 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 | Building & testing prod images            | [Production](docs/production.md)               |
 | HTTPS in development (Caddy)              | [HTTPS](docs/https.md)                         |
 | Adapting to Nuxt, Astro, etc.             | [Framework Adaptation](docs/framework-adaptation.md) |
+| AI assistant setup (Claude Code)          | [AI Assistant](docs/ai-assistant.md)           |
 
 ## Project Types
 

@@ -10,7 +10,7 @@ services:
     image: "${DEV_IMAGE}"
     ports: []
     volumes:
-      - ..:/workspace:cached
+      - ..:/workspace-${PROJECT_NAME}:cached
     environment:
       MAILER_DSN: smtp://user:pass@mailpit:1025
       DATABASE_URL: mysql://${MYSQL_USER:-symfony}:${MYSQL_PASSWORD:-symfony}@db:3306/${PROJECT_NAME}_db?serverVersion=${SERVER_VERSION}

@@ -11,7 +11,7 @@
       "port": 9003,
       "log": true,
       "pathMappings": {
-        "/workspace": "${workspaceFolder}"
+        "/workspace-devcontainer": "${workspaceFolder}"
       }
     },
     {

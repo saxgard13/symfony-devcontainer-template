@@ -71,23 +71,26 @@ Other services (Adminer, Mailpit) are defined in `docker-compose.*.yml` files an
 
 ## Managing Versions (PHP, Node.js, Database, Redis, Adminer)
 
-To simplify version management, use the centralized `.versions.json` file instead of modifying multiple files.
+To simplify version management, use the centralized `.config.json` file instead of modifying multiple files.
 
 ### Quick Start
 
-1. **Edit `.versions.json`** to change versions:
+1. **Edit `.config.json`** to change versions:
 
 ```json
 {
+  "project_name": "monprojet",
   "php": "8.4",
   "node": "20",
   "db_image": "postgres:16",
   "redis_image": "redis:7-alpine",
-  "adminer_image": "adminer:latest"
+  "adminer_image": "adminer:latest",
+  "frontend_localhost_port": "5173"
 }
 ```
 
 **Available options:**
+- **`project_name`**: Unique identifier for this project. Used as the container workspace path (`/workspace-<project_name>`), isolating Claude Code's project memory per project.
 - **PHP**: Any PHP version supported by Docker official images (e.g., `8.3`, `8.4`)
 - **Node.js**: Any Node.js version (e.g., `20`, `22`)
 - **Database images:**
@@ -96,11 +99,15 @@ To simplify version management, use the centralized `.versions.json` file instea
   - PostgreSQL: `postgres:16`, `postgres:17`
 - **Redis images**: `redis:6-alpine`, `redis:7-alpine`, `redis:latest`
 - **Adminer images**: `adminer:latest`, `adminer:4.8.1`
+- **`frontend_localhost_port`**: Port exposed on localhost for the frontend dev server. Depends on the framework:
+  - Vite (Vue, React, Svelte…): `5173`
+  - Next.js / Nuxt: `3000`
+  - Angular: `4200`
 
 2. **Synchronize all configuration files:**
 
 ```bash
-bash scripts/update-versions.sh
+bash scripts/update-config.sh
 ```
 
 > **Cross-Platform:** Execute this script inside your dev container (it runs in a Linux environment). This works seamlessly on **Linux, macOS, and Windows** with no special setup needed on your host machine.
@@ -120,12 +127,13 @@ This rebuilds the container with the new versions you specified.
 
 ### What Gets Updated
 
-Running `scripts/update-versions.sh` synchronizes versions across:
+Running `scripts/update-config.sh` synchronizes versions across:
 
 | File | What Changes |
 |------|-------------|
-| `.devcontainer/.env` | `PHP_VERSION`, `NODE_VERSION`, `DB_IMAGE`, `REDIS_IMAGE`, `ADMINER_IMAGE`, `DEV_IMAGE` |
-| `.devcontainer/devcontainer.json` | `intelephense.environment.phpVersion` (for VS Code PHP intellisense) |
+| `.devcontainer/.env` | `PROJECT_NAME`, `PHP_VERSION`, `NODE_VERSION`, `DB_IMAGE`, `REDIS_IMAGE`, `ADMINER_IMAGE`, `DEV_IMAGE`, `FRONTEND_LOCALHOST_PORT` |
+| `.devcontainer/devcontainer.json` | `workspaceFolder`, `intelephense.environment.phpVersion` |
+| `.vscode/launch.json` | Xdebug `pathMappings` |
 | `Dockerfile.dev` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
 | `Dockerfile.apache.prod` | `ARG PHP_VERSION`, `ARG NODE_VERSION` |
 | `Dockerfile.node.prod` | `ARG NODE_VERSION` |
@@ -139,7 +147,7 @@ Running `scripts/update-versions.sh` synchronizes versions across:
 > - **VS Code & compatible editors**: Press `Ctrl+Shift+P` → Select **"Dev Containers: Rebuild Container"**
 > - **Other IDEs**: Use your IDE's container rebuild feature
 
-> **Note:** The CI/CD pipeline uses the Dockerfile ARG defaults (maintained by `scripts/update-versions.sh`) to build images. No manual intervention needed.
+> **Note:** The CI/CD pipeline uses the Dockerfile ARG defaults (maintained by `scripts/update-config.sh`) to build images. No manual intervention needed.
 
 ## Creating .env.local
 

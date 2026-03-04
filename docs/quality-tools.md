@@ -555,7 +555,7 @@ You can create separate workflows for different purposes (quality, tests, deploy
 
 **"PHPStan says error that works locally"**
 - CI might use different PHP version
-- Check `php-version: '8.3'` matches your `.versions.json`
+- Check `php-version: '8.3'` matches your `.config.json`
 - Verify `phpstan.neon` is committed to git
 
 **"Build keeps failing on my PR"**

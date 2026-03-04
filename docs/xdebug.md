@@ -1,103 +1,81 @@
 # Xdebug Configuration
 
-Xdebug is pre-configured for step debugging in VS Code.
+Xdebug is pre-configured for step debugging in VS Code with `trigger` mode — it only activates when explicitly triggered, so CLI tools (Composer, PHPStan, etc.) are not affected.
 
-## Finding Your Host IP
+## Current Configuration
 
-Xdebug needs to know how to reach your host machine.
-
-### macOS & Windows (Docker Desktop)
-
-Use the special Docker internal host:
+In `.devcontainer/config/php.ini`:
 
 ```ini
-xdebug.client_host=host.docker.internal
+xdebug.mode=develop,debug
+xdebug.start_with_request=trigger
+xdebug.client_host=127.0.0.1
+xdebug.client_port=9003
 ```
 
-This works automatically on Docker Desktop.
+## VS Code Launch Configuration
 
-### Linux
+The debugger configuration is defined in:
 
-Linux does **not** support `host.docker.internal` by default. Find your host IP manually:
+- `.vscode/launch.json` — used when opening the project without a code-workspace
+- `project.code-workspace` — used with the multi-root workspace (Backend + Frontend + Shared)
+- `backend.code-workspace` — used with the backend-only workspace
+
+The `pathMappings` are automatically updated by `scripts/update-config.sh` when `project_name` changes.
+
+## Starting the Debugger
+
+1. Set breakpoints in your PHP files (click left of line number)
+2. Start listening: **F5** or **Run → Start Debugging → "Listen for Xdebug"**
+3. Trigger a request (see below)
+4. VS Code will pause at breakpoints
+
+## Triggering Xdebug
+
+Since `start_with_request=trigger`, Xdebug only activates when a trigger is present.
+
+### From the browser
+
+Add the query parameter to the URL:
+
+```
+http://localhost:8000/?XDEBUG_SESSION=1
+```
+
+The `XDEBUG_SESSION` cookie is then set for subsequent requests on the same domain — no need to add the parameter to every URL.
+
+To stop debugging, clear the cookie or add:
+
+```
+http://localhost:8000/?XDEBUG_SESSION_STOP=1
+```
+
+### From the CLI
+
+```bash
+XDEBUG_TRIGGER=1 php bin/console my:command
+XDEBUG_TRIGGER=1 symfony console my:command
+```
+
+## Linux: client_host
+
+On Linux, `127.0.0.1` works because the Symfony server runs inside the same container where VS Code is attached. No extra configuration is needed.
+
+If you run the Symfony server outside the container, use your host IP:
 
 ```bash
 ip a | grep inet
 ```
 
-Look for a line like:
-
-```
-inet 10.0.2.15/24 brd ...
-```
-
-Use this IP (e.g., `10.0.2.15`).
-
-## Configuration Files
-
-### PHP Configuration
-
-In `.devcontainer/config/php.ini`:
+And update `php.ini`:
 
 ```ini
-xdebug.mode=debug
-xdebug.client_host=host.docker.internal  ; or your Linux IP
-xdebug.client_port=9003
-xdebug.start_with_request=yes
+xdebug.client_host=<your-host-ip>
 ```
-
-### VS Code Launch Configuration
-
-In `.vscode/launch.json`:
-
-```json
-{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Listen for Xdebug",
-      "type": "php",
-      "request": "launch",
-      "port": 9003,
-      "pathMappings": {
-        "/workspace/backend": "${workspaceFolder}"
-      }
-    }
-  ]
-}
-```
-
-If on Linux, add environment override:
-
-```json
-{
-  "name": "Listen for Xdebug",
-  "type": "php",
-  "request": "launch",
-  "port": 9003,
-  "env": {
-    "XDEBUG_MODE": "debug,develop",
-    "XDEBUG_CONFIG": "client_host=10.0.2.15 client_port=9003"
-  }
-}
-```
-
-## Applying Changes
-
-After modifying configuration, rebuild the container:
-
-1. Open Command Palette (`Ctrl+Shift+P`)
-2. Select "Dev Containers: Rebuild Container"
-
-## Using Xdebug
-
-1. Set breakpoints in your PHP files (click left of line number)
-2. Start the debugger in VS Code (F5 or Run → Start Debugging)
-3. Make a request to your application
-4. VS Code will pause at breakpoints
 
 ## Troubleshooting
 
-### Debugger Not Connecting
+### Debugger not connecting
 
 1. Verify Xdebug is loaded:
    ```bash
@@ -105,27 +83,16 @@ After modifying configuration, rebuild the container:
    # Should show "with Xdebug v3.x.x"
    ```
 
-2. Check configuration:
-   ```bash
-   php -i | grep xdebug
-   ```
+2. Check the debugger is listening in VS Code (green play button in Run & Debug panel)
 
-3. Verify port 9003 is not blocked by firewall
+3. Make sure the trigger is present (`?XDEBUG_SESSION=1` in URL)
 
-### Wrong Path Mappings
+### Breakpoints not hit
 
-If breakpoints don't work, check `pathMappings` in `launch.json`:
+Check `pathMappings` — the left side must match the exact path inside the container:
 
-- Left side: path inside container (`/workspace/backend`)
-- Right side: path in VS Code (`${workspaceFolder}`)
-
-### Linux: host.docker.internal Not Working
-
-Add this to your Docker run command or compose file:
-
-```yaml
-extra_hosts:
-  - "host.docker.internal:host-gateway"
+```
+/workspace-<project_name>/backend  →  ${workspaceFolder}
 ```
 
-Or use your actual IP address instead.
+Run `bash scripts/update-config.sh` to ensure all path mappings are up to date.
