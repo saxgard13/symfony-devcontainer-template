@@ -413,6 +413,8 @@ php bin/phpunit tests/Controller/        # Run specific tests
 
 ### Frontend (JavaScript/React/Vue/etc)
 
+> **Package manager:** All commands below use `npm` but you can use `pnpm` or `yarn` instead — they are pre-installed in the dev container. Replace `npm install` → `pnpm install` / `yarn`, and `npm run` → `pnpm run` / `yarn`.
+
 ```bash
 # Dependencies
 npm install

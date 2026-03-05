@@ -120,6 +120,7 @@ A ready-to-use development environment built and tested for:
 
    ```bash
    # Frontend — Vite (default setup, in another terminal)
+   # npm, pnpm, and yarn are all available — use whichever your project uses
    cd frontend
    npm run dev -- --host
    ```

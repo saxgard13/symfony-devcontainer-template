@@ -39,6 +39,9 @@ RUN install-php-extensions \
     xdebug \
     zip
 
+# Enable pnpm and yarn via corepack (npm remains available by default)
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 # Copy config files and binaries (COPY uses minimal layers)
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY .devcontainer/config/php.ini /usr/local/etc/php/php.ini
