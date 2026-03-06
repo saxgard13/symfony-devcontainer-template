@@ -39,13 +39,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /www
 
-COPY backend/composer.json backend/composer.lock* ./backend/
+COPY project/backend/composer.json project/backend/composer.lock* ./project/backend/
 
-RUN cd backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
+RUN cd project/backend && composer install --no-dev --optimize-autoloader --no-interaction --no-progress --no-scripts
 
-COPY backend/ ./backend/
+COPY project/backend/ ./project/backend/
 
-RUN cd backend && composer dump-autoload --optimize --no-dev \
+RUN cd project/backend && composer dump-autoload --optimize --no-dev \
     && if [ -f bin/console ]; then php bin/console cache:warmup --env=prod --no-debug; fi
 
 # Stage 2: Node.js assets builder (only for Webpack Encore)
@@ -53,16 +53,16 @@ FROM node:${NODE_VERSION}-alpine AS assets-builder
 
 WORKDIR /build
 
-COPY backend/ ./backend/
+COPY project/backend/ ./project/backend/
 
-RUN if [ -f "backend/package.json" ]; then \
+RUN if [ -f "project/backend/package.json" ]; then \
         echo "==> Building Webpack Encore assets..." && \
-        cd backend && \
+        cd project/backend && \
         if [ -f yarn.lock ]; then yarn install --frozen-lockfile && yarn build; \
         elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i --frozen-lockfile && pnpm build; \
         else npm ci && npm run build; fi; \
     else \
-        echo "==> No Encore assets to build (optional)" && mkdir -p /build/backend/public; \
+        echo "==> No Encore assets to build (optional)" && mkdir -p /build/project/backend/public; \
     fi
 
 # Stage 3: PHP-FPM runtime (no Xdebug in prod)
@@ -74,9 +74,9 @@ RUN install-php-extensions pdo_mysql opcache intl gd bcmath zip
 COPY .devcontainer/config/php.ini.prod /usr/local/etc/php/php.ini
 
 COPY --from=composer-builder --chown=www-data:www-data /www/backend /var/www/backend
-COPY --from=assets-builder --chown=www-data:www-data /build/backend/public /var/www/backend/public
+COPY --from=assets-builder --chown=www-data:www-data /build/project/backend/public /var/www/project/backend/public
 
-RUN mkdir -p /var/www/backend/public/uploads && chown www-data:www-data /var/www/backend/public/uploads
+RUN mkdir -p /var/www/project/backend/public/uploads && chown www-data:www-data /var/www/project/backend/public/uploads
 
 WORKDIR /var/www/backend
 EXPOSE 9000
@@ -124,7 +124,7 @@ server {
     location /api/ {
         include /etc/nginx/security_headers.conf;
 
-        root /var/www/backend/public;
+        root /var/www/project/backend/public;
         try_files $uri /index.php$is_args$args;
 
         location ~ \.php$ {
@@ -168,7 +168,7 @@ server {
     location /api/ {
         include /etc/nginx/security_headers.conf;
 
-        root /var/www/backend/public;
+        root /var/www/project/backend/public;
         try_files $uri /index.php$is_args$args;
 
         location ~ \.php$ {
@@ -183,7 +183,7 @@ server {
     # SPA: serve built static files, fallback to index.html for client-side routing
     location / {
         include /etc/nginx/security_headers.conf;
-        root /var/www/frontend/dist;
+        root /var/www/project/frontend/dist;
         try_files $uri $uri/ /index.html;
     }
 }
@@ -216,7 +216,7 @@ services:
     volumes:
       - ./.devcontainer/config/nginx/symfony.prod.conf:/etc/nginx/conf.d/default.conf:ro
       - ./.devcontainer/config/nginx/security_headers.conf:/etc/nginx/security_headers.conf:ro
-      - app-public:/var/www/backend/public:ro
+      - app-public:/var/www/project/backend/public:ro
       - ./.devcontainer/certs:/etc/nginx/certs:ro
     depends_on:
       - phpfpm
@@ -451,7 +451,7 @@ Apache        Node.js
 # Stage 3: PHP-FPM
 FROM php:8.3-fpm-alpine
 RUN docker-php-ext-install pdo_mysql opcache
-COPY backend/ /app
+COPY project/backend/ /app
 
 # Stage 4: Apache
 FROM php:8.3-apache
@@ -549,16 +549,16 @@ If both repos are cloned locally, use VSCode's **Multi-Root Workspace**:
 {
   "folders": [
     {
-      "name": "Shared Config",
-      "path": "./.shared"
+      "name": "Project",
+      "path": "./project"
     },
     {
       "name": "Backend",
-      "path": "./backend"
+      "path": "./project/backend"
     },
     {
       "name": "Frontend",
-      "path": "./frontend"
+      "path": "./project/frontend"
     }
   ],
   "settings": {
@@ -571,26 +571,26 @@ If both repos are cloned locally, use VSCode's **Multi-Root Workspace**:
 ```
 
 **Configuration highlights:**
-- **`.shared/` first** - Contains `claude.md` and shared documentation
+- **`project/` first** - Contains `CLAUDE.md` and shared documentation
 - **Backend & Frontend** - Both repos accessible with separate Git histories
-- Claude Code reads `claude.md` automatically for full project context
+- Claude Code reads `CLAUDE.md` automatically for full project context
 
 2. **File structure with centralized configuration:**
 
 ```
 root/
-├── backend/               # Separate repo
+├── project/backend/               # Separate repo
 │   ├── .git
 │   ├── src/
 │   ├── .gitignore
 │   └── ...
-├── frontend/              # Separate repo
+├── project/frontend/              # Separate repo
 │   ├── .git
 │   ├── src/
 │   ├── .gitignore
 │   └── ...
-├── .shared/               # ← Centralized config & docs
-│   ├── claude.md          # Claude Code context (accessible to both)
+├── project/               # ← Centralized config & docs
+│   ├── CLAUDE.md          # Claude Code context (accessible to both)
 │   ├── architecture.md    # Shared architecture documentation
 │   ├── api-spec.md        # API endpoints & contracts
 │   └── conventions.md     # Code standards for both repos
@@ -598,9 +598,9 @@ root/
 └── docker-compose.multi-repo.yml
 ```
 
-**Why use `.shared/` folder:**
+**Why use `project/` folder:**
 - **Single source of truth** - Project-wide config in one place
-- **Claude Code integration** - Direct access to `claude.md` with full context awareness
+- **Claude Code integration** - Direct access to `CLAUDE.md` with full context awareness
 - **No duplication** - Architecture and API specs shared by both teams
 - **Better organization** - Clean separation between repo-specific and shared concerns
 
@@ -608,55 +608,55 @@ root/
 
 ```
 root/
-├── .shared/                    # ← Project-wide documentation
-│   ├── claude.md              # Claude Code context for entire project
+├── project/                    # ← Project-wide documentation & repos
+│   ├── CLAUDE.md              # Claude Code context for entire project
 │   ├── architecture.md        # Overall system design
 │   ├── api-spec.md            # API endpoints & contracts
-│   └── conventions.md         # Code standards for both repos
-├── backend/
-│   ├── README.md              # Backend setup & quick start
-│   ├── docs/
-│   │   ├── setup.md           # Detailed backend installation
-│   │   ├── database.md        # Database schema & migrations
-│   │   └── controllers.md     # Controller patterns
-│   └── ...
-└── frontend/
-    ├── README.md              # Frontend setup & quick start
-    ├── docs/
-    │   ├── setup.md           # Detailed frontend installation
-    │   ├── components.md      # Component architecture
-    │   └── state-management.md # Store/Context setup
-    └── ...
+│   ├── conventions.md         # Code standards for both repos
+│   ├── backend/               # Separate repo
+│   │   ├── README.md          # Backend setup & quick start
+│   │   ├── docs/
+│   │   │   ├── setup.md       # Detailed backend installation
+│   │   │   ├── database.md    # Database schema & migrations
+│   │   │   └── controllers.md # Controller patterns
+│   │   └── ...
+│   └── frontend/              # Separate repo
+│       ├── README.md          # Frontend setup & quick start
+│       ├── docs/
+│       │   ├── setup.md       # Detailed frontend installation
+│       │   ├── components.md  # Component architecture
+│       │   └── state-management.md
+│       └── ...
 ```
 
 **Documentation responsibilities:**
 
 | Document | Location | Purpose |
 |----------|----------|---------|
-| **claude.md** | `.shared/` | AI context (what Claude needs to know) |
-| **architecture.md** | `.shared/` | System design, how backend & frontend interact |
-| **api-spec.md** | `.shared/` | API endpoints, contracts, CORS config |
-| **conventions.md** | `.shared/` | Code standards, naming, patterns for both |
-| **README.md** (backend) | `backend/` | Quick start: how to install & run backend |
-| **README.md** (frontend) | `frontend/` | Quick start: how to install & run frontend |
-| **Detailed docs** | `backend/docs/` & `frontend/docs/` | Deep dives specific to each repo |
+| **CLAUDE.md** | `project/` | AI context (what Claude needs to know) |
+| **architecture.md** | `project/` | System design, how backend & frontend interact |
+| **api-spec.md** | `project/` | API endpoints, contracts, CORS config |
+| **conventions.md** | `project/` | Code standards, naming, patterns for both |
+| **README.md** (backend) | `project/backend/` | Quick start: how to install & run backend |
+| **README.md** (frontend) | `project/frontend/` | Quick start: how to install & run frontend |
+| **Detailed docs** | `project/backend/docs/` & `project/frontend/docs/` | Deep dives specific to each repo |
 
-**Setup `.shared/` folder:**
+**Setup `project/` folder:**
 
 ```bash
-mkdir -p .shared
-cat > .shared/claude.md << 'EOF'
+mkdir -p project/backend project/frontend
+cat > project/CLAUDE.md << 'EOF'
 # Project Context for Claude Code
 
 ## Architecture
-- **Backend:** Symfony 7.2 API (separate repo)
-- **Frontend:** React/Vue SPA (separate repo)
+- **Backend:** (your stack) — in `project/backend/`
+- **Frontend:** (your stack) — in `project/frontend/`
 - **Database:** MySQL 8.0
 
 ## Key Files
-- Backend API: `backend/src/Controller/`
-- Frontend Components: `frontend/src/components/`
-- Shared Docs: `.shared/`
+- Backend API: `project/backend/src/`
+- Frontend: `project/frontend/src/`
+- Shared Docs: `project/`
 
 ## Communication
 - Frontend calls backend API at `http://localhost:8000`
@@ -669,11 +669,11 @@ cat > .shared/claude.md << 'EOF'
 ## Important Rules
 - Always run migrations: `symfony console doctrine:migrations:migrate`
 - Frontend builds with: `npm run build`
-- Keep API contracts documented in `.shared/api-spec.md`
+- Keep API contracts documented in `project/api-spec.md`
 EOF
 ```
 
-Both repos remain independent but share project-wide context through `.shared/`.
+Both repos remain independent but share project-wide context through `project/`.
 
 3. **Open with Claude Code:**
 
@@ -707,11 +707,11 @@ git clone --recurse-submodules https://github.com/user/main-repo.git
 Then your Dockerfiles work normally:
 
 ```dockerfile
-COPY backend/ /app
-COPY frontend/ /app
+COPY project/backend/ /app
+COPY project/frontend/ /app
 ```
 
-**When to use:** You want centralized CI/CD but keep backend/frontend as separate repositories.
+**When to use:** You want centralized CI/CD but keep project/backend/frontend as separate repositories.
 
 ---
 
@@ -757,8 +757,8 @@ root/
 ├── .devcontainer/          # ← Clutters sidebar
 ├── docs/                   # ← Clutters sidebar
 ├── docker-compose.*.yml    # ← Clutters sidebar
-├── backend/                # ← You care about this
-├── frontend/               # ← You care about this
+├── project/backend/                # ← You care about this
+├── project/frontend/               # ← You care about this
 └── .gitignore
 ```
 
@@ -790,10 +790,10 @@ If you use `/api` instead of `/backend`, or `/client` instead of `/frontend`:
 **Update Dockerfile COPY paths:**
 
 ```dockerfile
-# Instead of: COPY backend/
+# Instead of: COPY project/backend/
 COPY api/
 
-# Instead of: COPY frontend/
+# Instead of: COPY project/frontend/
 COPY client/
 ```
 
@@ -1051,12 +1051,12 @@ jobs:
 
       - name: Install Composer dependencies
         run: |
-          cd backend
+          cd project/backend
           composer install --no-progress --prefer-dist
 
       - name: Run backend tests
         run: |
-          cd backend
+          cd project/backend
           php bin/phpunit
 
       - name: Setup Node
@@ -1066,17 +1066,17 @@ jobs:
 
       - name: Install frontend dependencies
         run: |
-          cd frontend
+          cd project/frontend
           npm ci
 
       - name: Build frontend
         run: |
-          cd frontend
+          cd project/frontend
           npm run build
 
       - name: Lint frontend
         run: |
-          cd frontend
+          cd project/frontend
           npm run lint
 
   # Step 2: Build Docker images

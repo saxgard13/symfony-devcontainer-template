@@ -14,12 +14,12 @@ This DevContainer officially supports the following project structures:
 
 | Type                          | Frontend         | Folder                   | Workspace                |
 | ----------------------------- | ---------------- | ------------------------ | ------------------------ |
-| **Symfony full-stack**        | —                | `backend/` only          | `backend.code-workspace` |
-| **Symfony API + SPA**         | Vite (React/Vue) | `backend/` + `frontend/` | `project.code-workspace` |
-| **Symfony API + SSR**         | Next.js          | `backend/` + `frontend/` | `project.code-workspace` |
-| **Full JavaScript (SSR)**     | Next.js          | `frontend/` only         | `frontend.code-workspace` |
+| **Symfony full-stack**        | —                | `project/backend/` only          | `backend.code-workspace` |
+| **Symfony API + SPA**         | Vite (React/Vue) | `project/backend/` + `project/frontend/` | `project.code-workspace` |
+| **Symfony API + SSR**         | Next.js          | `project/backend/` + `project/frontend/` | `project.code-workspace` |
+| **Full JavaScript (SSR)**     | Next.js          | `project/frontend/` only         | `frontend.code-workspace` |
 
-> **Note:** The `frontend/` folder is used for both SPA (Vite) and SSR (Next.js). The rendering strategy determines which Docker Compose file to use in production, not the folder name.
+> **Note:** The `project/frontend/` folder is used for both SPA (Vite) and SSR (Next.js). The rendering strategy determines which Docker Compose file to use in production, not the folder name.
 
 > **Other frameworks (Nuxt, Astro, SvelteKit...):** Development works out of the box with any Node.js framework. For production Docker images, see [Framework Adaptation Guide](framework-adaptation.md).
 
@@ -91,23 +91,23 @@ Keep DevContainer config, backend, and frontend in one Git repository.
 6. Create project folders (inside container):
 
    ```bash
-   mkdir backend frontend
+   mkdir -p project/backend project/frontend
    ```
 
 7. Install Symfony (inside container):
 
    ```bash
-   symfony new backend --version="7.2.*"
+   symfony new project/backend --version="7.2.*"
    # or with webapp:
-   symfony new backend --version="7.2.*" --webapp
+   symfony new project/backend --version="7.2.*" --webapp
    ```
 
 8. Install frontend (optional, inside container):
 
    ```bash
    # Officially supported:
-   npm create vite@latest frontend              # Vite SPA (recommended)
-   npx create-next-app frontend                 # Next.js SSR
+   npm create vite@latest project/frontend       # Vite SPA (recommended)
+   npx create-next-app project/frontend         # Next.js SSR
    ```
 
    > **Other frameworks (Nuxt, Astro, etc.):** Development works out of the box. For production, see [Framework Adaptation Guide](framework-adaptation.md).
@@ -115,7 +115,7 @@ Keep DevContainer config, backend, and frontend in one Git repository.
 9. Remove nested .git folders (inside container):
 
    ```bash
-   rm -rf backend/.git frontend/.git
+   rm -rf project/backend/.git project/frontend/.git
    ```
 
 10. Commit your setup (inside container):
@@ -128,12 +128,12 @@ Keep DevContainer config, backend, and frontend in one Git repository.
 
 ### Option 2: Separate Repositories
 
-Use DevContainer as a shared environment, with backend/frontend in separate repos.
+Use DevContainer as a shared environment, with project/backend/frontend in separate repos.
 
 **Best for:**
 
 - Reusing DevContainer across projects
-- Independent versioning of backend/frontend
+- Independent versioning of project/backend/frontend
 - Using Claude Code (keep root workspace open for full context)
 
 #### Setup Steps
@@ -143,12 +143,12 @@ Use DevContainer as a shared environment, with backend/frontend in separate repo
 3. Create `.gitignore` in root to exclude nested repos:
    ```
    # Nested repositories (separate Git repos)
-   backend/
-   frontend/
+   project/backend/
+   project/frontend/
    ```
-4. Initialize separate repos in `backend/` and `frontend/`:
+4. Initialize separate repos in `project/backend/` and `project/frontend/`:
    ```bash
-   cd backend
+   cd project/backend
    git init
    git remote add origin git@github.com:your-username/backend-repo.git
    git add .
@@ -168,7 +168,7 @@ The template includes workspace files for better tooling isolation.
 
 | File                      | Purpose                                         | Related Folder |
 | ------------------------- | ----------------------------------------------- | -------------- |
-| `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) | `.shared/`     |
+| `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) | `project/`     |
 | `backend.code-workspace`  | PHP/Symfony development only                    | -              |
 | `frontend.code-workspace` | JavaScript SPA (React/Vue) only                 | -              |
 | `frontend.code-workspace`      | Full JS apps (Next.js)                          | -              |
@@ -178,14 +178,14 @@ The template includes workspace files for better tooling isolation.
 1. Open the `.code-workspace` file in VS Code
 2. When prompted, reopen in container
 3. **Git repository prompt** - The response depends on your repository structure:
-   - **Single repository (Monorepo):** Choose **Yes** - The DevContainer config, backend, frontend, and `.shared/` are all in one Git repo
+   - **Single repository (Monorepo):** Choose **Yes** - The DevContainer config and the `project/` folder (backend, frontend) are all in one Git repo
    - **Separate repositories (Multi-repo):** Choose **No** - Each folder has its own `.git` directory, and the root is not a Git repository
 
-> **Note on `.shared/` folder:** When using `project.code-workspace`, the `.shared/` folder contains project-wide documentation and configuration (e.g., `claude.md`, `architecture.md`) accessible to both backend and frontend.
+> **Note on `project/CLAUDE.md`:** When using `project.code-workspace`, the `project/CLAUDE.md` file contains global AI context (stack, conventions, architecture) accessible to Claude Code for the entire project.
 
 ### When to use each Workspace
 
-- **`project.code-workspace`** (Recommended for Symfony API + SPA): Shows only `backend/` and `frontend/`, hides config files. Perfect for focusing on code and for working with Claude Code (and others) - the AI has immediate access to both your backend and frontend, improving context awareness and faster assistance.
+- **`project.code-workspace`** (Recommended for Symfony API + SPA): Shows only `project/backend/` and `project/frontend/`, hides config files. Perfect for focusing on code and for working with Claude Code (and others) - the AI has immediate access to both your backend and frontend, improving context awareness and faster assistance.
 - **`backend.code-workspace`** or **`frontend.code-workspace`**: Use when working on only one part independently.
 - **`frontend.code-workspace`**: Use for full JavaScript apps (Next.js).
 
@@ -200,18 +200,16 @@ The template includes workspace files for better tooling isolation.
 
 For multi-repo projects, organize documentation hierarchically:
 
-**Project-wide documentation** (`.shared/`):
-- `claude.md` - AI context for Claude Code
-- `architecture.md` - System design & how backend/frontend interact
-- `api-spec.md` - API endpoints & contracts
-- `conventions.md` - Shared code standards
+**Project-wide documentation** (`project/`):
+- `CLAUDE.md` - AI context for Claude Code (global instructions)
+- Add your own: `architecture.md`, `api-spec.md`, `conventions.md`
 
-**Backend documentation** (`backend/`):
+**Backend documentation** (`project/backend/`):
 - `README.md` - Quick start
 - `docs/setup.md` - Detailed installation
 - `docs/database.md` - Database schema & migrations
 
-**Frontend documentation** (`frontend/`):
+**Frontend documentation** (`project/frontend/`):
 - `README.md` - Quick start
 - `docs/setup.md` - Detailed installation
 - `docs/components.md` - Component architecture
@@ -264,7 +262,7 @@ This template includes support for PHP code style fixing and static analysis:
 **Quick start:**
 
 ```bash
-cd backend
+cd project/backend
 
 # Auto-fix code style
 php-cs-fixer fix src/
@@ -286,7 +284,7 @@ Frontend quality tools enforce code standards:
 **Quick start:**
 
 ```bash
-cd frontend
+cd project/frontend
 
 # Check for code quality issues
 npm run lint
@@ -322,7 +320,7 @@ Optional tools to enhance your Symfony development experience:
 **Quick start:**
 
 ```bash
-cd backend
+cd project/backend
 
 # Install development tools
 composer require --dev symfony/debug-bundle
@@ -357,7 +355,7 @@ Optional tools to enhance your frontend development experience:
 **Quick start:**
 
 ```bash
-cd frontend
+cd project/frontend
 
 # Install testing framework (choose one)
 npm install --save-dev vitest @testing-library/react @testing-library/jest-dom

@@ -1,16 +1,8 @@
 {
-  "folders": [
+  "folders": [ 
     {
-      "name": "Shared Config",
-      "path": ".shared"
-    },
-    {
-      "name": "Backend",
-      "path": "backend"
-    },
-    {
-      "name": "Frontend",
-      "path": "frontend"
+      "name": "Project",
+      "path": "project"
     }
   ],
   "launch": {
@@ -23,7 +15,7 @@
         "port": 9003,
         "log": true,
         "pathMappings": {
-          "/workspace-devcontainer/backend": "${workspaceFolder:Backend}"
+          "/workspace-devcontainer/project/backend": "${workspaceFolder:Project}/backend"
         }
       }
     ]

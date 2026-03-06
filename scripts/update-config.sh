@@ -106,13 +106,13 @@ fi
 
 # Update project.code-workspace Xdebug pathMappings
 if [ -f "$WORKSPACE_FILE" ]; then
-  sed -i.bak "s|\"/workspace[^\"]*\/backend\"|\"/workspace-${PROJECT_NAME}/backend\"|" "$WORKSPACE_FILE"
+  sed -i.bak "s|\"/workspace[^\"]*\/projet\/backend\"|\"/workspace-${PROJECT_NAME}/project/backend\"|" "$WORKSPACE_FILE"
   rm -f "${WORKSPACE_FILE}.bak"
 fi
 
 # Update backend.code-workspace Xdebug pathMappings
 if [ -f "$BACKEND_WORKSPACE_FILE" ]; then
-  sed -i.bak "s|\"/workspace[^\"]*\/backend\"|\"/workspace-${PROJECT_NAME}/backend\"|" "$BACKEND_WORKSPACE_FILE"
+  sed -i.bak "s|\"/workspace[^\"]*\/projet\/backend\"|\"/workspace-${PROJECT_NAME}/project/backend\"|" "$BACKEND_WORKSPACE_FILE"
   rm -f "${BACKEND_WORKSPACE_FILE}.bak"
 fi
 

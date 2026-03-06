@@ -72,7 +72,7 @@ Create a `sonar-project.properties` at the root:
 ```properties
 sonar.projectKey=my-org_my-repo
 sonar.organization=my-org
-sonar.sources=backend/src,frontend/src
+sonar.sources=project/backend/src,project/frontend/src
 sonar.exclusions=**/vendor/**,**/node_modules/**
 ```
 
@@ -88,10 +88,10 @@ name: Security
 on:
   push:
     branches: [main]
-    paths: ['backend/**', 'frontend/**']  # monorepo — remove for multirepo
+    paths: ['project/backend/**', 'project/frontend/**']  # monorepo — remove for multirepo
   pull_request:
     branches: [main]
-    paths: ['backend/**', 'frontend/**']
+    paths: ['project/backend/**', 'project/frontend/**']
   schedule:
     - cron: '0 6 * * 1'  # every Monday at 6am UTC
 
@@ -107,10 +107,10 @@ jobs:
           php-version: '8.3'
           tools: composer
 
-      - run: cd backend && composer install --no-interaction --no-dev
+      - run: cd project/backend && composer install --no-interaction --no-dev
 
       - name: Composer audit (fail on any severity)
-        run: cd backend && composer audit --no-dev
+        run: cd project/backend && composer audit --no-dev
 
   frontend-audit:
     name: Frontend dependency audit
@@ -122,10 +122,10 @@ jobs:
         with:
           node-version: '20'
 
-      - run: cd frontend && npm ci
+      - run: cd project/frontend && npm ci
 
       - name: npm audit (fail on high/critical only)
-        run: cd frontend && npm audit --audit-level=high
+        run: cd project/frontend && npm audit --audit-level=high
 
   sonarcloud:
     name: SonarCloud SAST
@@ -177,8 +177,8 @@ Backend and frontend live in the **same repository**:
 
 ```
 my-repo/
-├── backend/        # Symfony
-├── frontend/       # React, Next.js, etc.
+├── project/backend/        # Symfony
+├── project/frontend/       # React, Next.js, etc.
 ├── .devcontainer/
 └── .github/
     └── workflows/
@@ -190,23 +190,23 @@ my-repo/
 Since everything lives in the same repo, use `paths` filters to scope each workflow to its directory. Without them, every workflow would run on every push — including a backend-only change triggering the frontend build.
 
 ```yaml
-# ci-backend.yml — only runs when backend/ changes
+# ci-backend.yml — only runs when project/backend/ changes
 on:
   push:
     branches: [main]
-    paths: ['backend/**']
+    paths: ['project/backend/**']
   pull_request:
     branches: [main]
-    paths: ['backend/**']
+    paths: ['project/backend/**']
 
-# ci-frontend.yml — only runs when frontend/ changes
+# ci-frontend.yml — only runs when project/frontend/ changes
 on:
   push:
     branches: [main]
-    paths: ['frontend/**']
+    paths: ['project/frontend/**']
   pull_request:
     branches: [main]
-    paths: ['frontend/**']
+    paths: ['project/frontend/**']
 ```
 
 ### Multirepo
@@ -250,10 +250,10 @@ name: Backend Quality
 on:
   push:
     branches: [main]
-    paths: ['backend/**']        # monorepo only — remove for multirepo
+    paths: ['project/backend/**']        # monorepo only — remove for multirepo
   pull_request:
     branches: [main]
-    paths: ['backend/**']        # monorepo only — remove for multirepo
+    paths: ['project/backend/**']        # monorepo only — remove for multirepo
 
 jobs:
   quality:
@@ -269,16 +269,16 @@ jobs:
       - name: Cache Composer
         uses: actions/cache@v4
         with:
-          path: backend/vendor
-          key: composer-${{ hashFiles('backend/composer.lock') }}
+          path: project/backend/vendor
+          key: composer-${{ hashFiles('project/backend/composer.lock') }}
 
-      - run: cd backend && composer install --no-interaction
+      - run: cd project/backend && composer install --no-interaction
 
       - name: PHP-CS-Fixer
-        run: cd backend && vendor/bin/php-cs-fixer fix src/ --dry-run --diff
+        run: cd project/backend && vendor/bin/php-cs-fixer fix src/ --dry-run --diff
 
       - name: PHPStan
-        run: cd backend && vendor/bin/phpstan analyse src/
+        run: cd project/backend && vendor/bin/phpstan analyse src/
 ```
 
 ### Tests
@@ -289,10 +289,10 @@ name: Backend Tests
 on:
   push:
     branches: [main]
-    paths: ['backend/**']
+    paths: ['project/backend/**']
   pull_request:
     branches: [main]
-    paths: ['backend/**']
+    paths: ['project/backend/**']
 
 jobs:
   tests:
@@ -324,18 +324,18 @@ jobs:
       - name: Cache Composer
         uses: actions/cache@v4
         with:
-          path: backend/vendor
-          key: composer-${{ hashFiles('backend/composer.lock') }}
+          path: project/backend/vendor
+          key: composer-${{ hashFiles('project/backend/composer.lock') }}
 
-      - run: cd backend && composer install --no-interaction
+      - run: cd project/backend && composer install --no-interaction
 
       - name: Run migrations
-        run: cd backend && php bin/console doctrine:migrations:migrate --env=test --no-interaction
+        run: cd project/backend && php bin/console doctrine:migrations:migrate --env=test --no-interaction
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1:3306/symfony_test
 
       - name: Run tests
-        run: cd backend && php bin/phpunit
+        run: cd project/backend && php bin/phpunit
         env:
           DATABASE_URL: mysql://root:root@127.0.0.1:3306/symfony_test
 ```
@@ -354,10 +354,10 @@ name: Frontend Quality
 on:
   push:
     branches: [main]
-    paths: ['frontend/**']       # monorepo only — remove for multirepo
+    paths: ['project/frontend/**']       # monorepo only — remove for multirepo
   pull_request:
     branches: [main]
-    paths: ['frontend/**']       # monorepo only — remove for multirepo
+    paths: ['project/frontend/**']       # monorepo only — remove for multirepo
 
 jobs:
   quality:
@@ -369,15 +369,15 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: project/frontend/package-lock.json
 
-      - run: cd frontend && npm ci
+      - run: cd project/frontend && npm ci
 
       - name: ESLint
-        run: cd frontend && npm run lint
+        run: cd project/frontend && npm run lint
 
       - name: TypeScript
-        run: cd frontend && npm run type-check
+        run: cd project/frontend && npm run type-check
 ```
 
 ### Build
@@ -388,10 +388,10 @@ name: Frontend Build
 on:
   push:
     branches: [main]
-    paths: ['frontend/**']
+    paths: ['project/frontend/**']
   pull_request:
     branches: [main]
-    paths: ['frontend/**']
+    paths: ['project/frontend/**']
 
 jobs:
   build:
@@ -403,10 +403,10 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: frontend/package-lock.json
+          cache-dependency-path: project/frontend/package-lock.json
 
-      - run: cd frontend && npm ci
-      - run: cd frontend && npm run build
+      - run: cd project/frontend && npm ci
+      - run: cd project/frontend && npm run build
 ```
 
 ---
@@ -424,7 +424,7 @@ jobs:
 └── frontend-build.yml
 ```
 
-Each workflow uses `paths` to scope itself. A push to `backend/src/` will only trigger `backend-*.yml`, not `frontend-*.yml`.
+Each workflow uses `paths` to scope itself. A push to `project/backend/src/` will only trigger `backend-*.yml`, not `frontend-*.yml`.
 
 ---
 

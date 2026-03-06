@@ -15,7 +15,7 @@ This document explains how to set up and use PHP-CS-Fixer and PHPStan for mainta
 
 ### Step 1: Add Packages to composer.json
 
-Inside your `backend/` folder:
+Inside your `project/backend/` folder:
 
 ```bash
 composer require --dev php-cs-fixer/php-cs-fixer
@@ -55,7 +55,7 @@ This extension automatically:
 
 ### PHP-CS-Fixer: `.php-cs-fixer.php`
 
-Create `.php-cs-fixer.php` in your `backend/` folder:
+Create `.php-cs-fixer.php` in your `project/backend/` folder:
 
 ```php
 <?php
@@ -95,7 +95,7 @@ return (new PhpCsFixer\Config())
 
 ### PHPStan: `phpstan.neon`
 
-Create `phpstan.neon` in your `backend/` folder:
+Create `phpstan.neon` in your `project/backend/` folder:
 
 ```neon
 parameters:
@@ -141,7 +141,7 @@ Code quality tools for JavaScript/TypeScript frontend development.
 
 ### Installation
 
-Inside your `frontend/` folder:
+Inside your `project/frontend/` folder:
 
 ```bash
 npm install --save-dev eslint prettier typescript
@@ -209,7 +209,7 @@ npm run lint -- --fix
 npm run lint -- --fix --dry-run
 ```
 
-Add these scripts to `frontend/package.json`:
+Add these scripts to `project/frontend/package.json`:
 ```json
 {
   "scripts": {
@@ -253,7 +253,7 @@ npm run format:check
 npx prettier --write src/App.jsx
 ```
 
-Add these scripts to `frontend/package.json`:
+Add these scripts to `project/frontend/package.json`:
 ```json
 {
   "scripts": {
@@ -646,7 +646,7 @@ phpstan analyse src/ --generate-baseline --force
 
 ## VS Code Settings for Multi-Root Workspace
 
-When using `project.code-workspace`, configure per-folder settings in `.vscode/settings.json` (inside `backend/` folder):
+When using `project.code-workspace`, configure per-folder settings in `.vscode/settings.json` (inside `project/backend/` folder):
 
 ```json
 {
@@ -661,7 +661,7 @@ When using `project.code-workspace`, configure per-folder settings in `.vscode/s
 ```
 
 **Result:**
-- ✅ PHP-CS-Fixer runs only in `backend/` folder
+- ✅ PHP-CS-Fixer runs only in `project/backend/` folder
 - ✅ Frontend code unaffected
 - ✅ Auto-fix on save enabled
 

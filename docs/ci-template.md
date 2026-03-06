@@ -108,6 +108,6 @@ Builds use GitHub Actions cache (`type=gha`) to speed up repeated runs. Images a
 
 ## Path-based triggers
 
-Each workflow only runs when a **relevant file changes**. A push that only touches `docs/` or `backend/src/` will not trigger any of these workflows.
+Each workflow only runs when a **relevant file changes**. A push that only touches `docs/` or `project/backend/src/` will not trigger any of these workflows.
 
 When multiple workflows share a triggered file (e.g. a `docker-compose*.yml` triggers both `ci-compose` and `ci-devcontainer`), they run in parallel — there is no dependency between them.

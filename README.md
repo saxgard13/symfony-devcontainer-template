@@ -74,17 +74,17 @@ A ready-to-use development environment built and tested for:
 6. **Create project folders** (inside container):
 
    ```bash
-   mkdir backend frontend
+   mkdir -p project/backend project/frontend
    ```
 
 7. **Install Symfony** (inside container):
 
    ```bash
    # With web interface (recommended for traditional apps)
-   symfony new backend --version="7.2.*" --webapp
+   symfony new project/backend --version="7.2.*" --webapp
 
    # Or for API-only projects (without --webapp)
-   symfony new backend --version="7.2.*"
+   symfony new project/backend --version="7.2.*"
    ```
 
    Choose the Symfony version based on your PHP version:
@@ -92,20 +92,20 @@ A ready-to-use development environment built and tested for:
    - PHP 8.4: Supports Symfony 7.x
 
    ```bash
-   rm -rf backend/.git
+   rm -rf project/backend/.git
    ```
 
 8. **Install frontend** (optional, inside container):
 
    ```bash
    # Officially supported:
-   npm create vite@latest frontend              # Vite SPA (recommended)
-   npx create-next-app frontend                 # Next.js SSR
+   npm create vite@latest project/frontend        # Vite SPA (recommended)
+   npx create-next-app project/frontend          # Next.js SSR
    ```
 
    ```bash
    # Remove nested git folder
-   rm -rf frontend/.git
+   rm -rf project/frontend/.git
    ```
 
    > **Other frameworks (Nuxt, Astro, etc.):** Supported in development (any Node.js framework runs inside the container). For production Docker images, see [Framework Adaptation Guide](docs/framework-adaptation.md).
@@ -114,14 +114,14 @@ A ready-to-use development environment built and tested for:
 
    ```bash
    # Backend
-   cd backend
+   cd project/backend
    symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000
    ```
 
    ```bash
    # Frontend — Vite (default setup, in another terminal)
    # npm, pnpm, and yarn are all available — use whichever your project uses
-   cd frontend
+   cd project/frontend
    npm run dev -- --host
    ```
 
@@ -241,10 +241,10 @@ This template officially supports the following project structures:
 
 | Type                           | Frontend          | Folders                  |
 | ------------------------------ | ----------------- | ------------------------ |
-| **Symfony full-stack**         | —                 | `backend/` only          |
-| **Symfony API + SPA**          | Vite (React/Vue)  | `backend/` + `frontend/` |
-| **Symfony API + SSR**          | Next.js           | `backend/` + `frontend/` |
-| **Full JavaScript (SSR)**      | Next.js           | `frontend/` only         |
+| **Symfony full-stack**         | —                 | `project/backend/` only                    |
+| **Symfony API + SPA**          | Vite (React/Vue)  | `project/backend/` + `project/frontend/`    |
+| **Symfony API + SSR**          | Next.js           | `project/backend/` + `project/frontend/`    |
+| **Full JavaScript (SSR)**      | Next.js           | `project/frontend/` only                   |
 
 > **Other frameworks (Nuxt, Astro, SvelteKit...):** Development works out of the box. For production Docker images, see [Framework Adaptation Guide](docs/framework-adaptation.md).
 
@@ -254,8 +254,9 @@ See [Usage Guide](docs/usage.md) for detailed setup instructions.
 
 Use the workspace files for isolated tooling:
 
-- `backend.code-workspace` → PHP/Symfony development
-- `frontend.code-workspace` → JavaScript frontend (Vite SPA or Next.js SSR)
+- `project.code-workspace` → Backend + Frontend (recommended for full-stack)
+- `backend.code-workspace` → PHP/Symfony development only
+- `frontend.code-workspace` → JavaScript frontend only (Vite SPA or Next.js SSR)
 
 ## Optional Services
 

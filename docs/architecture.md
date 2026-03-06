@@ -36,13 +36,10 @@ This document describes the structure and components of the Symfony DevContainer
 │   └── update-config.sh             # Configuration synchronization script
 ├── .github/                         # GitHub workflows and templates
 ├── .vscode/                         # VS Code workspace settings
-├── backend/                         # Your Symfony project (create it)
-├── frontend/                        # Your frontend project (optional)
-├── .shared/                         # Centralized project configuration and documentation
-│   ├── claude.md                    # AI context for Claude Code (MCP skills, architecture notes)
-│   ├── architecture.md              # System design & backend/frontend integration
-│   ├── api-spec.md                  # API endpoints & contracts
-│   └── conventions.md               # Shared code standards & guidelines
+├── project/                         # Your project (create it)
+│   ├── backend/                     # Your Symfony project (create it)
+│   ├── frontend/                    # Your frontend project (optional, create it)
+│   └── CLAUDE.md                    # AI context for Claude Code (global project instructions)
 ├── docs/                            # Documentation
 ├── project.code-workspace           # Multi-root workspace (Symfony API + SPA) - Recommended
 ├── app.code-workspace               # VS Code workspace for full JS apps
@@ -122,7 +119,7 @@ Multi-stage build for Symfony applications with optional asset compilation.
 
 **Stages:**
 1. **Composer builder** - Installs PHP dependencies (cached)
-2. **Node.js builder** (optional) - Builds Webpack Encore assets if `backend/package.json` exists
+2. **Node.js builder** (optional) - Builds Webpack Encore assets if `project/backend/package.json` exists
 3. **Apache runtime** - PHP 8.3 with Apache 2.4
 
 **Features:**
@@ -272,17 +269,16 @@ All services communicate through a shared Docker network named `app-network`.
 
 ## Multi-Root Workspace & Shared Configuration
 
-### The `.shared/` Folder
+### The `project/` Folder
 
-The `.shared/` folder serves as the centralized hub for project-wide configuration and documentation, enabling seamless collaboration and AI-assisted development with tools like Claude Code.
+The `project/` folder is the centralized root for your application code, enabling seamless collaboration and AI-assisted development with tools like Claude Code.
 
 **Contents:**
-- **`claude.md`** - AI context file for Claude Code, including MCP skills configuration, custom instructions, and high-level architecture notes
-- **`architecture.md`** - System design documenting backend/frontend integration patterns
-- **`api-spec.md`** - OpenAPI/REST API endpoints and contracts
-- **`conventions.md`** - Shared coding standards, naming conventions, and guidelines
+- **`backend/`** - Your Symfony project (to create)
+- **`frontend/`** - Your frontend project (to create, optional)
+- **`CLAUDE.md`** - Global AI context for Claude Code: high-level architecture, conventions, stack description
 
-**Purpose:** Ensures that backend and frontend teams follow consistent patterns while maintaining independent repositories. When using Claude Code with the `project.code-workspace`, it has immediate access to all shared context.
+**Purpose:** Ensures Claude Code has immediate access to both backend and frontend when using `project.code-workspace`, improving context awareness. Each subfolder can also have its own `CLAUDE.md` for workspace-specific instructions.
 
 ### Multi-Root Workspaces
 
@@ -292,9 +288,9 @@ VS Code Multi-Root Workspaces allow flexible project organization while maintain
 
 | Workspace File | Folders Included | Use Case |
 |---|---|---|
-| **`project.code-workspace`** (Recommended) | `.shared/`, `backend/`, `frontend/` | Symfony API + SPA development together |
-| **`backend.code-workspace`** | `backend/` only | Backend-only development |
-| **`frontend.code-workspace`** | `frontend/` only | Frontend-only or Full JavaScript (Next.js) |
+| **`project.code-workspace`** (Recommended) | `project/` (backend + frontend + CLAUDE.md) | Symfony API + SPA development together |
+| **`backend.code-workspace`** | `project/backend/` only | Backend-only development |
+| **`frontend.code-workspace`** | `project/frontend/` only | Frontend-only or Full JavaScript (Next.js) |
 
 **Why Use Multi-Root Workspaces:**
 - ✅ Each folder has isolated VSCode settings, extensions, and terminals
