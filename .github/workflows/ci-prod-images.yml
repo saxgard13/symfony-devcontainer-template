@@ -59,9 +59,9 @@ jobs:
 
       - name: Create backend files for build context
         run: |
-          mkdir -p backend
-          echo '{"name":"symfony/project","type":"project","require":{}}' > backend/composer.json
-          echo '{"_readme":["This file is @generated automatically"],"content-hash":"da41eaf87ccf6f6f6f6f6f6f6f6f6f6f","packages":[],"packages-dev":[],"aliases":[],"minimum-stability":"stable","stability-flags":{},"prefer-stable":false,"prefer-lowest":false,"platform":{},"platform-dev":{},"plugin-api-version":"2.3.0"}' > backend/composer.lock
+          mkdir -p project/backend
+          echo '{"name":"symfony/project","type":"project","require":{}}' > project/backend/composer.json
+          echo '{"_readme":["This file is @generated automatically"],"content-hash":"da41eaf87ccf6f6f6f6f6f6f6f6f6f6f","packages":[],"packages-dev":[],"aliases":[],"minimum-stability":"stable","stability-flags":{},"prefer-stable":false,"prefer-lowest":false,"platform":{},"platform-dev":{},"plugin-api-version":"2.3.0"}' > project/backend/composer.lock
 
       - name: Build Apache prod image
         uses: docker/build-push-action@v5
@@ -86,9 +86,9 @@ jobs:
 
       - name: Create frontend files for build context
         run: |
-          mkdir -p frontend
-          echo '{ "name": "frontend", "version": "1.0.0", "scripts": { "build": "echo build" }, "dependencies": {} }' > frontend/package.json
-          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > frontend/package-lock.json
+          mkdir -p project/frontend
+          echo '{ "name": "frontend", "version": "1.0.0", "scripts": { "build": "echo build" }, "dependencies": {} }' > project/frontend/package.json
+          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > project/frontend/package-lock.json
 
       - name: Build Node.js prod image
         uses: docker/build-push-action@v5
@@ -113,9 +113,9 @@ jobs:
 
       - name: Create frontend files for build context
         run: |
-          mkdir -p frontend
-          echo '{ "name": "frontend", "scripts": { "build": "mkdir -p dist && echo Build output > dist/index.html" } }' > frontend/package.json
-          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > frontend/package-lock.json
+          mkdir -p project/frontend
+          echo '{ "name": "frontend", "scripts": { "build": "mkdir -p dist && echo Build output > dist/index.html" } }' > project/frontend/package.json
+          echo '{ "name": "frontend", "version": "1.0.0", "lockfileVersion": 3, "requires": true, "packages": {} }' > project/frontend/package-lock.json
 
       - name: Build SPA prod image
         uses: docker/build-push-action@v5
