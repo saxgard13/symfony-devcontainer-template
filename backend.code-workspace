@@ -1,7 +1,7 @@
 {
   "folders": [
     {
-      "path": "backend"
+      "path": "project/backend"
     }
   ],
   "settings": {
@@ -17,7 +17,7 @@
         "port": 9003,
         "log": true,
         "pathMappings": {
-          "/workspace-devcontainer/backend": "${workspaceFolder}"
+          "/workspace-devcontainer/project/backend": "${workspaceFolder}"
         }
       }
     ]

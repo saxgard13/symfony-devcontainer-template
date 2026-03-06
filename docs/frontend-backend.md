@@ -184,7 +184,7 @@ This allows requests from the Nginx SPA service within Docker network.
 
 ### Development: Vite/React/Vue/CRA
 
-Create a `.env` file in your `frontend/` directory:
+Create a `.env` file in your `project/frontend/` directory:
 
 **Vite:**
 ```bash
@@ -289,7 +289,7 @@ This template supports three rendering strategies. Choose based on your SEO need
 **Best for:**
 - React, Vue, Vite, Create React App, Astro
 - Internal tools, dashboards, user portals
-- When backend/frontend are separate projects
+- When project/backend/frontend are separate projects
 
 **SEO:** ⚠️ Limited (dynamic metadata requires extra work)
 
@@ -688,8 +688,8 @@ const clientApiUrl = 'http://localhost:8000'  // Browser on host machine
 **Error:** 404 or ECONNREFUSED from SPA
 
 **Checklist:**
-- [ ] Backend is running: `cd backend && symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000`
-- [ ] Frontend dev server is running: `cd frontend && npm run dev`
+- [ ] Backend is running: `cd project/backend && symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000`
+- [ ] Frontend dev server is running: `cd project/frontend && npm run dev`
 - [ ] CORS is configured with `CORS_ALLOW_ORIGIN=http://localhost:5173`
 - [ ] API URL in frontend code: `VITE_API_URL=http://localhost:8000`
 - [ ] Network connection: Both services on `app-network`
@@ -711,7 +711,7 @@ const clientApiUrl = 'http://localhost:8000'  // Browser on host machine
 
 #### Backend (Symfony API)
 
-**`backend/src/Controller/Api/ProductController.php`:**
+**`project/backend/src/Controller/Api/ProductController.php`:**
 ```php
 <?php
 namespace App\Controller\Api;
@@ -732,7 +732,7 @@ class ProductController extends AbstractController
 }
 ```
 
-**`backend/.env`:**
+**`project/backend/.env`:**
 ```bash
 # CORS configuration (matches browser access in development)
 CORS_ALLOW_ORIGIN=http://localhost:5173
@@ -740,13 +740,13 @@ CORS_ALLOW_ORIGIN=http://localhost:5173
 
 #### Frontend (React + Vite)
 
-**`frontend/.env.local`:**
+**`project/frontend/.env.local`:**
 ```bash
 # Browser runs on host machine, accesses localhost
 VITE_API_URL=http://localhost:8000
 ```
 
-**`frontend/src/hooks/useProducts.js`:**
+**`project/frontend/src/hooks/useProducts.js`:**
 ```javascript
 import { useState, useEffect } from 'react';
 
@@ -771,7 +771,7 @@ export function useProducts() {
 }
 ```
 
-**`frontend/src/App.jsx`:**
+**`project/frontend/src/App.jsx`:**
 ```jsx
 import { useProducts } from './hooks/useProducts';
 
@@ -795,11 +795,11 @@ export default function App() {
 
 ```bash
 # Terminal 1: Start backend
-cd backend
+cd project/backend
 symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000
 
 # Terminal 2: Start frontend
-cd frontend
+cd project/frontend
 npm run dev -- --host
 ```
 
@@ -812,13 +812,13 @@ Then access `http://localhost:5173` in your browser.
 #### Build Frontend
 
 ```bash
-cd frontend
+cd project/frontend
 npm run build  # Creates dist/ folder
 ```
 
 #### Environment for Production
 
-**`backend/.env.prod` or via `docker compose` env:**
+**`project/backend/.env.prod` or via `docker compose` env:**
 ```bash
 # CORS allows Nginx SPA service (internal Docker hostname)
 CORS_ALLOW_ORIGIN=http://frontend:5173

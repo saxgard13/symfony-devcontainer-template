@@ -129,7 +129,7 @@ The Dockerfile detects your project structure and builds accordingly:
 | Structure | Detection | What happens |
 |-----------|-----------|--------------|
 | **Full Symfony** (no Node.js) | No `package.json` | PHP only, no asset build |
-| **Symfony + Encore** | `backend/package.json` exists | Builds Webpack Encore assets |
+| **Symfony + Encore** | `project/backend/package.json` exists | Builds Webpack Encore assets |
 
 > **Note:** For Symfony API + SPA, use this Dockerfile for the API only. Deploy the frontend separately (see below).
 
@@ -193,7 +193,7 @@ Deploy the SPA to a static hosting service:
 
 ```bash
 # Build frontend locally or in CI
-cd frontend
+cd project/frontend
 npm run build
 
 # Deploy to Vercel/Netlify/Cloudflare Pages
@@ -326,10 +326,10 @@ The production PHP config (`.devcontainer/config/php.ini.prod`) includes:
 
 ```dockerfile
 # 1. Copy dependency files (cached if unchanged)
-COPY backend/composer.json backend/composer.lock* ./backend/
+COPY project/backend/composer.json project/backend/composer.lock* ./project/backend/
 
 # 2. Install dependencies (cached if composer.* unchanged)
-RUN cd backend && composer install --no-dev --optimize-autoloader
+RUN cd project/backend && composer install --no-dev --optimize-autoloader
 
 # 3. Copy source code (rebuilt on every code change)
 COPY . .
@@ -339,13 +339,13 @@ COPY . .
 
 ```dockerfile
 # 1. Copy package files
-COPY frontend/package.json frontend/package-lock.json* ./
+COPY project/frontend/package.json project/frontend/package-lock.json* ./
 
 # 2. Install dependencies (cached if package*.json unchanged)
 RUN npm ci
 
 # 3. Copy source and build
-COPY frontend/ .
+COPY project/frontend/ .
 RUN npm run build
 ```
 

@@ -231,7 +231,7 @@ Next.js uses SSR (Server-Side Rendering), meaning code runs both in the browser 
 
 ### Setup
 
-Run the official wizard inside the dev container from the `frontend/` directory:
+Run the official wizard inside the dev container from the `project/frontend/` directory:
 
 ```bash
 npx @sentry/wizard@latest -i nextjs

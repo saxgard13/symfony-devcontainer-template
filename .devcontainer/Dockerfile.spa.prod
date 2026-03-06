@@ -5,7 +5,7 @@ FROM node:${NODE_VERSION}-alpine AS builder
 WORKDIR /app
 
 # Copy package files
-COPY frontend/package.json frontend/package-lock.json* frontend/yarn.lock* frontend/pnpm-lock.yaml* ./
+COPY project/frontend/package.json project/frontend/package-lock.json* project/frontend/yarn.lock* project/frontend/pnpm-lock.yaml* ./
 
 # Install dependencies based on lockfile
 RUN \
@@ -16,7 +16,7 @@ RUN \
   fi
 
 # Copy source code
-COPY frontend/ .
+COPY project/frontend/ .
 
 # Build and copy output to unified directory
 # Supports: Vite (dist/), CRA (build/), other (out/)

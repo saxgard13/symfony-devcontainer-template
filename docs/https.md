@@ -109,7 +109,7 @@ API_URL=http://localhost:8000
 NEXT_PUBLIC_API_URL=https://localhost:8443
 ```
 
-**Symfony `backend/.env.local`** _(only if using `clientFetch` — browser → Caddy → Symfony directly)_:
+**Symfony `project/backend/.env.local`** _(only if using `clientFetch` — browser → Caddy → Symfony directly)_:
 ```dotenv
 # Browser origin is https://localhost:3443 (Next.js via Caddy)
 CORS_ALLOW_ORIGIN=https://localhost:3443
@@ -314,7 +314,7 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 VITE_API_URL=http://localhost:8000
 ```
 
-**Also update `CORS_ALLOW_ORIGIN`** in `backend/.env.local` to match the plain HTTP origin:
+**Also update `CORS_ALLOW_ORIGIN`** in `project/backend/.env.local` to match the plain HTTP origin:
 
 ```dotenv
 # Vite SPA
@@ -334,7 +334,7 @@ symfony server:start --no-tls --listen-ip=0.0.0.0 --port=8000
 npm run dev
 ```
 
-> `TRUSTED_PROXIES` in `backend/.env` can stay as-is — it has no effect when Caddy is not running since no `X-Forwarded-*` headers are sent.
+> `TRUSTED_PROXIES` in `project/backend/.env` can stay as-is — it has no effect when Caddy is not running since no `X-Forwarded-*` headers are sent.
 
 ---
 

@@ -18,7 +18,7 @@ This document covers optional development tools that enhance your Symfony develo
 ### All Tools at Once
 
 ```bash
-cd backend/
+cd project/backend/
 composer require --dev symfony/debug-bundle
 composer require --dev symfony/profiler-pack
 composer require --dev symfony/maker-bundle
@@ -267,21 +267,21 @@ Optional tools to enhance your JavaScript/TypeScript frontend development experi
 
 **Option 1: Jest** (More mature, common in Create React App)
 ```bash
-cd frontend
+cd project/frontend
 npm install --save-dev jest @testing-library/react @testing-library/jest-dom
 npx jest --init
 ```
 
 **Option 2: Vitest** (Faster, modern, recommended for Vite projects)
 ```bash
-cd frontend
+cd project/frontend
 npm install --save-dev vitest @testing-library/react @testing-library/jest-dom
 ```
 
 #### Storybook (Optional)
 
 ```bash
-cd frontend
+cd project/frontend
 npx storybook@latest init
 ```
 
@@ -290,7 +290,7 @@ Automatically detects your framework (React, Vue, etc.) and installs dependencie
 #### Prettier (Code Formatting)
 
 ```bash
-cd frontend
+cd project/frontend
 npm install --save-dev prettier
 ```
 
@@ -483,7 +483,7 @@ npm run format:check
 
 **VS Code Integration:**
 
-Add to `.vscode/settings.json` (in `frontend/` folder):
+Add to `.vscode/settings.json` (in `project/frontend/` folder):
 ```json
 {
   "[javascript]": {
