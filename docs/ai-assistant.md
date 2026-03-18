@@ -28,7 +28,7 @@ This means everything you configure at the **user level** (`~/.claude/`) survive
 
 ```bash
 if [ ! -d "$HOME/.claude" ]; then mkdir -p "$HOME/.claude"; fi
-if [ ! -f "$HOME/.claude.json" ]; then echo '{}' > "$HOME/.claude.json"; fi
+if [ ! -f "$HOME/.claude.json" ]; then touch "$HOME/.claude.json"; fi
 ```
 
 **Project memory isolation** — each project gets a unique path inside the container via `docker-compose.dev.yml` and `devcontainer.json`:
@@ -65,16 +65,23 @@ Or click directly on the Claude icon in the VS Code sidebar.
 
 > If the extension is not installed, it is available on the [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=anthropic.claude-code).
 
-### CLI usage on the host
+### CLI usage in the devcontainer
 
-The Claude Code CLI can be installed on the **host machine** independently of the devcontainer:
+The Claude Code CLI is **installed automatically in the devcontainer at build time**, provided two conditions are met on the host at the moment of the build:
 
-```bash
-curl -fsSL https://claude.ai/install.sh | bash
-claude  # authenticate here
-```
+- `~/.claude/` exists and is **not empty**
+- `~/.claude.json` exists and is **not empty**
 
-> The `npm install -g @anthropic-ai/claude-code` method also works but is deprecated.
+These conditions are satisfied only if you have previously logged in with the CLI on the host machine or with the VS Code extension. If either file is missing or empty, the CLI is not installed in the container.
+
+**Authentication is inherited from the host** — the token stored in `~/.claude.json` is mounted directly into the container. No separate login is required inside the devcontainer.
+
+> To use the CLI inside the devcontainer, authenticate once on the host first:
+> ```bash
+> curl -fsSL https://claude.ai/install.sh | bash
+> claude  # log in here, on the host
+> ```
+> Then rebuild the devcontainer — the CLI will be installed and already authenticated.
 
 The **VS Code extension is the recommended approach** inside the devcontainer — it works out of the box with the mounts and requires no additional setup.
 
@@ -102,6 +109,16 @@ if [ ! -d "$HOME/.gemini" ]; then
 fi
 ```
 
+**3. Adapt `setup.sh` if needed:**
+
+`setup.sh` is the `postCreateCommand` that runs inside the container. If you want the Gemini CLI version to appear in the startup banner, add it alongside the existing entries:
+
+```bash
+GEMINI_VER=$(gemini --version 2>/dev/null || echo "not installed")
+```
+
+Then add the corresponding line to the banner block.
+
 ### Generic pattern
 
 For any tool storing its config in `~/.tool-name/`:
@@ -109,4 +126,5 @@ For any tool storing its config in `~/.tool-name/`:
 1. Identify the config folder
 2. Add the mount in `devcontainer.json`
 3. Add the creation in `init.sh`
-4. Rebuild the container
+4. Adapt `setup.sh` if needed (e.g. display the tool version in the startup banner)
+5. Rebuild the container

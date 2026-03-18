@@ -6,8 +6,10 @@ if [ ! -d "$HOME/.claude" ]; then
   mkdir -p "$HOME/.claude"
 fi
 if [ ! -f "$HOME/.claude.json" ]; then
-  echo "→ Creating $HOME/.claude.json for Claude Code config..."
-  echo '{}' > "$HOME/.claude.json"
+  echo "→ Creating empty $HOME/.claude.json for Claude Code..."
+  # Use touch to create a strictly empty file (0 bytes)
+  # This ensures setup.sh correctly identifies that the user is NOT yet authenticated
+  touch "$HOME/.claude.json"
 fi
 
 # Create the .symfony5 folder on the host if it doesn't exist (for HTTPS certificates)
