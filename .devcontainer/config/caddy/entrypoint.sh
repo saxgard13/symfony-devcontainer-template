@@ -13,4 +13,9 @@ if [ -f /data/caddy/pki/authorities/local/root.crt ]; then
   chmod 644 /export/root.crt
 fi
 
+if [ -f /data/caddy/pki/authorities/local/intermediate.crt ]; then
+  cp /data/caddy/pki/authorities/local/intermediate.crt /export/intermediate.crt
+  chmod 644 /export/intermediate.crt
+fi
+
 wait $CADDY_PID

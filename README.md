@@ -27,6 +27,7 @@ A ready-to-use development environment built and tested for:
 - Mailpit for email testing
 - **Adminer** (configurable, default latest) for database management
 - Pre-configured VS Code extensions and settings
+- **Playwright CLI & Context7 CLI** pre-installed for AI-assisted browser control and up-to-date documentation
 
 ## Requirements
 
@@ -234,6 +235,7 @@ When running inside Docker, use `--host` or `0.0.0.0` (or equivalent) to make th
 | HTTPS in development (Caddy)              | [HTTPS](docs/https.md)                         |
 | Adapting to Nuxt, Astro, etc.             | [Framework Adaptation](docs/framework-adaptation.md) |
 | AI assistant setup (Claude Code)          | [AI Assistant](docs/ai-assistant.md)           |
+| Playwright CLI & Context7 CLI             | [Playwright & Context7](docs/playwright-context7.md) |
 
 ## Project Types
 

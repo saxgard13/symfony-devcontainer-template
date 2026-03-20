@@ -23,9 +23,15 @@ RUN set -o pipefail && apt-get update \
     && for _ in 1 2 3; do curl -sS https://get.symfony.com/cli/installer | bash && break || sleep 5; done \
     && mv /root/.symfony5/bin/symfony /usr/local/bin/symfony \
     && rm -rf /root/.symfony5 \
-    # Cleanup
+    # Installation globale playwright cli et context7 cli
+    && npm install -g @playwright/cli@latest \
+    && npm install -g ctx7 \
+    # clean up
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Install Playwright browser dependencies
+RUN npx playwright install-deps chromium
 
 # Install PHP extensions (separate layer for better caching)
 COPY --from=mlocati/php-extension-installer /usr/bin/install-php-extensions /usr/local/bin/

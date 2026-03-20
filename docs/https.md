@@ -340,15 +340,23 @@ npm run dev
 
 ### 4. Trust Caddy's CA in your browser
 
-On first startup, Caddy automatically generates its local CA and exports the root certificate to `.devcontainer/config/caddy/export/root.crt` (this directory is gitignored).
+On first startup, Caddy automatically generates its local CA and exports two certificates to `.devcontainer/config/caddy/export/` (this directory is gitignored):
 
-Import this file into your browser or OS trust store — this is a one-time operation per machine:
+- `root.crt` — the root CA certificate (import this into your browser)
+- `intermediate.crt` — the intermediate CA (used by Caddy internally to sign TLS certificates)
 
-- **Firefox:** `about:preferences#privacy` → Certificates → View Certificates → Authorities → Import → select `root.crt`
-- **Chrome / Edge:** `Settings` → Privacy and Security → Security → Manage certificates → Authorities → Import
+Import the certificates into your browser or OS trust store — this is a one-time operation per machine:
+
+- **Firefox:** `about:preferences#privacy` → Certificates → View Certificates → Authorities → Import
+  - Import `root.crt`
+  - Import `intermediate.crt`
+
+  > Firefox validates the full certificate chain independently and requires both to avoid SSL errors.
+
+- **Chrome / Edge:** `Settings` → Privacy and Security → Security → Manage certificates → Authorities → Import → select `root.crt`
 - **Linux OS trust store:** `sudo cp root.crt /usr/local/share/ca-certificates/caddy-root.crt && sudo update-ca-certificates`
 
-> The `export/` directory is machine-specific and gitignored. Each developer imports their own instance's certificate.
+> The `export/` directory is machine-specific and gitignored. Each developer imports their own instance's certificates.
 
 ### 5. Start services on all interfaces
 
