@@ -47,6 +47,7 @@ jobs:
       - name: Build & test devcontainer
         uses: devcontainers/ci@v0.3.1900000417
         with:
+          logLevel: info
           runCmd: |
             php --version
             composer --version
