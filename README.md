@@ -256,6 +256,14 @@ See [Usage Guide](docs/usage.md) for detailed setup instructions.
 
 Open `project.code-workspace` — works for all project types (backend-only, frontend-only, or full-stack).
 
+## Using This Template
+
+Click **"Use this template"** on GitHub to create a new repository from this template.
+
+> **Note:** The `.github/` folder (CI workflows) is copied along with the template. These workflows test the template itself and are not relevant to your project — feel free to delete the `.github/` folder after creating your repository.
+>
+> This `README.md` is also copied — replace it with your project's own documentation.
+
 ## Optional Services
 
 Depending on your project needs, you can add these services as additional Docker Compose files (following the same modular pattern as Redis or Mailpit):
