@@ -9,6 +9,9 @@ services:
         NODE_VERSION: "${NODE_VERSION}"
     image: "${DEV_IMAGE}"
     ports: []
+    shm_size: '2gb'
+    cap_add:
+      - SYS_ADMIN
     volumes:
       - ..:/workspace-${PROJECT_NAME}:cached
     environment:
