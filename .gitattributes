@@ -1,0 +1,2 @@
+# Exclude from GitHub template copies
+.github/ export-ignore
