@@ -105,6 +105,8 @@ When that happens, add it to your environment via `.env.local` or your shell pro
 
 Both commands are idempotent — safe to re-run if needed.
 
+> **After every devcontainer rebuild**, both commands must be re-run. The CLI binaries are baked into the image, but the dependencies they install at setup time live in the container filesystem and are lost when the container is recreated.
+
 ---
 
 ## Removing these tools
