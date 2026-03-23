@@ -47,9 +47,9 @@
           "**/var/cache/**": true,
           "**/var/log/**": true
         },
-        "php-cs-fixer.executablePath": "${workspaceFolder}/vendor/bin/php-cs-fixer",
+        "php-cs-fixer.executablePath": "${workspaceFolder}/project/backend/vendor/bin/php-cs-fixer",
         "php-cs-fixer.onsave": true,
-        "php-cs-fixer.config": ".php-cs-fixer.php;.php-cs-fixer.dist.php;.php_cs;.php_cs.dist",
+        "php-cs-fixer.config": "${workspaceFolder}/project/backend/.php-cs-fixer.php;${workspaceFolder}/project/backend/.php-cs-fixer.dist.php;${workspaceFolder}/project/backend/.php_cs;${workspaceFolder}/project/backend/.php_cs.dist",
         "php-cs-fixer.allowRisky": false,
         "php-cs-fixer.pathMode": "override",
         "php-cs-fixer.ignorePHPVersion": false,

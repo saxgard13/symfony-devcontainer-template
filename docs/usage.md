@@ -12,12 +12,14 @@ This guide explains how to set up and use the DevContainer template.
 
 This DevContainer officially supports the following project structures:
 
-| Type                          | Frontend         | Folder                   | Workspace                |
-| ----------------------------- | ---------------- | ------------------------ | ------------------------ |
-| **Symfony full-stack**        | —                | `project/backend/` only          | `backend.code-workspace` |
-| **Symfony API + SPA**         | Vite (React/Vue) | `project/backend/` + `project/frontend/` | `project.code-workspace` |
-| **Symfony API + SSR**         | Next.js          | `project/backend/` + `project/frontend/` | `project.code-workspace` |
-| **Full JavaScript (SSR)**     | Next.js          | `project/frontend/` only         | `frontend.code-workspace` |
+| Type                          | Examples                          | Folders used                                        |
+| ----------------------------- | --------------------------------- | --------------------------------------------------- |
+| **Backend only**              | Symfony full-stack, REST API only | `project/backend/` only                             |
+| **Frontend only**             | Next.js, Nuxt, Astro standalone   | `project/frontend/` only                            |
+| **Backend + SPA**             | Symfony API + React/Vue (Vite)    | `project/backend/` + `project/frontend/`            |
+| **Backend + SSR**             | Symfony API + Next.js             | `project/backend/` + `project/frontend/`            |
+
+All types use `project.code-workspace` — open the folders you need and ignore the rest.
 
 > **Note:** The `project/frontend/` folder is used for both SPA (Vite) and SSR (Next.js). The rendering strategy determines which Docker Compose file to use in production, not the folder name.
 
@@ -160,18 +162,15 @@ Use DevContainer as a shared environment, with project/backend/frontend in separ
 
 **⚠️ Note on nested Git repos:** Git automatically ignores directories with their own `.git` folder, but adding them to `.gitignore` makes this explicit and prevents accidental tracking if the nested `.git` folders are removed.
 
-## Multi-Root Workspaces
+## VS Code Workspace
 
 The template includes workspace files for better tooling isolation.
 
 ### Available Workspaces
 
-| File                      | Purpose                                         | Related Folder |
-| ------------------------- | ----------------------------------------------- | -------------- |
-| `project.code-workspace`  | Monorepo: backend + frontend (decluttered view) | `project/`     |
-| `backend.code-workspace`  | PHP/Symfony development only                    | -              |
-| `frontend.code-workspace` | JavaScript SPA (React/Vue) only                 | -              |
-| `frontend.code-workspace`      | Full JS apps (Next.js)                          | -              |
+| File                      | Purpose                                                              |
+| ------------------------- | -------------------------------------------------------------------- |
+| `project.code-workspace`  | Single entry point for all project types (backend-only, frontend-only, or full-stack) |
 
 ### Using Workspaces
 
@@ -185,16 +184,14 @@ The template includes workspace files for better tooling isolation.
 
 ### When to use each Workspace
 
-- **`project.code-workspace`** (Recommended for Symfony API + SPA): Shows only `project/backend/` and `project/frontend/`, hides config files. Perfect for focusing on code and for working with Claude Code (and others) - the AI has immediate access to both your backend and frontend, improving context awareness and faster assistance.
-- **`backend.code-workspace`** or **`frontend.code-workspace`**: Use when working on only one part independently.
-- **`frontend.code-workspace`**: Use for full JavaScript apps (Next.js).
+- **`project.code-workspace`**: The only workspace file. Opens `project/` as root — navigate `backend/` or `frontend/` as needed. Works for all project types (backend-only, frontend-only, full-stack). Perfect for Claude Code — the AI has immediate access to both backend and frontend context.
 
 ### Benefits
 
 - PHP-CS-Fixer only runs in backend
 - ESLint/Prettier only in frontend
 - Isolated terminal and settings
-- Cleaner sidebar with Multi-Root Workspace
+- Cleaner sidebar without configuration file clutter
 
 ### Documentation Structure
 

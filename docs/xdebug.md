@@ -18,8 +18,7 @@ xdebug.client_port=9003
 The debugger configuration is defined in:
 
 - `.vscode/launch.json` — used when opening the project without a code-workspace
-- `project.code-workspace` — used with the multi-root workspace (Backend + Frontend + Shared)
-- `backend.code-workspace` — used with the backend-only workspace
+- `project.code-workspace` — used with the recommended workspace (Backend + Frontend)
 
 The `pathMappings` are automatically updated by `scripts/update-config.sh` when `project_name` changes.
 
