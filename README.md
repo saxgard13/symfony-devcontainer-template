@@ -252,13 +252,9 @@ This template officially supports the following project structures:
 
 See [Usage Guide](docs/usage.md) for detailed setup instructions.
 
-## Multi-Root Workspaces
+## VS Code Workspace
 
-Use the workspace files for isolated tooling:
-
-- `project.code-workspace` → Backend + Frontend (recommended for full-stack)
-- `backend.code-workspace` → PHP/Symfony development only
-- `frontend.code-workspace` → JavaScript frontend only (Vite SPA or Next.js SSR)
+Open `project.code-workspace` — works for all project types (backend-only, frontend-only, or full-stack).
 
 ## Optional Services
 
