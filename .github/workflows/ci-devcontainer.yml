@@ -16,6 +16,7 @@ on:
       - '.devcontainer/docker-compose.reverseproxy.yml'
       - '.devcontainer/*.sh'
       - '.devcontainer/config/**'
+      - '.config.json'
       - '.github/workflows/ci-devcontainer.yml'
   pull_request:
     branches:
@@ -31,6 +32,7 @@ on:
       - '.devcontainer/docker-compose.reverseproxy.yml'
       - '.devcontainer/*.sh'
       - '.devcontainer/config/**'
+      - '.config.json'
       - '.github/workflows/ci-devcontainer.yml'
 
 jobs:
