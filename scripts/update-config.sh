@@ -66,7 +66,7 @@ sed -i.bak "s/^DB_IMAGE=.*/DB_IMAGE=$DB_IMAGE/" "$ENV_FILE"
 if [ -n "$SERVER_VERSION" ]; then
   sed -i.bak "s/^SERVER_VERSION=.*\(#.*\)$/SERVER_VERSION=$SERVER_VERSION \1/" "$ENV_FILE"
 fi
-sed -i.bak "s/^DEV_IMAGE=.*/DEV_IMAGE=symfony-devcontainer-template-image:php$PHP_VERSION-node$NODE_VERSION/" "$ENV_FILE"
+sed -i.bak "s/^DEV_IMAGE=.*/DEV_IMAGE=${PROJECT_NAME}-devcontainer-image:php$PHP_VERSION-node$NODE_VERSION/" "$ENV_FILE"
 if [ -n "$REDIS_IMAGE" ]; then
   sed -i.bak "s/^REDIS_IMAGE=.*/REDIS_IMAGE=$REDIS_IMAGE/" "$ENV_FILE"
 fi
@@ -125,7 +125,7 @@ echo "   Server Version: $SERVER_VERSION"
 echo "   Redis Image: $REDIS_IMAGE"
 echo "   Adminer Image: $ADMINER_IMAGE"
 echo "   Frontend Port: $FRONTEND_PORT"
-echo "   DEV_IMAGE: symfony-devcontainer-template-image:php$PHP_VERSION-node$NODE_VERSION"
+echo "   DEV_IMAGE: ${PROJECT_NAME}-devcontainer-image:php$PHP_VERSION-node$NODE_VERSION"
 echo ""
 echo "Updated files:"
 echo "   ✓ .devcontainer/.env (PROJECT_NAME + versions + frontend port)"
